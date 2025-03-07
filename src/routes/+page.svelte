@@ -14,7 +14,7 @@
 		'PyTorch',
 		'LangChain',
 		'Supabase',
-		'Flutter',
+		'Mobile Development',
 		'Database Migration',
 		'Data Engineering and Machine Learning with Python',
 		'Technical Mentoring',
@@ -910,9 +910,9 @@
 				<div class="about-element animate-ready">
 					<h3 class="text-xl font-semibold mb-2 text-blue-300">My Background</h3>
 					<p class="text-gray-200">
-						With extensive experience in full-stack development, I specialize in building secure and maintainable software solutions.
-						My technical expertise spans Python development, web applications, and implementing robust security practices.
-						I currently work with Eighty20.AI, where I apply my skills to develop innovative technology solutions for a range of clients.
+						With experience in full-stack development, I specialize in building secure and maintainable software solutions.
+						My technical expertise spans Python and TypeScript development, web applications, and implementing robust database systems.
+						I currently work with Eighty20.AI, which is an enterprise AI company where I apply my skills to develop innovative technology solutions for a range of clients.
 					</p>
 				</div>
 				

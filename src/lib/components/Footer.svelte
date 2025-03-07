@@ -97,7 +97,7 @@
 </script>
 
 <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-  <p class="mb-4 md:mb-0 text-gray-300">© {new Date().getFullYear()} Szu-Han Chou aka Hank</p>
+  <p class="mb-4 md:mb-0 text-gray-300">© {new Date().getFullYear()} Hank aka Szu-Han Chou. All Rights Reserved.</p>
   <div class="flex gap-10">
     <!-- GitHub Icon -->
     <a href="https://github.com/hanklikesmatcha" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="GitHub">
