@@ -53,61 +53,77 @@
 	let ctaSection: HTMLElement;
 	
 	onMount(() => {
-		// Hero section animation
-		animate('.hero-element', 
-			{ 
-				opacity: [0, 1],
-				y: [30, 0]
-			},
-			{ 
-				delay: stagger(0.15),
-				duration: 0.7,
-				easing: spring({ stiffness: 60, damping: 15 })
-			}
-		);
+		// Hero section animation - more dramatic entrance with staggered reveal
+		try {
+			animate('.hero-element', 
+				{ 
+					opacity: [0, 1],
+					y: [50, 0],
+					scale: [0.9, 1]
+				},
+				{ 
+					delay: stagger(0.2),
+					duration: 1.0,
+					easing: 'cubic-bezier(0.16, 1, 0.3, 1)' // Different easing than landing page
+				}
+			);
+		} catch (error) {
+			console.error("Hero animation error:", error);
+		}
 		
 		// Setup intersection observers for other sections
 		const observerOptions = {
-			threshold: 0.2,
-			rootMargin: '0px 0px -100px 0px'
+			threshold: 0.15,
+			rootMargin: '-50px 0px -100px 0px' // Trigger earlier
 		};
 		
-		// Services cards animation
+		// Services cards animation - reveal with diagonal slide
 		const servicesObserver = new IntersectionObserver((entries) => {
 			entries.forEach(entry => {
 				if (entry.isIntersecting) {
-					animate('.service-card', 
-						{ 
-							opacity: [0, 1],
-							y: [50, 0],
-							scale: [0.9, 1]
-						},
-						{ 
-							delay: stagger(0.1),
-							duration: 0.6,
-							easing: spring({ stiffness: 70, damping: 12 })
-						}
-					);
+					try {
+						// Diagonal reveal animation - different from home page animations
+						animate('.service-card', 
+							{ 
+								opacity: [0, 1],
+								y: [80, 0],
+								x: ['-40px', '0px'] // Diagonal slide
+							},
+							{ 
+								delay: stagger(0.15),
+								duration: 0.9,
+								easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+							}
+						);
+					} catch (error) {
+						console.error("Service card animation error:", error);
+					}
 					servicesObserver.disconnect();
 				}
 			});
 		}, observerOptions);
 		
-		// Expertise section animation
+		// Expertise section animation - reveal line by line
 		const expertiseObserver = new IntersectionObserver((entries) => {
 			entries.forEach(entry => {
 				if (entry.isIntersecting) {
-					animate('.expertise-element', 
-						{ 
-							opacity: [0, 1],
-							x: [-20, 0]
-						},
-						{ 
-							delay: stagger(0.12),
-							duration: 0.6,
-							easing: spring({ stiffness: 60, damping: 15 })
-						}
-					);
+					try {
+						// Line-by-line reveal animation - unique to this page
+						animate('.expertise-element', 
+							{ 
+								opacity: [0, 1],
+								x: ['-30px', '0px'],
+								clipPath: ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Text reveal from left to right
+							},
+							{ 
+								delay: stagger(0.25), // Longer delay for more dramatic effect
+								duration: 0.8,
+								easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+							}
+						);
+					} catch (error) {
+						console.error("Expertise animation error:", error);
+					}
 					expertiseObserver.disconnect();
 				}
 			});
@@ -117,38 +133,71 @@
 		const testimonialObserver = new IntersectionObserver((entries) => {
 			entries.forEach(entry => {
 				if (entry.isIntersecting) {
-					animate('.testimonial-card', 
-						{ 
-							opacity: [0, 1],
-							y: [30, 0],
-							scale: [0.95, 1]
-						},
-						{ 
-							delay: stagger(0.15),
-							duration: 0.5,
-							easing: spring({ stiffness: 80, damping: 15 })
-						}
-					);
+					try {
+						// Staggered fade-in with scale and slide
+						animate('.testimonial-card', 
+							{ 
+								opacity: [0, 1],
+								y: [60, 0],
+								scale: [0.9, 1]
+							},
+							{ 
+								delay: stagger(0.25),
+								duration: 0.8,
+								easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+							}
+						);
+						
+						// Add gentle pulse after appearing
+						setTimeout(() => {
+							document.querySelectorAll('.testimonial-card').forEach((card, i) => {
+								animate(
+									card,
+									{ 
+										scale: [1, 1.02, 1],
+										boxShadow: [
+											'0 4px 6px -1px rgba(0, 0, 0, 0.1)', 
+											'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
+											'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+										]
+									},
+									{
+										duration: 4 + i,
+										delay: i * 1.5,
+										repeat: Infinity,
+										easing: 'ease-in-out'
+									}
+								);
+							});
+						}, 1500);
+					} catch (error) {
+						console.error("Testimonial animation error:", error);
+					}
 					testimonialObserver.disconnect();
 				}
 			});
 		}, observerOptions);
 		
-		// CTA section animation
+		// CTA section animation - bounce in from bottom
 		const ctaObserver = new IntersectionObserver((entries) => {
 			entries.forEach(entry => {
 				if (entry.isIntersecting) {
-					animate('.cta-element', 
-						{ 
-							opacity: [0, 1],
-							y: [20, 0]
-						},
-						{ 
-							delay: stagger(0.1),
-							duration: 0.5,
-							easing: spring({ stiffness: 100, damping: 15 })
-						}
-					);
+					try {
+						animate('.cta-element', 
+							{ 
+								opacity: [0, 1],
+								y: [40, 0],
+								scale: [0.9, 1.05, 1] // Slight overshoot for bounce effect
+							},
+							{ 
+								delay: stagger(0.2),
+								duration: 0.8,
+								easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)' // Custom bounce curve
+							}
+						);
+					} catch (error) {
+						console.error("CTA animation error:", error);
+					}
 					ctaObserver.disconnect();
 				}
 			});

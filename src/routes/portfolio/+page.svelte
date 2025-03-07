@@ -41,107 +41,218 @@
 	function changeFilter(newFilter: string) {
 		if (filter === newFilter) return;
 		
-		// Animate cards out
+		// Animate cards out with dramatic 3D effect but maintain better visibility
 		animate('.project-card', 
 			{ 
-				opacity: [1, 0],
-				scale: [1, 0.95],
-				y: [0, 15]
+				opacity: [1, 0.85], // Higher minimum opacity to prevent darkening
+				scale: [1, 0.9],
+				y: [0, 20],
+				rotateY: [0, -10] // Less extreme rotation to reduce distortion
 			}, 
 			{ 
-				duration: 0.25,
+				duration: 0.3,
 				easing: 'ease-in'
 			}
 		).finished.then(() => {
 			// Update filter
 			filter = newFilter;
 			
-			// After DOM updates, animate cards back in
+			// After DOM updates, animate cards back in with dramatic 3D effect
 			setTimeout(() => {
 				animate('.project-card', 
 					{ 
-						opacity: [0, 1],
-						scale: [0.95, 1],
-						y: [15, 0]
+						opacity: [0.85, 1], // Ensure we return to full opacity
+						scale: [0.9, 1],
+						y: [20, 0],
+						rotateY: [10, 0] // Less extreme rotation from the other direction
 					}, 
 					{ 
 						delay: stagger(0.1),
 						duration: 0.4,
-						easing: spring({ stiffness: 100, damping: 15 })
+						easing: spring({ stiffness: 100, damping: 12 })
 					}
+				);
+				
+				// Ensure text content is fully visible
+				animate('.project-card h3, .project-card p, .project-card span, .project-card a', 
+					{ opacity: 1 },
+					{ duration: 0.1 }
 				);
 			}, 50);
 		});
 	}
 	
 	onMount(() => {
-		// Entrance animation for the page header
-		animate(headingElement, 
-			{ 
-				opacity: [0, 1],
-				y: [30, 0]
-			}, 
-			{ 
-				duration: 0.6,
-				easing: spring({ stiffness: 60, damping: 15 })
-			}
-		);
-		
-		// Animate the filters entrance
-		animate('.filter-btn', 
-			{ 
-				opacity: [0, 1],
-				x: [-20, 0]
-			}, 
-			{ 
-				delay: stagger(0.05),
-				duration: 0.5,
-				easing: spring({ stiffness: 100, damping: 20 })
-			}
-		);
-		
-		// Animate project cards with stagger
-		animate('.project-card', 
-			{ 
-				opacity: [0, 1],
-				y: [40, 0],
-				scale: [0.9, 1]
-			}, 
-			{ 
-				delay: stagger(0.1),
-				duration: 0.6,
-				easing: spring({ stiffness: 80, damping: 12 })
-			}
-		);
-		
-		// Add hover effects to project cards
-		document.querySelectorAll('.project-card').forEach(card => {
-			card.addEventListener('mouseenter', () => {
-				animate(card, 
+		// Dramatic header entrance - slide in from top with shadow
+		try {
+			animate(headingElement, 
+				{ 
+					opacity: [0, 1],
+					y: [-50, 0],
+					filter: ['blur(8px)', 'blur(0px)']
+				}, 
+				{ 
+					duration: 1.2,
+					easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+				}
+			);
+			
+			// Add subtle continuous animation after appearing
+			setTimeout(() => {
+				animate(headingElement, 
 					{ 
-						y: -8, 
-						scale: 1.02,
-						boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
-					}, 
-					{ 
-						duration: 0.3,
-						easing: spring({ stiffness: 300, damping: 15 })
+						y: [0, -5, 0],
+						textShadow: [
+							'0 0px 0px rgba(59, 130, 246, 0)', 
+							'0 5px 15px rgba(59, 130, 246, 0.3)',
+							'0 0px 0px rgba(59, 130, 246, 0)'
+						]
+					},
+					{
+						duration: 6,
+						repeat: Infinity,
+						easing: 'ease-in-out'
 					}
 				);
+			}, 1500);
+		} catch (error) {
+			console.error("Header animation error:", error);
+		}
+		
+		// Animate the filters - revealing in sequence with bounce
+		try {
+			animate('.filter-btn', 
+				{ 
+					opacity: [0, 1],
+					x: [-20, 0],
+					scale: [0.8, 1.05, 1] // Slight overshoot for bounce
+				}, 
+				{ 
+					delay: stagger(0.1),
+					duration: 0.7,
+					easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Custom bounce
+				}
+			);
+		} catch (error) {
+			console.error("Filter animation error:", error);
+		}
+		
+		// Dramatic project cards animation - reveal with 3D effect
+		try {
+			animate('.project-card', 
+				{ 
+					opacity: [0, 1],
+					y: [100, 0],
+					scale: [0.8, 1]
+				}, 
+				{ 
+					delay: stagger(0.2, { from: "center" }), // Fan out from center
+					duration: 1.0,
+					easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+				}
+			);
+		} catch (error) {
+			console.error("Project card animation error:", error);
+		}
+		
+		// Enhanced hover effects for project cards with 3D transformations
+		document.querySelectorAll('.project-card').forEach(card => {
+			card.addEventListener('mouseenter', () => {
+				try {
+					animate(card, 
+						{ 
+							y: -20, 
+							scale: 1.05,
+							boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)'
+						}, 
+						{ 
+							duration: 0.4,
+							easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Custom bounce
+						}
+					);
+					
+					// Enhance image zoom effect
+					const img = card.querySelector('.project-image img');
+					if (img) {
+						animate(img, 
+							{ 
+								scale: 1.15
+								// No filter effects to avoid blurriness
+							}, 
+							{ 
+								duration: 0.8, 
+								easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+							}
+						);
+					}
+					
+					// Animate tech tags
+					const techTags = card.querySelectorAll('.bg-\\[\\#2D3748\\]');
+					if (techTags.length) {
+						animate(techTags, 
+							{ 
+								y: -5,
+								scale: 1.1,
+								backgroundColor: '#2a4365' // Deeper blue
+							}, 
+							{ 
+								delay: stagger(0.1),
+								duration: 0.3 
+							}
+						);
+					}
+				} catch (error) {
+					console.error("Hover animation error:", error);
+				}
 			});
 			
 			card.addEventListener('mouseleave', () => {
-				animate(card, 
-					{ 
-						y: 0, 
-						scale: 1,
-						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-					}, 
-					{ 
-						duration: 0.3,
-						easing: spring({ stiffness: 300, damping: 15 })
+				try {
+					animate(card, 
+						{ 
+							y: 0, 
+							scale: 1,
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+						}, 
+						{ 
+							duration: 0.5,
+							easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+						}
+					);
+					
+					// Reset image animation
+					const img = card.querySelector('.project-image img');
+					if (img) {
+						animate(img, 
+							{ 
+								scale: 1
+								// No filter effects to avoid blurriness
+							}, 
+							{ 
+								duration: 0.5, 
+								easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+							}
+						);
 					}
-				);
+					
+					// Reset tech tags
+					const techTags = card.querySelectorAll('.bg-\\[\\#2D3748\\]');
+					if (techTags.length) {
+						animate(techTags, 
+							{ 
+								y: 0,
+								scale: 1,
+								backgroundColor: '#2D3748' // Original color
+							}, 
+							{ 
+								delay: stagger(0.05),
+								duration: 0.3 
+							}
+						);
+					}
+				} catch (error) {
+					console.error("Hover animation reset error:", error);
+				}
 			});
 		});
 	});
@@ -152,9 +263,9 @@
 	<meta name="description" content="Showcase of my development projects and work">
 </svelte:head>
 
-<div class="max-w-6xl mx-auto px-4 py-12 bg-[#1A202C]">
+<div class="max-w-6xl mx-auto px-4 py-12 bg-[#1A202C] perspective">
 	<div bind:this={headingElement} class="header-container">
-		<h1 class="text-4xl font-bold mb-2 text-blue-400">My Work</h1>
+		<h1 class="text-4xl md:text-5xl font-bold mb-2 text-blue-400">My Work</h1>
 		<p class="text-xl text-gray-300 mb-8">Recent projects I've built</p>
 	</div>
 	
@@ -216,54 +327,72 @@
 </div>
 
 <style>
-	/* Improve visibility for all elements */
+	/* 3D Animation styles */
+	.perspective {
+		perspective: 1200px; /* More pronounced perspective */
+	}
+	
 	.project-card {
 		background-color: #1E2433;
 		border-color: #4A5568;
-		opacity: 1 !important;
+		opacity: 1; /* Start visible by default */
+		transform-style: preserve-3d; /* Enable 3D transformations */
+		backface-visibility: hidden; /* Prevent flickering */
+		will-change: transform, opacity; /* Removed filter from will-change */
+		transition: transform 0.5s ease, box-shadow 0.5s ease;
+	}
+	
+	/* Ensure inner content maintains visibility during transitions */
+	.project-card h3,
+	.project-card p,
+	.project-card span,
+	.project-card a {
+		opacity: 1 !important; /* Force full opacity for text content */
 	}
 	
 	.project-image {
 		background-color: #2D3748;
+		overflow: hidden;
 	}
 	
 	.header-container,
 	.filter-btn {
-		opacity: 1 !important;
+		opacity: 1; /* Start visible by default */
+		transform-style: preserve-3d; /* Enable 3D transformations */
+		backface-visibility: hidden; /* Prevent flickering */
+		will-change: transform, opacity, filter;
 	}
 	
-	/* Hover effects are preserved */
+	/* Hover effects with enhanced 3D */
 	.filter-btn {
-		transition: background-color 0.3s ease, transform 0.2s ease;
+		transition: background-color 0.3s ease, transform 0.3s ease;
 	}
 	
 	.filter-btn:hover {
-		transform: translateY(-2px);
-	}
-	
-	.project-card {
-		will-change: transform, opacity;
-		transition: transform 0.3s ease, box-shadow 0.3s ease;
-	}
-	
-	.project-card:hover {
-		transform: translateY(-8px);
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+		transform: translateY(-3px) scale(1.05);
 	}
 	
 	.project-image img {
-		transition: transform 0.5s ease;
-	}
-	
-	.project-card:hover .project-image img {
-		transform: scale(1.1);
+		transition: transform 0.8s ease;
 	}
 	
 	.project-link {
 		transition: all 0.3s ease;
+		transform-style: preserve-3d;
 	}
 	
 	.project-link:hover {
-		transform: translateY(-2px);
+		transform: translateY(-3px) scale(1.05);
+	}
+	
+	/* Ensure content is visible if JS fails */
+	@media (prefers-reduced-motion: reduce) {
+		.project-card,
+		.header-container,
+		.filter-btn {
+			opacity: 1 !important;
+			transform: none !important;
+			filter: none !important;
+		}
 	}
 </style> 
