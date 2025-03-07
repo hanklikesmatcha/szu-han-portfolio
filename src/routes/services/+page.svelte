@@ -1,4 +1,7 @@
-<script>
+<script lang="ts">
+	import { onMount } from 'svelte'; 
+	import { animate, stagger, spring } from 'motion';
+	
 	// Services based on LinkedIn profile
 	const services = [
 		{
@@ -42,6 +45,183 @@
 			quote: "Hank volunteered to help our social giving platform, The Good Registry, to solve a problem we had with issuing gift cards in bulk from our e-commerce platform. He provided a perfect solution for us and did it with great professionalism, skill and passion."
 		}
 	];
+	
+	let heroSection: HTMLElement;
+	let servicesSection: HTMLElement;
+	let expertiseSection: HTMLElement;
+	let testimonialSection: HTMLElement;
+	let ctaSection: HTMLElement;
+	
+	onMount(() => {
+		// Hero section animation
+		animate('.hero-element', 
+			{ 
+				opacity: [0, 1],
+				y: [30, 0]
+			},
+			{ 
+				delay: stagger(0.15),
+				duration: 0.7,
+				easing: spring({ stiffness: 60, damping: 15 })
+			}
+		);
+		
+		// Setup intersection observers for other sections
+		const observerOptions = {
+			threshold: 0.2,
+			rootMargin: '0px 0px -100px 0px'
+		};
+		
+		// Services cards animation
+		const servicesObserver = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					animate('.service-card', 
+						{ 
+							opacity: [0, 1],
+							y: [50, 0],
+							scale: [0.9, 1]
+						},
+						{ 
+							delay: stagger(0.1),
+							duration: 0.6,
+							easing: spring({ stiffness: 70, damping: 12 })
+						}
+					);
+					servicesObserver.disconnect();
+				}
+			});
+		}, observerOptions);
+		
+		// Expertise section animation
+		const expertiseObserver = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					animate('.expertise-element', 
+						{ 
+							opacity: [0, 1],
+							x: [-20, 0]
+						},
+						{ 
+							delay: stagger(0.12),
+							duration: 0.6,
+							easing: spring({ stiffness: 60, damping: 15 })
+						}
+					);
+					expertiseObserver.disconnect();
+				}
+			});
+		}, observerOptions);
+		
+		// Testimonials animation
+		const testimonialObserver = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					animate('.testimonial-card', 
+						{ 
+							opacity: [0, 1],
+							y: [30, 0],
+							scale: [0.95, 1]
+						},
+						{ 
+							delay: stagger(0.15),
+							duration: 0.5,
+							easing: spring({ stiffness: 80, damping: 15 })
+						}
+					);
+					testimonialObserver.disconnect();
+				}
+			});
+		}, observerOptions);
+		
+		// CTA section animation
+		const ctaObserver = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					animate('.cta-element', 
+						{ 
+							opacity: [0, 1],
+							y: [20, 0]
+						},
+						{ 
+							delay: stagger(0.1),
+							duration: 0.5,
+							easing: spring({ stiffness: 100, damping: 15 })
+						}
+					);
+					ctaObserver.disconnect();
+				}
+			});
+		}, observerOptions);
+		
+		// Observe sections
+		if (servicesSection) servicesObserver.observe(servicesSection);
+		if (expertiseSection) expertiseObserver.observe(expertiseSection);
+		if (testimonialSection) testimonialObserver.observe(testimonialSection);
+		if (ctaSection) ctaObserver.observe(ctaSection);
+		
+		// Add hover effect to service cards
+		document.querySelectorAll('.service-card').forEach(card => {
+			card.addEventListener('mouseenter', () => {
+				animate(card, 
+					{ 
+						y: -10, 
+						scale: 1.02,
+						boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
+					}, 
+					{ 
+						duration: 0.3,
+						easing: spring({ stiffness: 300, damping: 15 })
+					}
+				);
+			});
+			
+			card.addEventListener('mouseleave', () => {
+				animate(card, 
+					{ 
+						y: 0, 
+						scale: 1,
+						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+					}, 
+					{ 
+						duration: 0.3,
+						easing: spring({ stiffness: 300, damping: 15 })
+					}
+				);
+			});
+		});
+		
+		// Add hover effect to testimonial cards
+		document.querySelectorAll('.testimonial-card').forEach(card => {
+			card.addEventListener('mouseenter', () => {
+				animate(card, 
+					{ 
+						y: -5, 
+						scale: 1.03,
+						boxShadow: '0 15px 25px -5px rgba(0, 0, 0, 0.25)'
+					}, 
+					{ 
+						duration: 0.3,
+						easing: spring({ stiffness: 300, damping: 15 })
+					}
+				);
+			});
+			
+			card.addEventListener('mouseleave', () => {
+				animate(card, 
+					{ 
+						y: 0, 
+						scale: 1,
+						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+					}, 
+					{ 
+						duration: 0.3,
+						easing: spring({ stiffness: 300, damping: 15 })
+					}
+				);
+			});
+		});
+	});
 </script>
 
 <svelte:head>
@@ -50,26 +230,26 @@
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="bg-gradient-to-br from-gray-900 to-blue-900 py-16">
+<section class="bg-gradient-to-br from-gray-900 to-blue-900 py-16" bind:this={heroSection}>
 	<div class="container mx-auto px-4 text-center">
-		<h1 class="text-4xl md:text-5xl font-bold mb-6">Expert Services</h1>
-		<p class="text-xl max-w-3xl mx-auto mb-6 text-gray-300">
+		<h1 class="text-4xl md:text-5xl font-bold mb-6 hero-element">Expert Services</h1>
+		<p class="text-xl max-w-3xl mx-auto mb-6 text-gray-300 hero-element">
 			I provide secure, quality-focused development solutions.
 		</p>
-		<a href="mailto:szuhan.eng@gmail.com" class="inline-block bg-blue-800 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+		<a href="mailto:szuhan.eng@gmail.com" class="inline-block bg-blue-800 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors hero-element">
 			Get in Touch
 		</a>
 	</div>
 </section>
 
 <!-- Services Section -->
-<section class="py-16 bg-gray-900">
+<section class="py-16 bg-gray-900" bind:this={servicesSection}>
 	<div class="container mx-auto px-4">
 		<h2 class="text-3xl font-bold text-center mb-10 text-blue-400">Services</h2>
 		
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 			{#each services as service}
-				<div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition-colors">
+				<div class="service-card bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition-colors">
 					<div class="text-4xl mb-4">{service.icon}</div>
 					<h3 class="text-2xl font-bold mb-3 text-blue-300">{service.title}</h3>
 					<p class="text-gray-300 mb-4">{service.description}</p>
@@ -86,12 +266,12 @@
 </section>
 
 <!-- Technical Expertise Section -->
-<section class="py-16 bg-gray-800">
+<section class="py-16 bg-gray-800" bind:this={expertiseSection}>
 	<div class="container mx-auto px-4">
 		<h2 class="text-3xl font-bold text-center mb-10 text-blue-400">Technical Expertise</h2>
 		
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-			<div>
+			<div class="expertise-element">
 				<h3 class="text-xl font-bold mb-3 text-blue-300">Security-First Development</h3>
 				<p class="text-gray-300 mb-6">
 					With multiple security certifications from SafeStack, I bring a security-first mindset to every project, 
@@ -105,7 +285,7 @@
 				</p>
 			</div>
 			
-			<div>
+			<div class="expertise-element">
 				<h3 class="text-xl font-bold mb-3 text-blue-300">Volunteer Technical Work</h3>
 				<p class="text-gray-300 mb-6">
 					My work with organizations like The Good Registry has given me experience building impactful applications
@@ -123,13 +303,13 @@
 </section>
 
 <!-- Testimonials Section -->
-<section class="py-16 bg-gray-800">
+<section class="py-16 bg-gray-800" bind:this={testimonialSection}>
 	<div class="container mx-auto px-4">
 		<h2 class="text-3xl font-bold text-center mb-10 text-blue-400">Testimonials</h2>
 		
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 			{#each testimonials as testimonial}
-				<div class="bg-gray-900 p-6 rounded-xl border border-gray-700">
+				<div class="testimonial-card bg-gray-900 p-6 rounded-xl border border-gray-700">
 					<p class="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
 					<div>
 						<h3 class="font-bold text-blue-300">{testimonial.name}</h3>
@@ -142,14 +322,14 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-12 bg-gray-900">
+<section class="py-12 bg-gray-900" bind:this={ctaSection}>
 	<div class="container mx-auto px-4 text-center">
-		<h2 class="text-2xl font-bold mb-4 text-blue-400">Ready to start your project?</h2>
+		<h2 class="text-2xl font-bold mb-4 text-blue-400 cta-element">Ready to start your project?</h2>
 		<div class="flex justify-center gap-4">
-			<a href="mailto:szuhan.eng@gmail.com" class="bg-blue-800 hover:bg-blue-700 px-6 py-2 rounded-lg text-white transition-colors">
+			<a href="mailto:szuhan.eng@gmail.com" class="bg-blue-800 hover:bg-blue-700 px-6 py-2 rounded-lg text-white transition-colors cta-element">
 				Contact Me
 			</a>
-			<a href="/portfolio" class="border border-blue-500 text-blue-400 hover:bg-gray-800 px-6 py-2 rounded-lg transition-colors">
+			<a href="/portfolio" class="border border-blue-500 text-blue-400 hover:bg-gray-800 px-6 py-2 rounded-lg transition-colors cta-element">
 				View My Work
 			</a>
 		</div>
@@ -157,5 +337,45 @@
 </section>
 
 <style>
-	/* No need for component-specific styles as the global styles in +page.svelte handle the theme */
+	/* Improve visibility for all elements */
+	.hero-element, 
+	.service-card, 
+	.expertise-element, 
+	.testimonial-card, 
+	.cta-element {
+		opacity: 1;
+	}
+	
+	.service-card {
+		background-color: #1E2433;
+		border-color: #4A5568;
+	}
+	
+	.testimonial-card {
+		background-color: #1A202C;
+		border-color: #4A5568;
+	}
+	
+	/* Keep other transition effects */
+	.service-card, .testimonial-card {
+		will-change: transform, opacity, box-shadow;
+		transition: border-color 0.3s ease;
+	}
+	
+	.hero-element {
+		will-change: transform, opacity;
+	}
+	
+	.expertise-element {
+		will-change: transform, opacity;
+	}
+	
+	.cta-element {
+		will-change: transform, opacity;
+		transition: background-color 0.3s ease, transform 0.3s ease;
+	}
+	
+	.cta-element:hover {
+		transform: translateY(-2px);
+	}
 </style> 

@@ -51,6 +51,7 @@
 	"dependencies": {
 		"@inlang/paraglide-sveltekit": "^0.15.5",
 		"drizzle-orm": "^0.40.0",
+		"motion": "^12.4.10",
 		"postgres": "^3.4.5"
 	},
 	"pnpm": {
