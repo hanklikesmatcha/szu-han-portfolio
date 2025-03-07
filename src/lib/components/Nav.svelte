@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   // Navigation component for the header
   import { onMount } from 'svelte';
   import { animate, stagger } from 'motion';
@@ -6,9 +6,190 @@
   // Track active link
   let currentPath = '/';
   
+  // Fireworks parameters
+  let fireworksContainer: HTMLDivElement;
+  let isAnimatingFireworks = false;
+  const particleColors = [
+    '#60a5fa', '#93c5fd', '#3b82f6', // Blues
+    '#8b5cf6', '#a78bfa', '#c4b5fd', // Purples
+    '#ec4899', '#f472b6', '#f9a8d4', // Pinks
+    '#f59e0b', '#fbbf24', '#fcd34d', // Ambers/Yellows
+    '#10b981', '#34d399', '#6ee7b7', // Emeralds
+    '#ef4444', '#f87171', '#fca5a5'  // Reds
+  ];
+  
+  // Create a single firework explosion
+  function createFireworkExplosion(x: number, y: number) {
+    if (isAnimatingFireworks || !fireworksContainer) return;
+    isAnimatingFireworks = true;
+    
+    // Clear previous particles
+    fireworksContainer.innerHTML = '';
+    
+    // Add launch trails for consistency with main page
+    const startY = fireworksContainer.clientHeight;
+    const launchTrail = document.createElement('div');
+    launchTrail.className = 'firework-launch-trail';
+    fireworksContainer.appendChild(launchTrail);
+    launchTrail.style.left = `${x}px`;
+    launchTrail.style.top = `${startY}px`;
+    
+    // Animate the launch
+    animate(
+      launchTrail,
+      {
+        opacity: [0.8, 0],
+        y: [0, -(startY - y)],
+        scale: [0.6, 0.3]
+      },
+      {
+        duration: 0.5,
+        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+      }
+    ).finished.then(() => {
+      if (launchTrail.parentNode) {
+        launchTrail.parentNode.removeChild(launchTrail);
+      }
+    });
+    
+    // Create a flash at the explosion center
+    const flash = document.createElement('div');
+    flash.className = 'firework-flash';
+    fireworksContainer.appendChild(flash);
+    flash.style.left = `${x}px`;
+    flash.style.top = `${y}px`;
+    
+    // Animate the flash
+    animate(
+      flash,
+      {
+        opacity: [1, 0],
+        scale: [0, 4]
+      },
+      {
+        duration: 0.7,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+      }
+    ).finished.then(() => {
+      if (flash.parentNode) {
+        flash.parentNode.removeChild(flash);
+      }
+    });
+    
+    // Create particles for the explosion - further reduced for better performance
+    const particleCount = 50; // Reduced from 70 for even better performance
+    const particles: HTMLDivElement[] = [];
+    
+    // Batch DOM operations for better performance
+    const fragment = document.createDocumentFragment();
+    
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'firework-particle';
+      
+      // Determine if this is a normal particle or a "streamer" (long trail)
+      const isStreamer = Math.random() < 0.25; // Increased chance of streamers
+      if (isStreamer) {
+        particle.classList.add('firework-streamer');
+      }
+      
+      // Random size for more varied effect - increased sizes
+      const particleSize = isStreamer ? 4 : Math.random() * 6 + 4; // 4-10px
+      particle.style.width = `${particleSize}px`;
+      particle.style.height = `${particleSize}px`;
+      
+      // Random color
+      const color = particleColors[Math.floor(Math.random() * particleColors.length)];
+      particle.style.backgroundColor = color;
+      
+      // Set initial position
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      
+      fragment.appendChild(particle);
+      particles.push(particle);
+    }
+    
+    // Add all particles to DOM at once (more efficient)
+    fireworksContainer.appendChild(fragment);
+    
+    // Pre-calculate random animations for each particle
+    particles.forEach((particle, index) => {
+      // Detect streamers
+      const isStreamer = particle.classList.contains('firework-streamer');
+      
+      // Use polar coordinates for more realistic spread - increased distance
+      const distance = isStreamer ? 
+        200 + Math.random() * 150 : 
+        100 + Math.random() * 200;
+        
+      const angle = Math.random() * Math.PI * 2; // Random angle in radians
+      
+      // Calculate endpoint using polar coordinates for more natural arc
+      const randomX = `${Math.cos(angle) * distance}px`;
+      const randomY = `${Math.sin(angle) * distance + (isStreamer ? 50 : 0)}px`; // Streamers fall more
+      
+      // Simplified animations - removed z-axis for better performance
+      const randomColor = particleColors[Math.floor(Math.random() * particleColors.length)];
+      
+      // Reduced duration for better performance
+      const duration = isStreamer ? 3.0 : 2.5;
+      
+      // Animate with fewer properties for better performance
+      animate(
+        particle,
+        {
+          opacity: isStreamer ? [1, 1, 0.8, 0] : [1, 0.9, 0],
+          scale: isStreamer ? [1, 1.2, 0.7] : [0, 1.2, 0.8],
+          x: randomX,
+          y: randomY,
+          backgroundColor: randomColor,
+          boxShadow: [
+            `0 0 ${isStreamer ? 20 : 10}px ${particle.style.backgroundColor}`,
+            `0 0 ${isStreamer ? 5 : 0}px rgba(255, 255, 255, 0)`
+          ]
+        },
+        {
+          duration: duration, 
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          delay: index * 0.002 // Even faster stagger for less resource usage
+        }
+      ).finished.then(() => {
+        // Remove each particle immediately when its animation completes
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      });
+    });
+    
+    // Reset animation flag after reasonable time (safety cleanup)
+    setTimeout(() => {
+      isAnimatingFireworks = false;
+    }, 3500); // Shorter duration than before for better performance
+  }
+  
   onMount(() => {
     // Get current path for active state
     currentPath = window.location.pathname;
+    
+    // Add hover event for fireworks on the brand logo
+    const brandLogo = document.querySelector('.brand-logo');
+    if (brandLogo && fireworksContainer) {
+      brandLogo.addEventListener('mouseenter', (e) => {
+        // Need to type cast the event to MouseEvent
+        const mouseEvent = e as MouseEvent;
+        
+        // Get position relative to the fireworks container
+        const rect = fireworksContainer.getBoundingClientRect();
+        const x = mouseEvent.clientX - rect.left;
+        const y = mouseEvent.clientY - rect.top;
+        
+        // Create multiple firework bursts but more spaced out for better performance
+        createFireworkExplosion(x, y);
+        setTimeout(() => createFireworkExplosion(x - 50, y - 20), 800);  // Increased from 600ms
+        setTimeout(() => createFireworkExplosion(x + 50, y - 20), 1600); // Increased from 1200ms
+      });
+    }
     
     // Dramatic entrance animation for nav icons
     try {
@@ -92,7 +273,10 @@
 </script>
 
 <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-  <a href="/" class="text-xl font-bold text-blue-400 brand-logo">Szu-Han Chou aka Hank</a>
+  <div class="relative">
+    <a href="/" class="text-xl font-bold text-blue-400 brand-logo">Szu-Han Chou aka Hank</a>
+    <div class="fireworks-container" bind:this={fireworksContainer}></div>
+  </div>
   <div class="flex gap-8">
     <!-- Home Link -->
     <a href="/" class="nav-item flex flex-col items-center group" aria-label="Home">
@@ -125,6 +309,7 @@
   .brand-logo {
     position: relative;
     overflow: hidden;
+    z-index: 10;
   }
   
   .brand-logo::after {
@@ -176,5 +361,63 @@
     0% { transform: translateY(0px); }
     50% { transform: translateY(-5px); }
     100% { transform: translateY(0px); }
+  }
+  
+  /* Fireworks styles */
+  .fireworks-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible;
+    perspective: 2000px;
+    transform-style: preserve-3d;
+  }
+  
+  :global(.firework-particle) {
+    position: absolute;
+    width: 10px; /* Increased base size */
+    height: 10px;
+    border-radius: 50%;
+    will-change: transform, opacity, box-shadow;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    filter: blur(0.5px); /* Subtle blur for all particles */
+  }
+  
+  :global(.firework-streamer) {
+    width: 4px !important;
+    height: 4px !important; 
+    border-radius: 4px !important;
+    filter: blur(1.5px); /* More blur for streamers */
+    transform-origin: center center;
+    box-shadow: 0 0 25px currentColor; /* Stronger glow for streamers */
+  }
+  
+  :global(.firework-flash) {
+    position: absolute;
+    width: 50px; /* Larger flash */
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.95);
+    filter: blur(15px); /* More blur for dramatic flash */
+    will-change: transform, opacity;
+    pointer-events: none;
+    box-shadow: 0 0 30px #fff, 0 0 60px rgba(255, 220, 180, 0.8); /* Double glow */
+  }
+  
+  :global(.firework-launch-trail) {
+    position: absolute;
+    width: 3px; /* Wider trail */
+    height: 15px; /* Longer trail */
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 200, 100, 0.6));
+    will-change: transform, opacity;
+    pointer-events: none;
+    filter: blur(2px); /* More blur for softer trail */
+    z-index: 5;
+    box-shadow: 0 0 10px rgba(255, 200, 100, 0.5); /* Glow for the trail */
   }
 </style> 

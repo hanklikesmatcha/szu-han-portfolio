@@ -23,6 +23,216 @@
 	let aboutSection: HTMLElement;
 	let isAnimated = false;
 	let animationsReady = false;
+	let fireworksContainer: HTMLDivElement;
+	
+	// Create fireworks explosion for dramatic effect
+	function createLandingFireworks() {
+		if (!fireworksContainer) return;
+		
+		// Get the name element position
+		const nameElement = document.querySelector('.name-highlight');
+		if (!nameElement) return;
+		
+		// Get position relative to the fireworks container
+		const nameRect = nameElement.getBoundingClientRect();
+		const containerRect = fireworksContainer.getBoundingClientRect();
+		
+		// Center coordinates of the name element relative to fireworks container
+		const centerX = (nameRect.left + nameRect.width/2) - containerRect.left;
+		const centerY = (nameRect.top + nameRect.height/2) - containerRect.top;
+		
+		// Create multiple firework explosions with choreographed timing
+		// First wave
+		setTimeout(() => createFireworkBurst(centerX, centerY), 200);
+		setTimeout(() => createFireworkBurst(centerX - 100, centerY - 30), 700);  // Increased from 400ms
+		setTimeout(() => createFireworkBurst(centerX + 100, centerY - 20), 1200); // Increased from 600ms
+		
+		// Second wave (higher and wider)
+		setTimeout(() => createFireworkBurst(centerX - 200, centerY - 100), 2000); // Increased from 1200ms
+		setTimeout(() => createFireworkBurst(centerX + 180, centerY - 120), 2600); // Increased from 1500ms
+		
+		// Grand finale
+		setTimeout(() => createFireworkBurst(centerX, centerY - 150, true), 3400); // Increased from 2000ms
+	}
+	
+	// Helper function to create a single burst of fireworks
+	function createFireworkBurst(x: number, y: number, isSuper = false) {
+		// Create particles for the explosion
+		const particleCount = isSuper ? 120 : 80; // Reduced from 200/150 for better performance
+		const particles: HTMLDivElement[] = [];
+		// More vibrant color palette with additional colors
+		const colors = [
+			'#60a5fa', '#93c5fd', '#3b82f6', // Blues
+			'#8b5cf6', '#a78bfa', '#c4b5fd', // Purples
+			'#ec4899', '#f472b6', '#f9a8d4', // Pinks
+			'#f59e0b', '#fbbf24', '#fcd34d', // Ambers/Yellows
+			'#10b981', '#34d399', '#6ee7b7', // Emeralds
+			'#ef4444', '#f87171', '#fca5a5'  // Reds
+		];
+		
+		// Create multiple "launch" particles that shoot up before explosion
+		const launchCount = isSuper ? 5 : Math.random() > 0.5 ? 2 : 1;
+		for (let i = 0; i < launchCount; i++) {
+			const launchTrail = document.createElement('div');
+			launchTrail.className = 'firework-launch-trail';
+			if (fireworksContainer) {
+				fireworksContainer.appendChild(launchTrail);
+				
+				// Random start position at bottom of container
+				const startX = x + (Math.random() * 150 - 75);
+				const startY = fireworksContainer.clientHeight;
+				launchTrail.style.left = `${startX}px`;
+				launchTrail.style.top = `${startY}px`;
+				
+				// Animate the launch
+				animate(
+					launchTrail,
+					{
+						opacity: [0.8, 0],
+						y: [0, -(startY - y)],
+						scale: [0.6, 0.3]
+					},
+					{
+						duration: 0.7,
+						easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+					}
+				).finished.then(() => {
+					if (launchTrail.parentNode) {
+						launchTrail.parentNode.removeChild(launchTrail);
+					}
+				});
+			}
+		}
+		
+		// Create core bright flash - larger for super bursts
+		const flash = document.createElement('div');
+		flash.className = 'firework-flash';
+		if (fireworksContainer) {
+			fireworksContainer.appendChild(flash);
+			flash.style.left = `${x}px`;
+			flash.style.top = `${y}px`;
+			
+			// Animate the flash - more dramatic for super bursts
+			animate(
+				flash,
+				{
+					opacity: [1, 0],
+					scale: [0, isSuper ? 6 : 4]
+				},
+				{
+					duration: isSuper ? 0.8 : 0.6,
+					easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+				}
+			).finished.then(() => {
+				if (flash.parentNode) {
+					flash.parentNode.removeChild(flash);
+				}
+			});
+		}
+		
+		for (let i = 0; i < particleCount; i++) {
+			const particle = document.createElement('div');
+			particle.className = 'firework-particle';
+			
+			// Determine if this is a normal particle or a "streamer" (long trail)
+			const isStreamer = Math.random() < 0.25; // Increased chance of streamers
+			if (isStreamer) {
+				particle.classList.add('firework-streamer');
+			}
+			
+			// Random size for more varied effect - increased sizes
+			const particleSize = isStreamer ? 4 : Math.random() * 8 + 5; // 5-13px
+			particle.style.width = `${particleSize}px`;
+			particle.style.height = `${particleSize}px`;
+			
+			// Random color - super bursts get special colors
+			const color = colors[Math.floor(Math.random() * colors.length)];
+			particle.style.backgroundColor = color;
+			
+			if (fireworksContainer) {
+				fireworksContainer.appendChild(particle);
+				particles.push(particle);
+				
+				// Set initial position
+				particle.style.left = `${x}px`;
+				particle.style.top = `${y}px`;
+			}
+		}
+		
+		// Pre-calculate random animations for each particle
+		const animations = particles.map((particle) => {
+			// Detect streamers
+			const isStreamer = particle.classList.contains('firework-streamer');
+			
+			// Much larger spread for high-altitude effect - even bigger now
+			const distance = isStreamer ? 
+				400 + Math.random() * 300 : 
+				200 + Math.random() * 450;
+			
+			const angle = Math.random() * Math.PI * 2; // Random angle in radians
+			
+			// Calculate endpoint using polar coordinates for more realistic arc
+			const randomX = `${Math.cos(angle) * distance}px`;
+			const randomY = `${Math.sin(angle) * distance + (isStreamer ? 70 : 0)}px`; // Streamers fall more
+			
+			// 3D effect with z-axis - enhanced depth
+			const randomZ = `${(Math.random() * 350) - 175}px`;
+			// Removed 3D rotations for better performance
+			const randomColor = colors[Math.floor(Math.random() * colors.length)];
+			
+			// Streamers last longer and have different animation
+			// Increased duration by 1.5 seconds
+			const duration = isStreamer ? 4.3 : 3.7;
+			
+			// Fade out timing - streamers last longer
+			const keyframes = isStreamer ? 
+				{ opacity: [1, 1, 0.8, 0] } : 
+				{ opacity: [1, 0.9, 0] };
+				
+			// Return animation object with pre-calculated values
+			return {
+				particle,
+				isStreamer,
+				animProps: {
+					...keyframes,
+					scale: isStreamer ? [1, 1.2, 0.8] : [0, 1.2, 0.8],
+					x: randomX,
+					y: randomY,
+					z: randomZ,
+					// Removed rotateX and rotateY for performance
+					backgroundColor: [particle.style.backgroundColor, randomColor],
+					boxShadow: [
+						`0 0 ${isStreamer ? 30 : 15}px ${particle.style.backgroundColor}`,
+						`0 0 ${isStreamer ? 8 : 3}px rgba(255, 255, 255, 0)`
+					]
+				},
+				duration,
+				easing: isStreamer ? 
+					'cubic-bezier(0.22, 0.44, 0.34, 1)' : 
+					'cubic-bezier(0.22, 1, 0.36, 1)'
+			};
+		});
+		
+		// Animate particles in 3D - with individual animations
+		particles.forEach((particle, index) => {
+			const { animProps, duration, easing, isStreamer } = animations[index];
+			
+			animate(
+				particle,
+				animProps,
+				{
+					duration: duration,
+					easing: easing,
+					delay: index * 0.003, // Even faster stagger for more realistic explosion
+				}
+			).finished.then(() => {
+				// Remove particle after animation completes
+				if (particle.parentNode) {
+					particle.parentNode.removeChild(particle);
+				}
+			});
+		});
+	}
 	
 	onMount(() => {
 		// Mark elements as ready for animation
@@ -46,6 +256,11 @@
 							duration: 1.5 // Longer duration for more impact
 						}
 					);
+					
+					// Trigger fireworks after the name appears
+					setTimeout(() => {
+						createLandingFireworks();
+					}, 1000);
 				}
 			} catch (error) {
 				console.error("Hero animation error:", error);
@@ -170,11 +385,13 @@
 	<meta name="description" content="Professional portfolio showcasing my projects and expertise in software development">
 </svelte:head>
 
-<section class="py-12 bg-[#1A202C] text-gray-100 perspective" bind:this={heroSection}>
+<section class="py-12 bg-[#1A202C] text-gray-100 perspective relative" bind:this={heroSection}>
+	<!-- Fireworks container positioned absolutely -->
+	<div class="fireworks-container" bind:this={fireworksContainer}></div>
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col items-center">
 			<div class="w-full max-w-3xl mb-8 text-center">
-				<h1 class="text-4xl md:text-5xl font-bold mb-4 hero-element animate-ready">Hi, I'm <span class="text-blue-400">Szu-Han Chou (Hank)</span></h1>
+				<h1 class="text-4xl md:text-5xl font-bold mb-4 hero-element animate-ready">Hi, I'm <span class="text-blue-400 name-highlight">Szu-Han Chou</span> aka Hank</h1>
 				<h2 class="text-2xl md:text-3xl text-gray-300 mb-6 hero-element animate-ready">Software Developer</h2>
 				<p class="text-lg text-gray-200 mb-8 hero-element animate-ready">
 					I'm a passionate developer specialized in creating modern software solutions.
@@ -258,8 +475,8 @@
 	}
 	
 	/* Show content if JS is disabled or animations fail */
-	.animate-ready:not(:has(+ script)), /* For browsers without JS */
-	.no-js .animate-ready { /* Fallback approach for when JS is disabled */
+	:global(.animate-ready:not(:has(+ script))), /* For browsers without JS */
+	:global(.no-js .animate-ready) { /* Fallback approach for when JS is disabled */
 		opacity: 1 !important;
 	}
 	
@@ -298,5 +515,68 @@
 	
 	.animate-ready {
 		animation: show-content 0s 800ms forwards;
+	}
+	
+	/* Fireworks styles */
+	.fireworks-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 10;
+		pointer-events: none;
+		overflow: visible;
+		perspective: 2000px; /* Even stronger perspective */
+		transform-style: preserve-3d;
+	}
+	
+	:global(.firework-particle) {
+		position: absolute;
+		width: 10px; /* Base size - increased */
+		height: 10px;
+		border-radius: 50%;
+		will-change: transform, opacity, box-shadow;
+		transform-style: preserve-3d;
+		pointer-events: none;
+		filter: blur(0.5px); /* Subtle blur for all particles */
+	}
+	
+	:global(.firework-streamer) {
+		width: 4px !important;
+		height: 4px !important; 
+		border-radius: 4px !important;
+		filter: blur(1.5px); /* More blur for streamers */
+		transform-origin: center center;
+		box-shadow: 0 0 25px currentColor; /* Stronger glow for streamers */
+	}
+	
+	:global(.firework-flash) {
+		position: absolute;
+		width: 50px; /* Larger flash */
+		height: 50px;
+		border-radius: 50%;
+		background-color: rgba(255, 255, 255, 0.95);
+		filter: blur(15px); /* More blur for dramatic flash */
+		will-change: transform, opacity;
+		pointer-events: none;
+		box-shadow: 0 0 30px #fff, 0 0 60px rgba(255, 220, 180, 0.8); /* Double glow */
+	}
+	
+	:global(.firework-launch-trail) {
+		position: absolute;
+		width: 3px; /* Wider trail */
+		height: 15px; /* Longer trail */
+		background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 200, 100, 0.6));
+		will-change: transform, opacity;
+		pointer-events: none;
+		filter: blur(2px); /* More blur for softer trail */
+		z-index: 5;
+		box-shadow: 0 0 15px rgba(255, 200, 100, 0.5); /* Glow for the trail */
+	}
+	
+	.name-highlight {
+		position: relative;
+		z-index: 5;
 	}
 </style>
