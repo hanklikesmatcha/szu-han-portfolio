@@ -294,7 +294,7 @@
 	
 	<div bind:this={projectsGrid} class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 		{#each filteredProjects as project}
-			<div class="project-card rounded-xl overflow-hidden border border-gray-600">
+			<div class="project-card rounded-xl overflow-hidden border border-gray-600 flex flex-col h-full">
 				<div class="project-image h-48 relative overflow-hidden">
 					{#if project.image}
 						<img src={project.image} alt={project.title} class="w-full h-full object-cover"/>
@@ -305,17 +305,19 @@
 					{/if}
 				</div>
 				
-				<div class="p-6">
-					<h3 class="text-xl font-bold mb-2 text-blue-300">{project.title}</h3>
-					<p class="text-gray-300 mb-4">{project.description.substring(0, 120)}...</p>
-					
-					<div class="flex flex-wrap gap-2 mb-4">
-						{#each project.technologies.slice(0, 3) as tech}
-							<span class="bg-[#2D3748] text-blue-300 px-2 py-1 rounded-md text-xs">{tech}</span>
-						{/each}
+				<div class="p-6 flex flex-col flex-grow">
+					<div class="flex-grow">
+						<h3 class="text-xl font-bold mb-2 text-blue-300">{project.title}</h3>
+						<p class="text-gray-300 mb-4">{project.description.substring(0, 120)}...</p>
+						
+						<div class="flex flex-wrap gap-2 mb-4">
+							{#each project.technologies.slice(0, 3) as tech}
+								<span class="bg-[#2D3748] text-blue-300 px-2 py-1 rounded-md text-xs">{tech}</span>
+							{/each}
+						</div>
 					</div>
 					
-					<div class="flex gap-3">
+					<div class="flex gap-3 mt-auto">
 						{#if project.githubUrl}
 							<a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
 								class="project-link bg-[#2D3748] hover:bg-gray-600 text-white px-4 py-2 rounded text-sm flex-1 text-center">
