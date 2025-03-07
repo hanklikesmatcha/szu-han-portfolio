@@ -931,7 +931,7 @@
 					<h3 class="text-xl font-semibold mb-2 text-blue-300">My Approach</h3>
 					<p class="text-gray-200">
 						I believe in writing clean, maintainable code with a focus on performance and user experience. I specialize in 
-						building AI-driven software solutions, designing RESTful & GraphQL APIs, and optimizing machine learning models.
+						building AI-driven software solutions, designing RESTful & GraphQL APIs, and utilizing machine learning models.
 						My development philosophy centers around creating user-focused applications that solve real problems while 
 						balancing technical excellence with business needs. I'm highly collaborative and committed to continuous 
 						improvement, enjoying both mentoring others and learning new technologies.
