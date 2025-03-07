@@ -22,6 +22,15 @@
 			githubUrl: 'https://github.com/hanklikesmatcha/cnc-cost-analysis',
 			liveUrl: 'https://cnc-cost-analysis-production.up.railway.app/',
 			image: '/images/cnc-cost-analysis.jpg',
+		},
+		{
+			id: 'personal-website',
+			title: 'Portfolio Website',
+			description: 'This is my portfolio website, where I showcase my projects and work.',
+			technologies: ['TypeScript/SvelteKit', 'Tailwind CSS', 'Vite', "Motion"],
+			githubUrl: 'https://github.com/hanklikesmatcha/szu-han-portfolio',
+			liveUrl: 'https://hankchou.me',
+			image: '/images/portfolio-website.jpg',
 		}
 	];
 
@@ -265,7 +274,7 @@
 
 <div class="max-w-6xl mx-auto px-4 py-12 bg-[#1A202C] perspective">
 	<div bind:this={headingElement} class="header-container">
-		<h1 class="text-4xl md:text-5xl font-bold mb-2 text-blue-400">My Work</h1>
+		<h1 class="text-4xl md:text-5xl font-bold mb-2 text-blue-400">Work</h1>
 		<p class="text-xl text-gray-300 mb-8">Recent projects I've built</p>
 	</div>
 	

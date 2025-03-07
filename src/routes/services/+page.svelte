@@ -8,13 +8,13 @@
 			title: 'Full-Stack Development',
 			description: 'End-to-end web application development using modern frameworks and technologies. I build scalable, responsive applications with clean code, security focus, and optimal performance.',
 			icon: '💻',
-			skills: ['Python/FastAPI', 'TypeScript/React', 'PostgreSQL', 'RESTful APIs', 'Front-end Frameworks']
+			skills: ['Python/FastAPI', 'TypeScript/React', 'PostgreSQL', 'RESTful APIs', 'Front-end Frameworks', 'GraphQL']
 		},
 		{
-			title: 'Secure Development',
-			description: 'Application development with security as a priority. Leveraging my SafeStack certifications, I implement security best practices from the ground up to ensure your applications are protected against common vulnerabilities.',
-			icon: '🔒',
-			skills: ['Secure Coding', 'Authentication', 'Authorization', 'Data Protection']
+			title: 'Data Engineering and Machine Learning with Python',
+			description: 'Specializing in database migrations, schema design, and table structure optimization. I help businesses build efficient data foundations and integrate machine learning models to enhance applications with AI capabilities like NLP and computer vision.',
+			icon: '🤖',
+			skills: ['Database Migration', 'PyTorch', 'Hugging Face', 'LangChain', 'AI Integration']
 		},
 		{
 			title: 'Technical Mentoring',
@@ -23,10 +23,10 @@
 			skills: ['Python Training', 'Code Reviews', 'Best Practices', 'Team Development', 'Technical Guidance']
 		},
 		{
-			title: 'Technical Consultation',
-			description: 'Expert advice on technology stack selection, architecture planning, and development best practices. I help businesses make informed technical decisions aligned with their goals and security requirements.',
-			icon: '🧠',
-			skills: ['Architecture Design', 'Tech Stack Selection', 'Security Reviews', 'Performance Audits', 'Technical Documentation']
+			title: 'Cloud Services & DevOps',
+			description: 'Implementation and management of cloud infrastructure and deployment pipelines. I leverage containerization and serverless technologies to create scalable, cost-effective cloud solutions that optimize performance and reliability.',
+			icon: '☁️',
+			skills: ['AWS', 'Azure', 'GCP', 'CI/CD Pipelines', 'Containerisation', 'Docker', 'CloudFlare']
 		}
 	];
 	
@@ -281,7 +281,7 @@
 <!-- Hero Section -->
 <section class="bg-gradient-to-br from-gray-900 to-blue-900 py-16" bind:this={heroSection}>
 	<div class="container mx-auto px-4 text-center">
-		<h1 class="text-4xl md:text-5xl font-bold mb-6 hero-element">Expert Services</h1>
+		<h1 class="text-4xl md:text-5xl font-bold mb-6 hero-element">Services</h1>
 		<p class="text-xl max-w-3xl mx-auto mb-6 text-gray-300 hero-element">
 			I provide secure, quality-focused development solutions.
 		</p>
@@ -321,10 +321,11 @@
 		
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 			<div class="expertise-element">
-				<h3 class="text-xl font-bold mb-3 text-blue-300">Security-First Development</h3>
+				<h3 class="text-xl font-bold mb-3 text-blue-300">AI and Machine Learning Integration</h3>
 				<p class="text-gray-300 mb-6">
-					With multiple security certifications from SafeStack, I bring a security-first mindset to every project, 
-					implementing best practices at every stage from architecture to deployment.
+					My experience with AI technologies like Large Language Models, Classification, Computer Vision, and NLP enables me to integrate 
+					advanced machine learning capabilities into applications, enhancing user experiences 
+					and automating complex processes.
 				</p>
 				
 				<h3 class="text-xl font-bold mb-3 text-blue-300">Educational Background</h3>
@@ -335,10 +336,12 @@
 			</div>
 			
 			<div class="expertise-element">
-				<h3 class="text-xl font-bold mb-3 text-blue-300">Volunteer Technical Work</h3>
+				<h3 class="text-xl font-bold mb-3 text-blue-300">Data Engineering Excellence</h3>
 				<p class="text-gray-300 mb-6">
-					My work with organizations like The Good Registry has given me experience building impactful applications
-					within the constraints of non-profit organizations.
+					I specialize in designing efficient database structures, implementing seamless migrations, and 
+					optimizing table schemas for performance. My experience includes working with migration tools like 
+					Python Alembic, TypeORM, Drizzle, and Prisma for the Node.js ecosystem. I've developed robust 
+					database solutions for financial and energy systems while ensuring data integrity and performance.
 				</p>
 				
 				<h3 class="text-xl font-bold mb-3 text-blue-300">Adaptability & Problem-Solving</h3>

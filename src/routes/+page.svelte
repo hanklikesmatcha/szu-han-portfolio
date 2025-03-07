@@ -7,14 +7,17 @@
 		'Full-Stack Development',
 		'Python',
 		'TypeScript',
-		'Auth',
+		'Cloud Services & DevOps',
+		'AWS',
+		'Azure',
 		'Hugging Face',
+		'PyTorch',
 		'LangChain',
 		'Supabase',
 		'Flutter',
 		'Database Migration',
+		'Data Engineering and Machine Learning with Python',
 		'Technical Mentoring',
-		'Project Management'
 	];
 
 	let currentSection = 'about';
@@ -23,304 +26,796 @@
 	let aboutSection: HTMLElement;
 	let isAnimated = false;
 	let animationsReady = false;
-	let fireworksContainer: HTMLDivElement;
+	let fireworksCanvas: HTMLCanvasElement;
+	let fireworksCtx: CanvasRenderingContext2D | null;
+	let fireworksAnimationId: number;
+	let contentReady = false; // Flag to control when to show content
 	
-	// Create fireworks explosion for dramatic effect
-	function createLandingFireworks() {
-		if (!fireworksContainer) return;
+	// Fireworks class for optimized Canvas-based rendering
+	class Firework {
+		x: number;
+		y: number;
+		targetX: number;
+		targetY: number;
+		color: string;
+		particles: Particle[];
+		hasExploded: boolean;
+		velocity: number;
+		trail: {x: number, y: number}[];
+		explosionSize: number;
+		explosionType: string;
 		
-		// Get the name element position
-		const nameElement = document.querySelector('.name-highlight');
-		if (!nameElement) return;
+		constructor(startX: number, targetX: number, targetY: number) {
+			// Start position (bottom of screen)
+			this.x = startX;
+			this.y = fireworksCanvas ? fireworksCanvas.height : 0;
+			// Target position (where explosion happens)
+			this.targetX = targetX;
+			this.targetY = targetY;
+			this.color = this.getRandomFireworkColor();
+			this.particles = [];
+			this.hasExploded = false;
+			// Random upward velocity
+			this.velocity = Math.random() * 2 + 3;
+			// Trail for rocket effect - shorter trail for performance
+			this.trail = [];
+			// Maximum trail length - reduced for performance
+			const maxTrail = 5; // Reduced from 8
+			for (let i = 0; i < maxTrail; i++) {
+				this.trail.push({x: this.x, y: this.y});
+			}
+			// Random explosion size
+			this.explosionSize = Math.random() * 0.5 + 0.8; // 0.8 to 1.3 scale factor
+			// Random explosion type
+			const types = ['circular', 'ring', 'starburst', 'crossette', 'willow'];
+			this.explosionType = types[Math.floor(Math.random() * types.length)];
+		}
 		
-		// Get position relative to the fireworks container
-		const nameRect = nameElement.getBoundingClientRect();
-		const containerRect = fireworksContainer.getBoundingClientRect();
-		
-		// Center coordinates of the name element relative to fireworks container
-		const centerX = (nameRect.left + nameRect.width/2) - containerRect.left;
-		const centerY = (nameRect.top + nameRect.height/2) - containerRect.top;
-		
-		// Create multiple firework explosions with choreographed timing
-		// First wave
-		setTimeout(() => createFireworkBurst(centerX, centerY), 200);
-		setTimeout(() => createFireworkBurst(centerX - 100, centerY - 30), 700);  // Increased from 400ms
-		setTimeout(() => createFireworkBurst(centerX + 100, centerY - 20), 1200); // Increased from 600ms
-		
-		// Second wave (higher and wider)
-		setTimeout(() => createFireworkBurst(centerX - 200, centerY - 100), 2000); // Increased from 1200ms
-		setTimeout(() => createFireworkBurst(centerX + 180, centerY - 120), 2600); // Increased from 1500ms
-		
-		// Grand finale
-		setTimeout(() => createFireworkBurst(centerX, centerY - 150, true), 3400); // Increased from 2000ms
-	}
-	
-	// Helper function to create a single burst of fireworks
-	function createFireworkBurst(x: number, y: number, isSuper = false) {
-		// Create particles for the explosion
-		const particleCount = isSuper ? 120 : 80; // Reduced from 200/150 for better performance
-		const particles: HTMLDivElement[] = [];
-		// More vibrant color palette with additional colors
-		const colors = [
-			'#60a5fa', '#93c5fd', '#3b82f6', // Blues
-			'#8b5cf6', '#a78bfa', '#c4b5fd', // Purples
-			'#ec4899', '#f472b6', '#f9a8d4', // Pinks
-			'#f59e0b', '#fbbf24', '#fcd34d', // Ambers/Yellows
-			'#10b981', '#34d399', '#6ee7b7', // Emeralds
-			'#ef4444', '#f87171', '#fca5a5'  // Reds
-		];
-		
-		// Create multiple "launch" particles that shoot up before explosion
-		const launchCount = isSuper ? 5 : Math.random() > 0.5 ? 2 : 1;
-		for (let i = 0; i < launchCount; i++) {
-			const launchTrail = document.createElement('div');
-			launchTrail.className = 'firework-launch-trail';
-			if (fireworksContainer) {
-				fireworksContainer.appendChild(launchTrail);
-				
-				// Random start position at bottom of container
-				const startX = x + (Math.random() * 150 - 75);
-				const startY = fireworksContainer.clientHeight;
-				launchTrail.style.left = `${startX}px`;
-				launchTrail.style.top = `${startY}px`;
-				
-				// Animate the launch
-				animate(
-					launchTrail,
-					{
-						opacity: [0.8, 0],
-						y: [0, -(startY - y)],
-						scale: [0.6, 0.3]
-					},
-					{
-						duration: 0.7,
-						easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+		getRandomFireworkColor() {
+			const colors = [
+				'#60a5fa', '#93c5fd', '#3b82f6', // Blues
+				'#8b5cf6', '#a78bfa', '#c4b5fd', // Purples
+				'#ec4899', '#f472b6', '#f9a8d4', // Pinks
+				'#f59e0b', '#fbbf24', '#fcd34d', // Ambers/Yellows
+				'#10b981', '#34d399', '#6ee7b7', // Emeralds
+				'#ef4444', '#f87171', '#fca5a5'  // Reds
+			];
+			return colors[Math.floor(Math.random() * colors.length)];
+		}
+
+		update() {
+			if (this.hasExploded) {
+				// Update all particles
+				for (let i = this.particles.length - 1; i >= 0; i--) {
+					this.particles[i].update();
+					
+					// Remove dead particles
+					if (this.particles[i].alpha <= 0) {
+						this.particles.splice(i, 1);
 					}
-				).finished.then(() => {
-					if (launchTrail.parentNode) {
-						launchTrail.parentNode.removeChild(launchTrail);
-					}
-				});
-			}
-		}
-		
-		// Create core bright flash - larger for super bursts
-		const flash = document.createElement('div');
-		flash.className = 'firework-flash';
-		if (fireworksContainer) {
-			fireworksContainer.appendChild(flash);
-			flash.style.left = `${x}px`;
-			flash.style.top = `${y}px`;
-			
-			// Animate the flash - more dramatic for super bursts
-			animate(
-				flash,
-				{
-					opacity: [1, 0],
-					scale: [0, isSuper ? 6 : 4]
-				},
-				{
-					duration: isSuper ? 0.8 : 0.6,
-					easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
 				}
-			).finished.then(() => {
-				if (flash.parentNode) {
-					flash.parentNode.removeChild(flash);
-				}
-			});
-		}
-		
-		for (let i = 0; i < particleCount; i++) {
-			const particle = document.createElement('div');
-			particle.className = 'firework-particle';
-			
-			// Determine if this is a normal particle or a "streamer" (long trail)
-			const isStreamer = Math.random() < 0.25; // Increased chance of streamers
-			if (isStreamer) {
-				particle.classList.add('firework-streamer');
-			}
-			
-			// Random size for more varied effect - increased sizes
-			const particleSize = isStreamer ? 4 : Math.random() * 8 + 5; // 5-13px
-			particle.style.width = `${particleSize}px`;
-			particle.style.height = `${particleSize}px`;
-			
-			// Random color - super bursts get special colors
-			const color = colors[Math.floor(Math.random() * colors.length)];
-			particle.style.backgroundColor = color;
-			
-			if (fireworksContainer) {
-				fireworksContainer.appendChild(particle);
-				particles.push(particle);
 				
-				// Set initial position
-				particle.style.left = `${x}px`;
-				particle.style.top = `${y}px`;
+				// Return true if all particles are gone
+				return this.particles.length === 0;
+			} else {
+				// Move rocket toward target
+				this.y -= this.velocity;
+				
+				// Update trail
+				this.trail.pop();
+				this.trail.unshift({x: this.x, y: this.y});
+				
+				// Check if rocket reached target
+				if (this.y <= this.targetY) {
+					this.explode();
+				}
+				
+				return false;
 			}
 		}
 		
-		// Pre-calculate random animations for each particle
-		const animations = particles.map((particle) => {
-			// Detect streamers
-			const isStreamer = particle.classList.contains('firework-streamer');
+		explode() {
+			this.hasExploded = true;
 			
-			// Much larger spread for high-altitude effect - even bigger now
-			const distance = isStreamer ? 
-				400 + Math.random() * 300 : 
-				200 + Math.random() * 450;
+			// Create particles based on explosion type
+			switch(this.explosionType) {
+				case 'circular':
+					this.createCircularExplosion();
+					break;
+				case 'ring':
+					this.createRingExplosion();
+					break;
+				case 'starburst':
+					this.createStarburstExplosion();
+					break;
+				case 'crossette':
+					this.createCrossetteExplosion();
+					break;
+				case 'willow':
+					this.createWillowExplosion();
+					break;
+				default:
+					this.createCircularExplosion();
+			}
 			
-			const angle = Math.random() * Math.PI * 2; // Random angle in radians
+			// Lower chance for secondary explosion to improve performance
+			if (Math.random() < 0.2) { // Reduced from 0.3
+				setTimeout(() => {
+					this.createSecondaryExplosion();
+				}, Math.random() * 300 + 100);
+			}
+		}
+		
+		createSecondaryExplosion() {
+			// Create smaller secondary explosion - reduced particle count
+			const count = Math.floor(Math.random() * 10) + 5; // Reduced from 20+10
+			const color = this.getRandomFireworkColor();
 			
-			// Calculate endpoint using polar coordinates for more realistic arc
-			const randomX = `${Math.cos(angle) * distance}px`;
-			const randomY = `${Math.sin(angle) * distance + (isStreamer ? 70 : 0)}px`; // Streamers fall more
-			
-			// 3D effect with z-axis - enhanced depth
-			const randomZ = `${(Math.random() * 350) - 175}px`;
-			// Removed 3D rotations for better performance
-			const randomColor = colors[Math.floor(Math.random() * colors.length)];
-			
-			// Streamers last longer and have different animation
-			// Increased duration by 1.5 seconds
-			const duration = isStreamer ? 4.3 : 3.7;
-			
-			// Fade out timing - streamers last longer
-			const keyframes = isStreamer ? 
-				{ opacity: [1, 1, 0.8, 0] } : 
-				{ opacity: [1, 0.9, 0] };
+			for (let i = 0; i < count; i++) {
+				const angle = Math.random() * Math.PI * 2;
+				const speed = Math.random() * 3 + 1;
+				const vx = Math.cos(angle) * speed;
+				const vy = Math.sin(angle) * speed;
+				const size = Math.random() * 2 + 1;
 				
-			// Return animation object with pre-calculated values
-			return {
-				particle,
-				isStreamer,
-				animProps: {
-					...keyframes,
-					scale: isStreamer ? [1, 1.2, 0.8] : [0, 1.2, 0.8],
-					x: randomX,
-					y: randomY,
-					z: randomZ,
-					// Removed rotateX and rotateY for performance
-					backgroundColor: [particle.style.backgroundColor, randomColor],
-					boxShadow: [
-						`0 0 ${isStreamer ? 30 : 15}px ${particle.style.backgroundColor}`,
-						`0 0 ${isStreamer ? 8 : 3}px rgba(255, 255, 255, 0)`
-					]
-				},
-				duration,
-				easing: isStreamer ? 
-					'cubic-bezier(0.22, 0.44, 0.34, 1)' : 
-					'cubic-bezier(0.22, 1, 0.36, 1)'
-			};
-		});
+				const particle = new Particle(
+					this.targetX,
+					this.targetY,
+					vx,
+					vy,
+					size,
+					color,
+					Math.random() * 0.5 + 0.3,
+					Math.random() < 0.1, // Reduced from 0.2
+					true
+				);
+				
+				this.particles.push(particle);
+			}
+		}
 		
-		// Animate particles in 3D - with individual animations
-		particles.forEach((particle, index) => {
-			const { animProps, duration, easing, isStreamer } = animations[index];
+		createCircularExplosion() {
+			// Standard circular explosion - reduced particle count
+			const particleCount = Math.floor(Math.random() * 20) + 20; // Reduced from 40+40
 			
-			animate(
-				particle,
-				animProps,
-				{
-					duration: duration,
-					easing: easing,
-					delay: index * 0.003, // Even faster stagger for more realistic explosion
-				}
-			).finished.then(() => {
-				// Remove particle after animation completes
-				if (particle.parentNode) {
-					particle.parentNode.removeChild(particle);
-				}
-			});
-		});
-	}
-	
-	onMount(() => {
-		// Mark elements as ready for animation
-		animationsReady = true;
+			for (let i = 0; i < particleCount; i++) {
+				// Random velocity in all directions
+				const angle = Math.random() * Math.PI * 2;
+				const speed = Math.random() * 5 + 1;
+				const vx = Math.cos(angle) * speed * this.explosionSize;
+				const vy = Math.sin(angle) * speed * this.explosionSize;
+				
+				// Random size for particles
+				const size = Math.random() * 3 + 1;
+				
+				// Create particle with random properties
+				const particle = new Particle(
+					this.targetX,
+					this.targetY,
+					vx,
+					vy,
+					size,
+					this.color,
+					Math.random() * 0.7 + 0.3,
+					Math.random() < 0.1, // Reduced from 0.15
+					false
+				);
+				
+				this.particles.push(particle);
+			}
+		}
 		
-		// More dramatic hero section animation with 3D effects
-		setTimeout(() => {
-			console.log("Running hero animations");
-			try {
-				const heroElements = document.querySelectorAll('.hero-element');
-				if (heroElements.length > 0) {
-					// Enhanced dramatic animation - slide up from bottom with scaling
-					animate('.hero-element', 
-						{ 
-							opacity: [0, 1], 
-							y: [100, 0],
-							scale: [0.7, 1]
-						},
-						{ 
-							delay: stagger(0.25), // Longer stagger for more dramatic sequence
-							duration: 1.5 // Longer duration for more impact
-						}
+		createRingExplosion() {
+			// Creates a ring pattern - reduced particle count
+			const particleCount = Math.floor(Math.random() * 15) + 25; // Reduced from 30+50
+			const ringThickness = Math.random() * 0.5 + 0.5;
+			
+			for (let i = 0; i < particleCount; i++) {
+				const angle = (i / particleCount) * Math.PI * 2;
+				// All particles go at similar speeds for ring effect
+				const variance = Math.random() * ringThickness;
+				const speed = (4 + variance) * this.explosionSize;
+				const vx = Math.cos(angle) * speed;
+				const vy = Math.sin(angle) * speed;
+				
+				const size = Math.random() * 2.5 + 1.5;
+				
+				const particle = new Particle(
+					this.targetX,
+					this.targetY,
+					vx,
+					vy,
+					size,
+					this.color,
+					Math.random() * 0.5 + 0.5,
+					Math.random() < 0.1, // Reduced from 0.2
+					false
+				);
+				
+				this.particles.push(particle);
+			}
+		}
+		
+		createStarburstExplosion() {
+			// Creates a star pattern with defined rays - optimized
+			const rayCount = Math.floor(Math.random() * 4) + 6; // Reduced from 8-12
+			const particlesPerRay = Math.floor(Math.random() * 3) + 5; // Reduced from 7-12
+			
+			for (let ray = 0; ray < rayCount; ray++) {
+				const rayAngle = (ray / rayCount) * Math.PI * 2;
+				
+				for (let i = 0; i < particlesPerRay; i++) {
+					// Particles go in similar directions for each ray
+					const angleVariance = (Math.random() - 0.5) * 0.3;
+					const angle = rayAngle + angleVariance;
+					
+					// Speed increases for particles further from center
+					const speed = (2 + i * 0.5) * this.explosionSize;
+					const vx = Math.cos(angle) * speed;
+					const vy = Math.sin(angle) * speed;
+					
+					// Size decreases for particles further from center
+					const size = Math.max(1, 3 - i * 0.2);
+					
+					const particle = new Particle(
+						this.targetX,
+						this.targetY,
+						vx,
+						vy,
+						size,
+						this.color,
+						Math.random() * 0.3 + 0.7,
+						i === particlesPerRay - 1, // Last particle in ray is a streamer
+						false
 					);
 					
-					// Trigger fireworks after the name appears
-					setTimeout(() => {
-						createLandingFireworks();
-					}, 1000);
+					this.particles.push(particle);
+				}
+			}
+		}
+		
+		createCrossetteExplosion() {
+			// Initial burst - reduced particle count
+			const mainCount = Math.floor(Math.random() * 10) + 10; // Reduced from 20+20
+			
+			for (let i = 0; i < mainCount; i++) {
+				const angle = Math.random() * Math.PI * 2;
+				const speed = Math.random() * 4 + 3;
+				const vx = Math.cos(angle) * speed * this.explosionSize;
+				const vy = Math.sin(angle) * speed * this.explosionSize;
+				const size = Math.random() * 3 + 1;
+				
+				// Lower chance to split for better performance
+				const particle = new Particle(
+					this.targetX,
+					this.targetY,
+					vx,
+					vy,
+					size,
+					this.color,
+					Math.random() * 0.4 + 0.4,
+					false,
+					false,
+					Math.random() < 0.3 // Reduced from 0.5
+				);
+				
+				this.particles.push(particle);
+			}
+		}
+		
+		createWillowExplosion() {
+			// Creates willow effect - reduced particle count
+			const particleCount = Math.floor(Math.random() * 15) + 20; // Reduced from 30+40
+			
+			for (let i = 0; i < particleCount; i++) {
+				const angle = Math.random() * Math.PI * 2;
+				// Initial outward velocity
+				const speed = Math.random() * 4 + 2;
+				const vx = Math.cos(angle) * speed * this.explosionSize;
+				// More upward bias for initial burst
+				const vy = Math.sin(angle) * speed * this.explosionSize - 1;
+				
+				const size = Math.random() * 2 + 2;
+				
+				// Willow streamers last longer and fall more
+				const particle = new Particle(
+					this.targetX,
+					this.targetY,
+					vx,
+					vy,
+					size,
+					this.color,
+					Math.random() * 0.5 + 0.9, // Longer life
+					true, // All are streamers
+					false,
+					false,
+					0.15 // Higher gravity
+				);
+				
+				this.particles.push(particle);
+			}
+		}
+		
+		draw(ctx: CanvasRenderingContext2D) {
+			if (this.hasExploded) {
+				// Draw all particles
+				for (let i = 0; i < this.particles.length; i++) {
+					this.particles[i].draw(ctx);
+				}
+			} else {
+				// Draw rocket trail - simplified for performance
+				ctx.beginPath();
+				ctx.strokeStyle = this.color;
+				ctx.lineWidth = 2;
+				ctx.moveTo(this.x, this.y);
+				
+				// Draw trail with fading effect - simplified
+				for (let i = 0; i < this.trail.length; i++) {
+					ctx.lineTo(this.trail[i].x, this.trail[i].y);
+					// Fade out the line as it gets farther from the head
+					ctx.globalAlpha = 1 - (i / this.trail.length);
+				}
+				ctx.stroke();
+				ctx.globalAlpha = 1;
+				
+				// Draw rocket head
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+				ctx.fill();
+				
+				// Simple glow effect - more efficient
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+				ctx.fillStyle = 'rgba(255, 220, 180, 0.2)';
+				ctx.fill();
+			}
+		}
+	}
+	
+	class Particle {
+		x: number;
+		y: number;
+		vx: number;
+		vy: number;
+		size: number;
+		color: string;
+		alpha: number;
+		decay: number;
+		isStreamer: boolean;
+		isSecondary: boolean;
+		canSplit: boolean;
+		hasSplit: boolean;
+		splitTime: number;
+		gravity: number;
+		rotation: number;
+		rotationSpeed: number;
+		
+		constructor(
+			x: number, 
+			y: number, 
+			vx: number, 
+			vy: number, 
+			size: number, 
+			color: string, 
+			lifespan: number, 
+			isStreamer: boolean,
+			isSecondary: boolean = false,
+			canSplit: boolean = false,
+			gravity: number = 0.1
+		) {
+			this.x = x;
+			this.y = y;
+			this.vx = vx;
+			this.vy = vy;
+			this.size = size;
+			this.color = color;
+			this.alpha = 1;
+			this.decay = 0.015 / lifespan; // Adjusted for longer life
+			this.isStreamer = isStreamer;
+			this.isSecondary = isSecondary;
+			this.canSplit = canSplit;
+			this.hasSplit = false;
+			this.splitTime = Math.random() * 15 + 10; // Split after 10-25 frames
+			this.gravity = gravity;
+			this.rotation = Math.random() * Math.PI * 2;
+			this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+			
+			// Streamers have different properties
+			if (this.isStreamer) {
+				this.decay = this.decay * 0.4; // Even slower decay
+				this.size = this.size * 1.5; // Larger size
+			}
+			
+			// Secondary particles have different properties
+			if (this.isSecondary) {
+				this.decay = this.decay * 1.5; // Faster decay 
+			}
+		}
+		
+		update() {
+			// Update position
+			this.x += this.vx;
+			this.y += this.vy;
+			
+			// Apply gravity to y velocity
+			this.vy += this.gravity;
+			
+			// Slow down over time (more for streamers)
+			this.vx *= this.isStreamer ? 0.98 : 0.99;
+			this.vy *= this.isStreamer ? 0.98 : 0.99;
+			
+			// Update rotation
+			this.rotation += this.rotationSpeed;
+			
+			// Check if particle should split
+			if (this.canSplit && !this.hasSplit && this.splitTime-- <= 0) {
+				this.hasSplit = true;
+				this.split();
+			}
+			
+			// Reduce alpha based on decay rate
+			this.alpha -= this.decay;
+			
+			// Ensure alpha doesn't go below 0
+			if (this.alpha < 0) this.alpha = 0;
+		}
+		
+		split() {
+			// Split into fewer smaller particles
+			if (!fireworksCtx) return;
+			
+			const canvas = fireworksCtx.canvas;
+			// Only split if we're on screen
+			if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) return;
+			
+			// Find the parent firework to add child particles to
+			const fireworksSequenceFunc = (window as any).latestFireworksSequence;
+			if (!fireworksSequenceFunc) return;
+			
+			const parentFireworks = fireworksSequenceFunc();
+			if (!parentFireworks || !parentFireworks.length) return;
+			
+			// Add to the first active firework
+			const parentFirework = parentFireworks[0];
+			
+			// Reduced from 4 to 3 child particles
+			for (let i = 0; i < 3; i++) {
+				const angle = (i / 3) * Math.PI * 2 + Math.random() * 0.5;
+				const speed = Math.random() * 2 + 1;
+				const vx = Math.cos(angle) * speed;
+				const vy = Math.sin(angle) * speed;
+				
+				const childParticle = new Particle(
+					this.x,
+					this.y,
+					vx,
+					vy,
+					this.size * 0.6,
+					this.color,
+					Math.random() * 0.3 + 0.2,
+					i === 0, // First particle is a streamer
+					true
+				);
+				
+				parentFirework.particles.push(childParticle);
+			}
+		}
+		
+		draw(ctx: CanvasRenderingContext2D) {
+			// Skip drawing if particle is invisible
+			if (this.alpha <= 0) return;
+			
+			// Set global alpha for transparency
+			ctx.globalAlpha = this.alpha;
+			
+			// Draw particle
+			ctx.beginPath();
+			
+			// Streamers get a different shape
+			if (this.isStreamer) {
+				// Simplified streamer drawing for better performance
+				ctx.save();
+				ctx.translate(this.x, this.y);
+				
+				// Use simpler rotation calculation
+				const angle = Math.atan2(this.vy, this.vx);
+				ctx.rotate(angle);
+				
+				// Simpler shape
+				ctx.beginPath();
+				ctx.moveTo(0, 0);
+				ctx.lineTo(-this.size * 4, 0);
+				ctx.lineTo(-this.size * 4, -this.size * 0.3);
+				ctx.lineTo(-this.size * 4, this.size * 0.3);
+				ctx.closePath();
+				
+				ctx.fillStyle = this.color;
+				ctx.fill();
+				
+				ctx.restore();
+			} else {
+				// Regular particles
+				ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+				
+				// Only apply glow to larger particles for better performance
+				if (this.alpha > 0.7 && this.size > 2) {
+					ctx.shadowColor = this.color;
+					ctx.shadowBlur = 3; // Reduced from 5
+				}
+				
+				ctx.fillStyle = this.color;
+				ctx.fill();
+				ctx.shadowBlur = 0;
+			}
+			
+			// Reset global alpha
+			ctx.globalAlpha = 1;
+		}
+	}
+	
+	// Performance monitoring variables
+	let lastFrameTime = 0;
+	let frameCount = 0;
+	let fps = 60;
+	let fpsThrottleEnabled = true;
+	let fpsThreshold = 30; // Target minimum FPS
+	
+	// Choreographed fireworks sequences
+	function startFireworksSequence() {
+		if (!fireworksCtx) return;
+		
+		// Clear any existing animation
+		if (fireworksAnimationId) {
+			cancelAnimationFrame(fireworksAnimationId);
+		}
+		
+		// Get canvas dimensions
+		const width = fireworksCanvas.width;
+		const height = fireworksCanvas.height;
+		
+		// Array to store active fireworks
+		const fireworks: Firework[] = [];
+		
+		// Make fireworks accessible to particle split function
+		(window as any).latestFireworksSequence = () => fireworks;
+		
+		// Track time for fireworks scheduling
+		let startTime = performance.now();
+		
+		// More dramatic choreography but with fewer fireworks for performance
+		const fireworksSequence = [
+			// First wave - single centered burst
+			{ time: 500, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.4 },
+			
+			// Second wave - pair of bursts (delayed slightly for better spacing)
+			{ time: 1600, startX: width * 0.4, targetX: width * 0.35, targetY: height * 0.35 },
+			{ time: 2000, startX: width * 0.6, targetX: width * 0.65, targetY: height * 0.35 },
+			
+			// Third wave - triangular formation with longer delay
+			{ time: 3000, startX: width * 0.3, targetX: width * 0.3, targetY: height * 0.3 },
+			{ time: 3300, startX: width * 0.7, targetX: width * 0.7, targetY: height * 0.3 },
+			{ time: 3800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 },
+			
+			// Grand finale - fewer but well-spaced bursts
+			{ time: 4800, startX: width * 0.25, targetX: width * 0.25, targetY: height * 0.25 },
+			{ time: 5200, startX: width * 0.75, targetX: width * 0.75, targetY: height * 0.25 },
+			{ time: 5800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 },
+		];
+		
+		let sequenceIndex = 0;
+		let adaptiveParticleFactor = 1.0; // Will be adjusted based on performance
+		
+		// Animation loop
+		function animate(timestamp: number) {
+			// Calculate FPS for performance monitoring
+			if (timestamp) {
+				if (lastFrameTime) {
+					const delta = timestamp - lastFrameTime;
+					if (delta > 0) {
+						const instantFps = 1000 / delta;
+						// Smooth FPS calculation
+						fps = fps * 0.9 + instantFps * 0.1;
+						
+						// Adjust particle count based on performance
+						if (fpsThrottleEnabled) {
+							if (fps < fpsThreshold && adaptiveParticleFactor > 0.3) {
+								adaptiveParticleFactor *= 0.9; // Reduce particles if low FPS
+							} else if (fps > fpsThreshold + 10 && adaptiveParticleFactor < 1.0) {
+								adaptiveParticleFactor *= 1.05; // Increase particles if high FPS
+							}
+						}
+					}
+				}
+				lastFrameTime = timestamp;
+				
+				// Log FPS every 60 frames
+				if (++frameCount % 60 === 0) {
+					console.log(`Fireworks FPS: ${fps.toFixed(1)}, Particle factor: ${adaptiveParticleFactor.toFixed(2)}`);
+				}
+			}
+			
+			// Clear canvas - use full clear for less transparency buildup
+			if (fireworksCtx) {
+				fireworksCtx.clearRect(0, 0, width, height);
+				// Add a subtle background for trail effect
+				fireworksCtx.fillStyle = 'rgba(26, 32, 44, 0.15)';
+				fireworksCtx.fillRect(0, 0, width, height);
+			}
+			
+			// Current time since start
+			const currentTime = performance.now() - startTime;
+			
+			// Add new fireworks based on sequence
+			while (sequenceIndex < fireworksSequence.length && 
+				   currentTime >= fireworksSequence[sequenceIndex].time) {
+				
+				const sequence = fireworksSequence[sequenceIndex];
+				const fw = new Firework(
+					sequence.startX,
+					sequence.targetX, 
+					sequence.targetY
+				);
+				
+				fireworks.push(fw);
+				sequenceIndex++;
+			}
+			
+			// Update and draw fireworks
+			for (let i = fireworks.length - 1; i >= 0; i--) {
+				// Draw the firework
+				fireworks[i].draw(fireworksCtx!);
+				
+				// Update and check if firework is done
+				const isDone = fireworks[i].update();
+				
+				// Remove finished fireworks
+				if (isDone) {
+					fireworks.splice(i, 1);
+				}
+			}
+			
+			// Show content after all fireworks have started
+			if (sequenceIndex >= fireworksSequence.length && !contentReady && currentTime > 6000) {
+				contentReady = true;
+				revealContent();
+			}
+			
+			// Continue animation if there are active fireworks or sequence isn't complete
+			if (fireworks.length > 0 || sequenceIndex < fireworksSequence.length) {
+				fireworksAnimationId = requestAnimationFrame(animate);
+			} else {
+				// Fade out canvas when complete
+				const fadeCanvas = () => {
+					let opacity = parseFloat(fireworksCanvas.style.opacity || "1");
+					opacity -= 0.02;
+					
+					if (opacity <= 0) {
+						fireworksCanvas.style.opacity = "0";
+						setTimeout(() => {
+							fireworksCanvas.style.display = "none";
+						}, 500);
+						return;
+					}
+					
+					fireworksCanvas.style.opacity = opacity.toString();
+					requestAnimationFrame(fadeCanvas);
+				};
+				
+				setTimeout(fadeCanvas, 1000);
+			}
+		}
+		
+		// Start animation
+		fireworksAnimationId = requestAnimationFrame(animate);
+	}
+	
+	// Function to reveal content after fireworks
+	function revealContent() {
+		console.log("Revealing content");
+		
+		// Hero elements animation
+		try {
+			const heroElements = document.querySelectorAll('.hero-element');
+			if (heroElements.length > 0) {
+				animate('.hero-element', 
+					{ 
+						opacity: [0, 1], 
+						y: [50, 0],
+						scale: [0.9, 1]
+					},
+					{ 
+						delay: stagger(0.2),
+						duration: 1.0
+					}
+				);
+			}
+		} catch (error) {
+			console.error("Hero animation error:", error);
+			document.querySelectorAll('.hero-element').forEach(el => {
+				(el as HTMLElement).style.opacity = '1';
+			});
+		}
+		
+		// Skills animation with shorter delay
+		setTimeout(() => {
+			try {
+				const skillTags = document.querySelectorAll('.skill-tag');
+				if (skillTags.length > 0) {
+					animate('.skill-tag', 
+						{ 
+							opacity: [0, 1], 
+							scale: [0.7, 1],
+							y: [30, 0]
+						},
+						{ 
+							delay: stagger(0.03, { from: "center" }),
+							duration: 0.8
+						}
+					);
 				}
 			} catch (error) {
-				console.error("Hero animation error:", error);
-				document.querySelectorAll('.hero-element').forEach(el => {
+				console.error("Skill tag animation error:", error);
+				document.querySelectorAll('.skill-tag').forEach(el => {
 					(el as HTMLElement).style.opacity = '1';
 				});
 			}
-			
-			// More dramatic skills animation with staggered delay
-			setTimeout(() => {
-				try {
-					const skillTags = document.querySelectorAll('.skill-tag');
-					if (skillTags.length > 0) {
-						// Dramatic fan-out effect for skills
-						animate('.skill-tag', 
-							{ 
-								opacity: [0, 1], 
-								scale: [0.3, 1],
-								y: [80, 0]
-							},
-							{ 
-								delay: stagger(0.08, { from: "center" }), // Fan out from center
-								duration: 1.2
-							}
-						);
-					}
-				} catch (error) {
-					console.error("Skill tag animation error:", error);
-					document.querySelectorAll('.skill-tag').forEach(el => {
-						(el as HTMLElement).style.opacity = '1';
-					});
+		}, 400);
+		
+		// Buttons animation
+		setTimeout(() => {
+			try {
+				const heroButtons = document.querySelectorAll('.hero-button');
+				if (heroButtons.length > 0) {
+					animate('.hero-button', 
+						{ 
+							opacity: [0, 1], 
+							x: ['-50px', '0px'],
+							scale: [0.8, 1]
+						},
+						{ 
+							delay: stagger(0.2),
+							duration: 0.8
+						}
+					);
 				}
-			}, 600); // Longer delay after hero elements
+			} catch (error) {
+				console.error("Button animation error:", error);
+				document.querySelectorAll('.hero-button').forEach(el => {
+					(el as HTMLElement).style.opacity = '1';
+				});
+			}
+		}, 800);
+	}
+	
+	// Setup canvas and start fireworks when component is mounted
+	onMount(() => {
+		// Mark animations as ready
+		animationsReady = true;
+		
+		// Setup canvas and resize function
+		let resizeCanvas: () => void;
+		
+		if (fireworksCanvas) {
+			fireworksCtx = fireworksCanvas.getContext('2d');
 			
-			// Enhanced buttons animation with more delay
-			setTimeout(() => {
-				try {
-					const heroButtons = document.querySelectorAll('.hero-button');
-					if (heroButtons.length > 0) {
-						// More dramatic slide-in from sides
-						animate('.hero-button', 
-							{ 
-								opacity: [0, 1], 
-								x: ['-100px', '0px'],
-								scale: [0.5, 1]
-							},
-							{ 
-								delay: stagger(0.3), // More dramatic stagger
-								duration: 1.0
-							}
-						);
-					}
-				} catch (error) {
-					console.error("Button animation error:", error);
-					document.querySelectorAll('.hero-button').forEach(el => {
-						(el as HTMLElement).style.opacity = '1';
-					});
+			// Set canvas size to match container
+			resizeCanvas = () => {
+				if (heroSection) {
+					fireworksCanvas.width = heroSection.offsetWidth;
+					fireworksCanvas.height = heroSection.offsetHeight;
 				}
-			}, 1200); // Much longer delay for the final button reveal
-		}, 100); // Small delay to ensure DOM is ready
+			};
+			
+			// Initial resize
+			resizeCanvas();
+			
+			// Handle window resize
+			window.addEventListener('resize', resizeCanvas);
+			
+			// Start fireworks sequence (content will be shown afterward)
+			setTimeout(startFireworksSequence, 300);
+		}
 		
 		// About section entrance animation when scrolled to
 		const observer = new IntersectionObserver((entries) => {
@@ -328,41 +823,21 @@
 				if (entry.isIntersecting && !isAnimated) {
 					isAnimated = true;
 					
-					// More dramatic about section animation
 					try {
 						const aboutElements = document.querySelectorAll('.about-element');
 						if (aboutElements.length > 0) {
-							// Sequential reveal animation with scale and slide
+							// Simpler animation for better performance
 							animate('.about-element', 
 								{ 
 									opacity: [0, 1], 
-									x: [-80, 0], 
-									scale: [0.85, 1] 
+									x: [-40, 0], 
+									scale: [0.95, 1] 
 								},
 								{ 
-									delay: stagger(0.25, { start: 0.2 }), // Longer delay between elements
-									duration: 1.2 
+									delay: stagger(0.15, { start: 0.2 }),
+									duration: 0.8
 								}
 							);
-							
-							// Add subtle continuous floating animation after entrance
-							setTimeout(() => {
-								// Select each element individually for different floating patterns
-								document.querySelectorAll('.about-element').forEach((el, i) => {
-									// Alternating gentle float direction based on position
-									const floatY = i % 2 === 0 ? "5px" : "-5px";
-									
-									animate(
-										el, 
-										{ y: [0, floatY, 0] }, 
-										{ 
-											duration: 3 + i * 0.5, // Different duration for each element
-											repeat: Infinity,
-											easing: 'ease-in-out'
-										}
-									);
-								});
-							}, 1500); // Start floating after entrance animation completes
 						}
 					} catch (error) {
 						console.error("About section animation error:", error);
@@ -372,11 +847,21 @@
 					}
 				}
 			});
-		}, { threshold: 0.1, rootMargin: '-50px' }); // Trigger slightly before element is fully visible
+		}, { threshold: 0.1, rootMargin: '-50px' });
 		
 		if (aboutSection) {
 			observer.observe(aboutSection);
 		}
+		
+		// Clean up on component unmount
+		return () => {
+			if (fireworksAnimationId) {
+				cancelAnimationFrame(fireworksAnimationId);
+			}
+			if (resizeCanvas) {
+				window.removeEventListener('resize', resizeCanvas);
+			}
+		};
 	});
 </script>
 
@@ -386,12 +871,12 @@
 </svelte:head>
 
 <section class="py-12 bg-[#1A202C] text-gray-100 perspective relative" bind:this={heroSection}>
-	<!-- Fireworks container positioned absolutely -->
-	<div class="fireworks-container" bind:this={fireworksContainer}></div>
+	<!-- Canvas for fireworks -->
+	<canvas class="fireworks-canvas" bind:this={fireworksCanvas}></canvas>
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col items-center">
 			<div class="w-full max-w-3xl mb-8 text-center">
-				<h1 class="text-4xl md:text-5xl font-bold mb-4 hero-element animate-ready">Hi, I'm <span class="text-blue-400 name-highlight">Szu-Han Chou</span> aka Hank</h1>
+				<h1 class="text-4xl md:text-5xl font-bold mb-4 hero-element animate-ready">Hi, I'm <span class="text-blue-400 name-highlight">Hank</span> aka Szu-Han Chou</h1>
 				<h2 class="text-2xl md:text-3xl text-gray-300 mb-6 hero-element animate-ready">Software Developer</h2>
 				<p class="text-lg text-gray-200 mb-8 hero-element animate-ready">
 					I'm a passionate developer specialized in creating modern software solutions.
@@ -434,20 +919,22 @@
 				<div class="about-element animate-ready">
 					<h3 class="text-xl font-semibold mb-2 text-blue-300">Education & Experience</h3>
 					<p class="text-gray-200">
-						I hold a degree from Auckland University of Technology and have built my career working across various technology stacks.
-						My professional journey includes roles at Eighty20.AI and volunteer positions including Python Bootcamp Instructor for 
-						Summer of Tech (2020-2022) and Software Developer for The Good Registry (2019-2022), where I developed an application
-						to generate gift cards for bulk orders. I'm passionate about mentoring and have served as a mentor for Young Enterprise.
+						I hold a Postgraduate Certificate in Computer & Information Sciences from Auckland University of Technology 
+						and a Graduate Diploma in IT from Wellington Technology Institute, along with a Bachelor of Engineering. My professional 
+						journey includes roles at GenerateZero, Taggun, Octopus Energy, and Sharesies, where I've worked on diverse projects 
+						from carbon accounting to AI integration. I've also contributed as a Python Bootcamp Speaker for Summer of Tech 
+						and as a Developer for The Good Registry, automating processes that helped raise over $500,000 NZD for charities.
 					</p>
 				</div>
 				
 				<div class="about-element animate-ready">
 					<h3 class="text-xl font-semibold mb-2 text-blue-300">My Approach</h3>
 					<p class="text-gray-200">
-						I believe in writing clean, maintainable, and secure code. I hold several security certifications from SafeStack, including
-						Secure Developer (Levels 1-2), Security Architect (Levels 1-2), Security Fundamentals (Levels 1-2), and Security Tester.
-						My development philosophy centers around creating user-focused solutions that solve real problems while maintaining high 
-						standards for security and code quality.
+						I believe in writing clean, maintainable code with a focus on performance and user experience. I specialize in 
+						building AI-driven software solutions, designing RESTful & GraphQL APIs, and optimizing machine learning models.
+						My development philosophy centers around creating user-focused applications that solve real problems while 
+						balancing technical excellence with business needs. I'm highly collaborative and committed to continuous 
+						improvement, enjoying both mentoring others and learning new technologies.
 					</p>
 				</div>
 			</div>
@@ -471,7 +958,7 @@
 		opacity: 0; /* Start invisible for animation */
 		transform-style: preserve-3d; /* Enable 3D transformations */
 		backface-visibility: hidden; /* Prevent flickering during 3D animations */
-		will-change: transform, opacity, filter;
+		will-change: transform, opacity;
 	}
 	
 	/* Show content if JS is disabled or animations fail */
@@ -486,8 +973,7 @@
 	
 	.skill-tag:hover {
 		border-color: #3b82f6; /* blue-500 */
-		transform: translateY(-2px) scale(1.05) rotate(2deg);
-		transition: all 0.3s ease;
+		transform: translateY(-2px) scale(1.05);
 	}
 	
 	.hero-button {
@@ -504,7 +990,6 @@
 		.animate-ready {
 			opacity: 1 !important;
 			transform: none !important;
-			filter: none !important;
 		}
 	}
 	
@@ -514,11 +999,11 @@
 	}
 	
 	.animate-ready {
-		animation: show-content 0s 800ms forwards;
+		animation: show-content 0s 5000ms forwards; /* Longer delay to allow fireworks to display first */
 	}
 	
-	/* Fireworks styles */
-	.fireworks-container {
+	/* Canvas for fireworks */
+	.fireworks-canvas {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -526,53 +1011,6 @@
 		height: 100%;
 		z-index: 10;
 		pointer-events: none;
-		overflow: visible;
-		perspective: 2000px; /* Even stronger perspective */
-		transform-style: preserve-3d;
-	}
-	
-	:global(.firework-particle) {
-		position: absolute;
-		width: 10px; /* Base size - increased */
-		height: 10px;
-		border-radius: 50%;
-		will-change: transform, opacity, box-shadow;
-		transform-style: preserve-3d;
-		pointer-events: none;
-		filter: blur(0.5px); /* Subtle blur for all particles */
-	}
-	
-	:global(.firework-streamer) {
-		width: 4px !important;
-		height: 4px !important; 
-		border-radius: 4px !important;
-		filter: blur(1.5px); /* More blur for streamers */
-		transform-origin: center center;
-		box-shadow: 0 0 25px currentColor; /* Stronger glow for streamers */
-	}
-	
-	:global(.firework-flash) {
-		position: absolute;
-		width: 50px; /* Larger flash */
-		height: 50px;
-		border-radius: 50%;
-		background-color: rgba(255, 255, 255, 0.95);
-		filter: blur(15px); /* More blur for dramatic flash */
-		will-change: transform, opacity;
-		pointer-events: none;
-		box-shadow: 0 0 30px #fff, 0 0 60px rgba(255, 220, 180, 0.8); /* Double glow */
-	}
-	
-	:global(.firework-launch-trail) {
-		position: absolute;
-		width: 3px; /* Wider trail */
-		height: 15px; /* Longer trail */
-		background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 200, 100, 0.6));
-		will-change: transform, opacity;
-		pointer-events: none;
-		filter: blur(2px); /* More blur for softer trail */
-		z-index: 5;
-		box-shadow: 0 0 15px rgba(255, 200, 100, 0.5); /* Glow for the trail */
 	}
 	
 	.name-highlight {
