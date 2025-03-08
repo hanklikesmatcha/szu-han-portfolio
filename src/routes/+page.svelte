@@ -1112,7 +1112,7 @@
 			
 			<div class="w-full max-w-3xl text-center">
 				<h1 class="hero-element animate-ready mb-4 text-4xl font-bold md:text-5xl">
-					Hi, I'm <span class="hank-highlight" on:click={() => handleNameClick('hank')}>Hank</span> aka <span class="szuhan-highlight" on:click={() => handleNameClick('szuhan')}>Szu-Han</span>
+					Hi, I'm <button class="hank-highlight" on:click={() => handleNameClick('hank')}>Hank</button> aka <button class="szuhan-highlight" on:click={() => handleNameClick('szuhan')}>Szu-Han</button>
 				</h1>
 
 				<h2 class="hero-element animate-ready mb-6 text-2xl font-semibold text-blue-300 md:text-3xl">
@@ -1355,6 +1355,7 @@
 			transform 0.4s ease;
 		position: relative; /* Add positioning context */
 		z-index: 5; /* Ensure proper stacking */
+		text-align: center; /* Center the text within each skill tag */
 	}
 
 	.skill-tag:hover {
@@ -1422,11 +1423,6 @@
 		pointer-events: none;
 	}
 
-	.name-highlight {
-		position: relative;
-		z-index: 5;
-	}
-
 	/* Styling for Hank's name */
 	.hank-highlight {
 		position: relative;
@@ -1437,6 +1433,10 @@
 		transition: all 0.3s ease;
 		cursor: pointer;
 		z-index: 5;
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
 	}
 
 	.hank-highlight::after {
@@ -1474,6 +1474,10 @@
 		transition: all 0.3s ease;
 		cursor: pointer;
 		z-index: 5;
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
 	}
 
 	.szuhan-highlight::after {
@@ -1509,9 +1513,7 @@
 		100% { transform: scale(1); opacity: 1; }
 	}
 
-	.hank-pulse, .szuhan-pulse {
-		animation: name-pulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-	}
+
 
 	/* Shake animation */
 	@keyframes name-shake {
@@ -1523,9 +1525,6 @@
 		100% { transform: translateX(0); }
 	}
 
-	.hank-shake, .szuhan-shake {
-		animation: name-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-	}
 
 	/* 3D Rotate animation */
 	@keyframes name-rotate {
@@ -1534,11 +1533,6 @@
 		100% { transform: rotateY(360deg); }
 	}
 
-	.hank-rotate, .szuhan-rotate {
-		animation: name-rotate 0.6s ease-in-out;
-		transform-style: preserve-3d;
-		backface-visibility: visible;
-	}
 
 	/* Bounce animation */
 	@keyframes name-bounce {
@@ -1547,7 +1541,4 @@
 		60% { transform: translateY(-10px); }
 	}
 
-	.hank-bounce, .szuhan-bounce {
-		animation: name-bounce 0.7s ease;
-	}
 </style>

@@ -1626,18 +1626,6 @@
 		width: 24px !important;
 	}
 
-	/* Added screen class to ensure full coverage */
-	.screen {
-		width: 100vw;
-		height: 100vh;
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		z-index: 9999;
-	}
-
 	/* Special overlay to ensure the dropdown is visible */
 	#mobile-nav-menu::before {
 		content: '';
