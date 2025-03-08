@@ -409,6 +409,8 @@
 			</a>
 			<a
 				href="mailto:szuhan.eng@gmail.com"
+				target="_blank"
+				rel="noopener noreferrer"
 				class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
 				aria-label="Email Me"
 			>
@@ -520,6 +522,8 @@
 		<div class="flex justify-center gap-4">
 			<a
 				href="mailto:szuhan.eng@gmail.com"
+				target="_blank"
+				rel="noopener noreferrer"
 				class="cta-element rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:bg-blue-700 hover:transform hover:scale-105"
 			>
 				Contact Me

@@ -1147,6 +1147,8 @@
 					</a>
 					<a
 						href="mailto:szuhan.eng@gmail.com"
+						target="_blank"
+						rel="noopener noreferrer"
 						class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
 						aria-label="Email Me"
 					>
