@@ -31,6 +31,7 @@
 	let fireworksAnimationId: number;
 	let contentReady = false; // Flag to control when to show content
 	let testimonialSection: HTMLElement; // Added for testimonial section
+	let testimonialAnimated = false; // Flag to track if testimonials were animated
 
 	// Add click counters for name animations
 	let hankClickCount = 0;
@@ -880,6 +881,17 @@
 				});
 			}
 		}, 800);
+
+		// Ensure testimonials are visible even if animation hasn't run yet
+		ensureTestimonialsVisible();
+	}
+
+	// Function to make sure testimonials are visible
+	function ensureTestimonialsVisible() {
+		document.querySelectorAll('.testimonial-card').forEach((el) => {
+			(el as HTMLElement).style.opacity = '1';
+		});
+		testimonialAnimated = true;
 	}
 
 	// Setup canvas and start fireworks when component is mounted
@@ -985,7 +997,8 @@
 		const testimonialObserver = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
+					if (entry.isIntersecting && !testimonialAnimated) {
+						testimonialAnimated = true;
 						try {
 							animate(
 								'.testimonial-card',
@@ -1028,10 +1041,12 @@
 							}, 1500);
 						} catch (error) {
 							console.error('Testimonial animation error:', error);
-							document.querySelectorAll('.testimonial-card').forEach((el) => {
-								(el as HTMLElement).style.opacity = '1';
-							});
+							ensureTestimonialsVisible();
 						}
+					} else if (!testimonialAnimated) {
+						// If not intersecting but not yet animated, make sure they're visible anyway
+						// This helps when navigating back to the page
+						ensureTestimonialsVisible();
 					}
 				});
 			},
@@ -1040,7 +1055,14 @@
 
 		if (testimonialSection) {
 			testimonialObserver.observe(testimonialSection);
+		} else {
+			// If for some reason the section isn't available, make testimonials visible
+			ensureTestimonialsVisible();
 		}
+
+		// Ensure testimonials are visible after a delay regardless of scroll position
+		// This serves as a fallback for page navigation scenarios
+		setTimeout(ensureTestimonialsVisible, 2000);
 
 		// Clean up on component unmount
 		return () => {
@@ -1348,11 +1370,18 @@
 		box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.5);
 	}
 
-	/* Testimonial card styling */
+	/* Testimonial card styling - modified to support back navigation */
 	.testimonial-card {
 		opacity: 0; /* Start hidden for animation */
 		will-change: transform, opacity, box-shadow;
 		transition: all 0.3s ease;
+		animation: show-testimonials 0s 2s forwards; /* Ensure visible after 2 seconds regardless */
+	}
+
+	@keyframes show-testimonials {
+		to {
+			opacity: 1;
+		}
 	}
 
 	.testimonial-card:hover {

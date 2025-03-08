@@ -562,7 +562,6 @@
 						{
 							scale: [1, 1.8, 1],
 							y: [0, -15, 0],
-							filter: 'blur(2px) blur(0px)', // Simplified filter approach
 							color: ['#e5e7eb', '#60a5fa', '#93c5fd']
 						},
 						{
@@ -795,7 +794,6 @@
 				y: 10,
 				scale: 1.3,
 				color: '#60a5fa',
-				filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.8))'
 			},
 			{
 				duration: 0.4,
@@ -1160,7 +1158,6 @@
 						{
 							opacity: [0, 1],
 							scale: [0.9, 1],
-							filter: 'blur(0px)' // Simplified filter approach
 						},
 						{
 							duration: 1.2,
@@ -1181,7 +1178,6 @@
 							rotateX: ['45deg', '0deg'],
 							rotateY: ['25deg', '0deg'],
 							scale: [0.7, 1],
-							filter: 'blur(0px)' // Simplified filter approach
 						},
 						{
 							delay: stagger(0.15, { from: 'first' }),
@@ -1329,7 +1325,6 @@
 											opacity: [0, 1],
 											y: ['40px', '-10px', '0px'],
 											scale: [0.5, 1.2, 1],
-											filter: 'blur(0px)' // Simplified filter approach
 										},
 										{
 											duration: 1.0,
@@ -1829,7 +1824,7 @@
 	.nav-active .nav-text {
 		color: #60a5fa !important;
 		animation: textPulse 3s ease-in-out infinite;
-		text-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
+		/* Removed text-shadow with blur effect */
 	}
 
 	/* Explicitly remove animation for inactive items */
@@ -1858,15 +1853,18 @@
 	@keyframes textPulse {
 		0% {
 			opacity: 0.9;
-			text-shadow: 0 0 5px rgba(96, 165, 250, 0.3);
+			/* Reduced text-shadow to minimize blur effect */
+			text-shadow: 0 0 1px rgba(96, 165, 250, 0.2);
 		}
 		50% {
 			opacity: 1;
-			text-shadow: 0 0 15px rgba(96, 165, 250, 0.7);
+			/* Reduced text-shadow to minimize blur effect */
+			text-shadow: 0 0 2px rgba(96, 165, 250, 0.4);
 		}
 		100% {
 			opacity: 0.9;
-			text-shadow: 0 0 5px rgba(96, 165, 250, 0.3);
+			/* Reduced text-shadow to minimize blur effect */
+			text-shadow: 0 0 1px rgba(96, 165, 250, 0.2);
 		}
 	}
 
@@ -1956,5 +1954,14 @@
 		transform-style: preserve-3d;
 		filter: blur(1px);
 		opacity: 0.9;
+	}
+
+	/* Ensure navigation text is never blurred */
+	.nav-text, :global(.mobile-nav-text), :global(.nav-text) {
+		filter: none !important;
+		-webkit-filter: none !important;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 </style>
