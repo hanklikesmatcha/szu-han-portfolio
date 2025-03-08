@@ -905,6 +905,20 @@
 		name="description"
 		content="Professional portfolio showcasing my projects and expertise in software development"
 	/>
+	<!-- Open Graph / Social Media Meta Tags -->
+	<meta property="og:title" content="Szu-Han Chou aka Hank - Portfolio" />
+	<meta property="og:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://hankchou.me" />
+	<meta property="og:image" content="https://hankchou.me/hank-logo.svg" />
+	<meta property="og:image:alt" content="Hank Chou - Technical Solutions" />
+	<meta property="og:site_name" content="Hank Chou" />
+	
+	<!-- Twitter Card data -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Szu-Han Chou aka Hank - Portfolio" />
+	<meta name="twitter:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
+	<meta name="twitter:image" content="https://hankchou.me/hank-logo.svg" />
 </svelte:head>
 
 <section class="perspective relative bg-[#1A202C] py-12 text-gray-100" bind:this={heroSection}>
