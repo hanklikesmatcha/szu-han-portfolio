@@ -350,7 +350,7 @@
 			>
 				<div class="project-image relative h-48 overflow-hidden">
 					{#if project.image}
-						<img src={project.image} alt={project.title} class="h-full w-full object-cover" />
+						<img src={project.image} alt={project.title} class="h-full w-full object-cover object-top" />
 					{:else}
 						<div class="flex h-full w-full items-center justify-center">
 							<span class="text-gray-400">No image</span>
