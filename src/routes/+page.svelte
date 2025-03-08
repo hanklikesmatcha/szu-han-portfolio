@@ -913,7 +913,7 @@
 	<meta property="og:image" content="https://hankchou.me/images/hank-log.svg" />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
-	<meta property="og:image:alt" content="Hank Chou - Technical Solutions" />
+	<meta property="og:image:alt" content="Hank Chou - AI-Powered Software Engineering" />
 	<meta property="og:site_name" content="Hank Chou" />
 	
 	<!-- Twitter Card data -->
