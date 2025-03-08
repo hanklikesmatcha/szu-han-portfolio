@@ -6,6 +6,367 @@
 	import { onNavigate } from '$app/navigation';
 	import { browser } from '$app/environment'; // Import browser check for SSR safety
 	import { tick } from 'svelte'; // Import tick to ensure DOM is ready
+	import { slide, fade } from 'svelte/transition'; // Import Svelte transitions for dropdown animation
+
+	// State for mobile menu
+	let isMobileMenuOpen = false;
+	
+	// Function to toggle mobile menu
+	function toggleMobileMenu() {
+		isMobileMenuOpen = !isMobileMenuOpen;
+		console.log('Mobile menu toggled:', isMobileMenuOpen);
+		
+		// Create an entirely new menu system directly in the body
+		if (isMobileMenuOpen && browser) {
+			setTimeout(() => {
+				try {
+					// First, remove any existing menu overlay elements
+					const existingOverlay = document.getElementById('full-page-menu-overlay');
+					if (existingOverlay) {
+						document.body.removeChild(existingOverlay);
+					}
+					
+					// Create new menu container that completely covers everything
+					const menuOverlay = document.createElement('div');
+					menuOverlay.id = 'full-page-menu-overlay';
+					menuOverlay.style.position = 'fixed';
+					menuOverlay.style.top = '0';
+					menuOverlay.style.left = '0';
+					menuOverlay.style.width = '100vw';
+					menuOverlay.style.height = '100vh';
+					menuOverlay.style.backgroundColor = 'rgba(17, 24, 39, 0.85)'; // Semi-transparent background
+					menuOverlay.style.backdropFilter = 'blur(8px)'; // Add blur effect
+					menuOverlay.style.setProperty('-webkit-backdrop-filter', 'blur(8px)'); // For Safari support
+					menuOverlay.style.zIndex = '2147483647'; // Maximum possible z-index
+					menuOverlay.style.overflow = 'auto';
+					menuOverlay.style.display = 'flex';
+					menuOverlay.style.flexDirection = 'column';
+					menuOverlay.style.alignItems = 'center';
+					menuOverlay.style.justifyContent = 'center'; // Center menu items vertically
+					menuOverlay.style.padding = '2rem 1rem';
+					
+					// Remove the menu title indicator as it's unnecessary
+					
+					// Add close button that matches the hamburger menu style
+					const closeButton = document.createElement('button');
+					closeButton.style.position = 'fixed';
+					closeButton.style.top = '1rem';
+					closeButton.style.right = '1rem';
+					closeButton.style.color = 'white';
+					closeButton.style.width = '48px';
+					closeButton.style.height = '48px';
+					closeButton.style.borderRadius = '0.5rem';
+					closeButton.style.display = 'flex';
+					closeButton.style.flexDirection = 'column';
+					closeButton.style.alignItems = 'center';
+					closeButton.style.justifyContent = 'center';
+					closeButton.style.zIndex = '2147483647';
+					closeButton.style.border = 'none';
+					closeButton.style.cursor = 'pointer';
+					closeButton.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+					closeButton.setAttribute('aria-label', 'Close menu');
+					
+					// Create X icon using spans similar to hamburger menu
+					for (let i = 0; i < 2; i++) {
+						const line = document.createElement('span');
+						line.style.display = 'block';
+						line.style.width = '24px';
+						line.style.height = '1.5px';
+						line.style.backgroundColor = '#3b82f6';
+						line.style.borderRadius = '9999px';
+						line.style.position = 'absolute';
+						line.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+						
+						if (i === 0) {
+							line.style.transform = 'rotate(45deg)';
+						} else {
+							line.style.transform = 'rotate(-45deg)';
+						}
+						
+						closeButton.appendChild(line);
+					}
+					
+					closeButton.addEventListener('click', closeMobileMenu);
+					menuOverlay.appendChild(closeButton);
+					
+					// Create menu items container with improved styling
+					const menuItemsContainer = document.createElement('div');
+					menuItemsContainer.style.display = 'flex';
+					menuItemsContainer.style.flexDirection = 'column';
+					menuItemsContainer.style.alignItems = 'center';
+					menuItemsContainer.style.width = '100%';
+					menuItemsContainer.style.maxWidth = '350px';
+					menuItemsContainer.style.gap = '16px';
+					menuOverlay.appendChild(menuItemsContainer);
+					
+					// Add menu items with improved styling
+					navItems.forEach(item => {
+						const isActive = isNavItemActive(item.path, activePath);
+						
+						// Create menu item
+						const menuItem = document.createElement('a');
+						menuItem.href = item.path;
+						menuItem.style.display = 'flex';
+						menuItem.style.alignItems = 'center';
+						menuItem.style.width = '100%';
+						menuItem.style.padding = '1rem 1.5rem';
+						menuItem.style.backgroundColor = isActive ? 'rgba(59, 130, 246, 0.9)' : 'rgba(30, 41, 59, 0.8)';
+						menuItem.style.borderRadius = '12px';
+						menuItem.style.border = isActive ? '2px solid #60a5fa' : '1px solid rgba(96, 165, 250, 0.3)';
+						menuItem.style.textDecoration = 'none';
+						menuItem.style.color = 'white';
+						menuItem.style.fontSize = '18px';
+						menuItem.style.fontWeight = 'bold';
+						menuItem.style.gap = '12px';
+						menuItem.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+						menuItem.style.transition = 'all 0.3s ease';
+						menuItem.style.position = 'relative'; // Important for positioning the animation effects
+						menuItem.style.overflow = 'visible'; // Allow animations to overflow
+						menuItem.setAttribute('aria-label', item.label);
+						menuItem.setAttribute('data-path', item.path);
+						
+						if (isActive) {
+							menuItem.setAttribute('aria-current', 'page');
+						}
+						
+						// Create icon
+						const svgNS = "http://www.w3.org/2000/svg";
+						const icon = document.createElementNS(svgNS, "svg");
+						icon.setAttribute("width", "28");
+						icon.setAttribute("height", "28");
+						icon.setAttribute("viewBox", "0 0 24 24");
+						icon.setAttribute("fill", isActive ? '#ffffff' : '#60a5fa');
+						icon.classList.add('mobile-nav-icon');
+						
+						const iconPath = document.createElementNS(svgNS, "path");
+						iconPath.setAttribute("d", item.icon);
+						icon.appendChild(iconPath);
+						
+						// Create label
+						const label = document.createElement('span');
+						label.textContent = item.label;
+						label.classList.add('mobile-nav-text');
+						
+						// Add icon and label to menuItem
+						menuItem.appendChild(icon);
+						menuItem.appendChild(label);
+						
+						// Add click event with animations
+						menuItem.addEventListener('click', (e) => {
+							// Create click animation before closing menu
+							if (!isActive) {
+								// Create a flash effect
+								const flash = document.createElement('div');
+								flash.style.position = 'absolute';
+								flash.style.top = '0';
+								flash.style.left = '0';
+								flash.style.width = '100%';
+								flash.style.height = '100%';
+								flash.style.borderRadius = '12px';
+								flash.style.background = 'linear-gradient(45deg, rgba(96, 165, 250, 0.7), rgba(244, 114, 182, 0.7))';
+								flash.style.opacity = '0';
+								flash.style.pointerEvents = 'none';
+								flash.style.zIndex = '5';
+								flash.style.filter = 'blur(15px)';
+								flash.style.mixBlendMode = 'overlay';
+								menuItem.appendChild(flash);
+								
+								// Animate the flash
+								animate(
+									flash,
+									{ opacity: [0, 0.8, 0] },
+									{ duration: 0.8, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+								);
+								
+								// Create ripple effects
+								for (let i = 0; i < 3; i++) {
+									const ripple = document.createElement('div');
+									ripple.style.position = 'absolute';
+									ripple.style.width = '20px';
+									ripple.style.height = '20px';
+									ripple.style.borderRadius = '50%';
+									ripple.style.background = 'radial-gradient(circle, rgba(96, 165, 250, 0.9) 0%, rgba(96, 165, 250, 0) 70%)';
+									ripple.style.left = '50%';
+									ripple.style.top = '50%';
+									ripple.style.transform = 'translate(-50%, -50%)';
+									ripple.style.pointerEvents = 'none';
+									ripple.style.zIndex = '1';
+									ripple.style.opacity = '0.8';
+									ripple.style.willChange = 'transform, opacity';
+									ripple.style.filter = 'blur(1px)';
+									menuItem.appendChild(ripple);
+									
+									// Animate ripple with staggered timing
+									animate(
+										ripple,
+										{
+											opacity: [0.9, 0],
+											scale: [0, 4 + i * 1.5]
+										},
+										{
+											duration: 1.0 + i * 0.2,
+											delay: i * 0.15,
+											easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+										}
+									);
+								}
+								
+								// Animate the icon
+								animate(
+									icon,
+									{
+										scale: [1, 2.5, 1.2, 1],
+										rotate: [0, -15, 15, -5, 5, 0],
+										y: [0, -10, 5, 0],
+										filter: 'drop-shadow(0 0 30px rgba(59, 130, 246, 0.9))'
+									},
+									{
+										duration: 1.0,
+										easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+									}
+								);
+								
+								// Animate the text
+								animate(
+									label,
+									{
+										scale: [1, 1.3, 1],
+										y: [0, -5, 0],
+										color: ['#ffffff', '#60a5fa', '#ffffff']
+									},
+									{
+										duration: 0.8,
+										easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+									}
+								);
+								
+								// Create particles for effect
+								for (let i = 0; i < 20; i++) {
+									const particle = document.createElement('div');
+									particle.style.position = 'absolute';
+									particle.style.width = (3 + Math.random() * 7) + 'px';
+									particle.style.height = (3 + Math.random() * 7) + 'px';
+									particle.style.borderRadius = '50%';
+									
+									// Random color from particleColors
+									const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
+									const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
+									particle.style.backgroundColor = color;
+									particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`;
+									
+									// Position at center
+									particle.style.left = '50%';
+									particle.style.top = '50%';
+									particle.style.transform = 'translate(-50%, -50%)';
+									
+									menuItem.appendChild(particle);
+									
+									// Animate particles from center outward
+									const angle = Math.random() * Math.PI * 2;
+									const distance = 30 + Math.random() * 100;
+									
+									animate(
+										particle,
+										{
+											opacity: [1, 0],
+											scale: [Math.random() < 0.5 ? 0.5 : 1.5, 0],
+											x: [0, `${Math.cos(angle) * distance}px`],
+											y: [0, `${Math.sin(angle) * distance}px`],
+											rotate: [`${Math.random() * 90}deg`, `${Math.random() * 360}deg`]
+										},
+										{
+											duration: 0.8 + Math.random() * 0.6,
+											easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+										}
+									);
+								}
+								
+								// Delay navigation slightly to show the animation
+								e.preventDefault();
+								setTimeout(() => {
+									window.location.href = item.path;
+									closeMobileMenu();
+								}, 500); // Short delay to allow animation to play
+								
+								return;
+							}
+							
+							closeMobileMenu();
+						});
+						
+						menuItemsContainer.appendChild(menuItem);
+					});
+					
+					// Add to body
+					document.body.appendChild(menuOverlay);
+					
+					// Lock body scroll
+					document.body.style.overflow = 'hidden';
+					
+				} catch (e) {
+					console.error("Error creating menu overlay", e);
+				}
+			}, 50);
+		} else if (browser) {
+			// Remove menu overlay if it exists
+			const menuOverlay = document.getElementById('full-page-menu-overlay');
+			if (menuOverlay && menuOverlay.parentNode) {
+				menuOverlay.parentNode.removeChild(menuOverlay);
+			}
+			
+			// Remove backdrop if it exists
+			const backdrop = document.getElementById('menu-backdrop');
+			if (backdrop && backdrop.parentNode) {
+				backdrop.parentNode.removeChild(backdrop);
+			}
+			
+			// Restore body scroll
+			document.body.style.overflow = '';
+		}
+	}
+	
+	// Close mobile menu when navigating or resizing to desktop
+	function closeMobileMenu() {
+		isMobileMenuOpen = false;
+		
+		if (browser) {
+			// Remove menu overlay if it exists
+			const menuOverlay = document.getElementById('full-page-menu-overlay');
+			if (menuOverlay && menuOverlay.parentNode) {
+				menuOverlay.parentNode.removeChild(menuOverlay);
+			}
+			
+			// Remove backdrop if it exists
+			const backdrop = document.getElementById('menu-backdrop');
+			if (backdrop && backdrop.parentNode) {
+				backdrop.parentNode.removeChild(backdrop);
+			}
+			
+			// Restore body scroll
+			document.body.style.overflow = '';
+		}
+	}
+	
+	// Check if we're on mobile
+	let isMobile = false;
+	
+	// Function to handle key presses for accessibility
+	function handleKeydown(event: KeyboardEvent) {
+		// Close mobile menu on Escape key
+		if (event.key === 'Escape' && isMobileMenuOpen) {
+			closeMobileMenu();
+		}
+	}
+	
+	// Update isMobile state on window resize
+	function handleResize() {
+		if (browser) {
+			isMobile = window.innerWidth < 768; // 768px is standard md breakpoint
+			if (!isMobile) {
+				closeMobileMenu(); // Close menu when switching to desktop
+			}
+		}
+	}
 
 	// Define navigation items
 	const navItems = [
@@ -17,7 +378,7 @@
 		},
 		{
 			path: '/services',
-			label: 'Skills',
+			label: 'Services',
 			icon: 'M21.67 18.17l-5.3-5.3h-.99l-2.54 2.54v.99l5.3 5.3c.39.39 1.02.39 1.41 0l2.12-2.12c.39-.38.39-1.02 0-1.41zm-2.83 1.42l-4.24-4.24.71-.71 4.24 4.24-.71.71z M17.34 10.19l1.41-1.41 2.12 2.12c1.17-1.17 1.17-3.07 0-4.24l-3.54-3.54-1.41 1.41V1.71l-.7-.71-3.54 3.54.71.71h2.83l-1.41 1.41 1.06 1.06-2.89 2.89-4.13-4.13V5.06L4.83 2.04 2 4.87 5.03 7.9h1.41l4.13 4.13-.85.85H7.6l-5.3 5.3c-.39.39-.39 1.02 0 1.41l2.12 2.12c.39.39 1.02.39 1.41 0l5.3-5.3v-2.12l5.15-5.15 1.06 1.05zm-7.98 5.15l-4.24 4.24-.71-.71 4.24-4.24.71.71z'
 		}
 	];
@@ -744,6 +1105,9 @@
 		// Only run DOM operations in the browser
 		if (!browser) return;
 
+		// Initialize mobile state
+		handleResize();
+
 		// Add hover event for fireworks on the brand logo
 		const brandLogo = document.querySelector('.brand-logo');
 		if (brandLogo && fireworksContainer) {
@@ -1009,17 +1373,106 @@
 	});
 </script>
 
-<nav class="container mx-auto flex items-center justify-between px-4 py-4">
+<svelte:window on:resize={handleResize} on:keydown={handleKeydown} />
+
+<nav class="container mx-auto flex items-center justify-between px-4 py-4 relative" style="z-index: auto; overflow: visible;">
 	<div class="relative">
-		<a href="/" class="brand-logo text-xl font-bold text-blue-400">
-			<span class="greeting">Hello, I'm</span>
+		<a href="/" class="brand-logo text-xl font-bold text-blue-400 whitespace-nowrap">
+			<span class="greeting hidden sm:inline-block">Hello, I'm</span>
 			<span class="hank-highlight">Hank</span>
 			<span class="aka">•</span>
 			<span class="name">Szu-Han</span>
 		</a>
 		<div class="fireworks-container" bind:this={fireworksContainer}></div>
 	</div>
-	<div class="flex gap-8">
+	
+	<!-- Mobile Hamburger Menu Button -->
+	<button
+		class="md:hidden z-[100000] relative w-12 h-12 flex flex-col justify-center items-center"
+		style="position: relative; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: all 0.3s ease;"
+		on:click={toggleMobileMenu}
+		aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+		aria-expanded={isMobileMenuOpen}
+		aria-controls="mobile-nav-menu"
+	>
+		<span 
+			class="hamburger-line bg-blue-500 rounded-full transition-all duration-300"
+			class:top-active={isMobileMenuOpen}
+			style="display: block; width: 26px; height: 1.5px; margin: 5px 0; background-color: #3b82f6; transform-origin: center;"
+		></span>
+		<span 
+			class="hamburger-line bg-blue-500 rounded-full transition-all duration-300"
+			class:middle-active={isMobileMenuOpen}
+			style="display: block; width: 20px; height: 1.5px; margin: 5px 0; background-color: #3b82f6; transform-origin: center;"
+		></span>
+		<span 
+			class="hamburger-line bg-blue-500 rounded-full transition-all duration-300"
+			class:bottom-active={isMobileMenuOpen}
+			style="display: block; width: 26px; height: 1.5px; margin: 5px 0; background-color: #3b82f6; transform-origin: center;"
+		></span>
+	</button>
+	
+	<!-- Mobile Navigation Dropdown - Now handled programmatically, keeping as fallback -->
+	{#if false && isMobileMenuOpen}
+	<div 
+		id="mobile-nav-menu"
+		class="md:hidden fixed inset-0 z-[99999]"
+		style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background-color: rgba(17, 24, 39, 0.98); padding-top: 6rem; padding-bottom: 2rem; padding-left: 1rem; padding-right: 1rem; overflow-y: auto; display: block; visibility: visible; opacity: 1;"
+	>
+		<!-- Visible indicator that menu is open -->
+		<div style="position: fixed; top: 14px; left: 50%; transform: translateX(-50%); background-color: #ef4444; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold; z-index: 100001; display: block !important; visibility: visible !important; opacity: 1 !important;">
+			Menu Is Open - Tap Items Below
+		</div>
+		
+		<!-- Close button inside menu -->
+		<button 
+			style="position: fixed; top: 70px; right: 20px; background-color: #ef4444; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex !important; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; z-index: 100001; visibility: visible !important; opacity: 1 !important;"
+			on:click={closeMobileMenu}
+			aria-label="Close menu"
+		>
+			✕
+		</button>
+		
+		<div 
+			class="flex flex-col gap-6 items-center max-w-md mx-auto"
+			style="display: flex; visibility: visible; opacity: 1;"
+		>
+			{#each navItems as item, i}
+				<a
+					href={item.path}
+					class="nav-item group flex items-center gap-4 w-full justify-center py-6 px-4"
+					style="background-color: #1e293b; border: 2px solid #3b82f6; border-radius: 0.75rem; margin-bottom: 1rem; display: flex; visibility: visible; opacity: 1;"
+					class:nav-active={isNavItemActive(item.path, activePath)}
+					aria-label={item.label}
+					aria-current={isNavItemActive(item.path, activePath) ? 'page' : undefined}
+					on:click={closeMobileMenu}
+					data-path={item.path}
+				>
+					<svg
+						class="nav-icon"
+						width="28"
+						height="28"
+						viewBox="0 0 24 24"
+						fill={isNavItemActive(item.path, activePath) ? '#60a5fa' : '#ffffff'}
+						xmlns="http://www.w3.org/2000/svg"
+						style="display: inline-block; visibility: visible; opacity: 1;"
+					>
+						<path d={item.icon} />
+					</svg>
+					<span
+						class="nav-text text-xl text-white font-bold"
+						style="display: inline-block; visibility: visible; opacity: 1;"
+					>
+						{item.label}
+					</span>
+				</a>
+			{/each}
+		</div>
+	</div>
+	{/if}
+	
+	<!-- Desktop Navigation -->
+	<div class="hidden md:flex gap-8">
 		{#each navItems as item}
 			<a
 				href={item.path}
@@ -1054,6 +1507,35 @@
 </nav>
 
 <style>
+	/* Critical overrides for mobile menu visibility */
+	:global(body) {
+		position: relative;
+		overflow-x: hidden;
+	}
+	
+	:global(#mobile-nav-menu),
+	:global(#mobile-nav-menu *) {
+		visibility: visible !important;
+		opacity: 1 !important;
+		display: block !important;
+	}
+	
+	:global(#mobile-nav-menu .flex) {
+		display: flex !important;
+	}
+	
+	:global(#mobile-nav-menu a) {
+		display: flex !important;
+	}
+	
+	/* Special hack for iOS */
+	@supports (-webkit-touch-callout: none) {
+		:global(#mobile-nav-menu) {
+			-webkit-transform: translateZ(0);
+			transform: translateZ(0);
+		}
+	}
+	
 	.brand-logo {
 		position: relative;
 		overflow: visible;
@@ -1123,11 +1605,116 @@
 		color: #60a5fa;
 	}
 
+	/* Hamburger menu styles */
+	.hamburger-line {
+		display: block;
+		width: 24px;
+		height: 2px;
+		margin: 4px 0;
+		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		opacity: 1;
+	}
+	
+	.top-active {
+		transform: translateY(7px) rotate(45deg);
+		width: 24px !important;
+	}
+	
+	.middle-active {
+		opacity: 0;
+		transform: translateX(-15px);
+		width: 5px;
+	}
+	
+	.bottom-active {
+		transform: translateY(-7px) rotate(-45deg);
+		width: 24px !important;
+	}
+
+	/* Added screen class to ensure full coverage */
+	.screen {
+		width: 100vw;
+		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 9999;
+	}
+
+	/* Special overlay to ensure the dropdown is visible */
+	#mobile-nav-menu::before {
+		content: '';
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+		z-index: -1; /* Behind the menu but in front of the page content */
+	}
+
+	/* Mobile menu item styles */
+	@media (max-width: 767px) {
+		.nav-item {
+			padding: 1.25rem 1.5rem;
+			transition: all 0.3s ease;
+			transform: translateY(0);
+			width: 100%;
+			max-width: 300px;
+			border-radius: 0.75rem;
+			opacity: 1 !important; /* Force visibility */
+			background-color: rgba(30, 41, 59, 1);  /* Fully opaque background */
+			margin-bottom: 0.75rem;
+			box-shadow: 0 8px 15px -2px rgba(0, 0, 0, 0.3), 0 6px 10px -3px rgba(0, 0, 0, 0.2);
+			border: 1px solid rgba(96, 165, 250, 0.3);
+			position: relative; /* Ensure proper stacking context */
+			z-index: 1; /* Ensure it participates in stacking context */
+		}
+		
+		.nav-item:hover {
+			background-color: rgba(96, 165, 250, 0.3);
+			transform: translateY(-3px);
+			border-color: rgba(96, 165, 250, 0.5);
+		}
+		
+		.nav-active {
+			background-color: rgba(96, 165, 250, 0.5);
+			border-color: rgba(96, 165, 250, 0.8);
+		}
+		
+		/* Ensure all navigation text is visible */
+		.nav-text {
+			opacity: 1 !important;
+			color: white !important;
+			text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+		}
+		
+		/* Ensure icon is visible */
+		.nav-icon {
+			opacity: 1 !important;
+		}
+	}
+	
+	@keyframes mobileMenuItemIn {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
 	.nav-item {
 		position: relative;
 		text-decoration: none;
 		overflow: visible;
 		isolation: isolate; /* Create stacking context for z-index */
+		transform-style: preserve-3d;
+		perspective: 1000px;
 	}
 
 	.nav-icon {
@@ -1369,15 +1956,5 @@
 		transform-style: preserve-3d;
 		filter: blur(1px);
 		opacity: 0.9;
-	}
-
-	/* Navigation animation effects */
-	.nav-item {
-		position: relative;
-		text-decoration: none;
-		overflow: visible;
-		isolation: isolate; /* Create stacking context for z-index */
-		transform-style: preserve-3d;
-		perspective: 1000px;
 	}
 </style>
