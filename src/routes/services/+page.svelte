@@ -70,164 +70,435 @@
 	let expertiseSection: HTMLElement;
 	let testimonialSection: HTMLElement;
 	let ctaSection: HTMLElement;
+	
+	// Track scroll position and direction
+	let lastScrollTop = 0;
+	let scrollDirection = 'down';
+	
+	// Track element visibility states
+	let sectionStates = {
+		hero: { visible: false, animated: { down: false, up: false } },
+		services: { visible: false, animated: { down: false, up: false } },
+		expertise: { visible: false, animated: { down: false, up: false } },
+		testimonial: { visible: false, animated: { down: false, up: false } },
+		cta: { visible: false, animated: { down: false, up: false } }
+	};
 
 	onMount(() => {
-		// Hero section animation - more dramatic entrance with staggered reveal
-		try {
-			animate(
-				'.hero-element',
-				{
-					opacity: [0, 1],
-					y: [50, 0],
-					scale: [0.9, 1]
-				},
-				{
-					delay: stagger(0.2),
-					duration: 1.0,
-					easing: 'cubic-bezier(0.16, 1, 0.3, 1)' // Different easing than landing page
-				}
-			);
-		} catch (error) {
-			console.error('Hero animation error:', error);
-		}
+		// Initial hero section animation
+		animateHeroSection('down');
+		sectionStates.hero.animated.down = true;
+		
+		// Setup scroll direction detection
+		window.addEventListener('scroll', () => {
+			const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+			scrollDirection = scrollTop > lastScrollTop ? 'down' : 'up';
+			lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+		});
 
-		// Setup intersection observers for other sections
+		// Setup intersection observers for sections
 		const observerOptions = {
 			threshold: 0.15,
-			rootMargin: '-50px 0px -100px 0px' // Trigger earlier
+			rootMargin: '-50px 0px -100px 0px'
 		};
 
-		// Services cards animation - reveal with diagonal slide
+		// Create observer for tracking elements leaving the viewport
+		const exitObserverOptions = {
+			threshold: 0,
+			rootMargin: '0px 0px 0px 0px'
+		};
+
+		// Hero section observer
+		const heroObserver = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				const isVisible = entry.isIntersecting;
+				const wasVisible = sectionStates.hero.visible;
+				sectionStates.hero.visible = isVisible;
+				
+				// Element is entering viewport
+				if (isVisible && scrollDirection === 'up' && !sectionStates.hero.animated.up) {
+					animateHeroSection('up');
+					sectionStates.hero.animated.up = true;
+				} else if (isVisible && scrollDirection === 'down' && !sectionStates.hero.animated.down) {
+					animateHeroSection('down');
+					sectionStates.hero.animated.down = true;
+				} 
+				// Element is leaving viewport
+				else if (wasVisible && !isVisible) {
+					if (scrollDirection === 'up') {
+						// When scrolling up and hero section moves out of view (below viewport)
+						animateHeroSectionExit('down');
+					} else {
+						// When scrolling down and hero section moves out of view (above viewport)
+						animateHeroSectionExit('up');
+					}
+					// Reset animation flags when section is out of view
+					sectionStates.hero.animated = { up: false, down: false };
+				}
+			});
+		}, observerOptions);
+
+		// Services section observer
 		const servicesObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					try {
-						// Diagonal reveal animation - different from home page animations
-						animate(
-							'.service-card',
-							{
-								opacity: [0, 1],
-								y: [80, 0],
-								x: ['-40px', '0px'] // Diagonal slide
-							},
-							{
-								delay: stagger(0.15),
-								duration: 0.9,
-								easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-							}
-						);
-					} catch (error) {
-						console.error('Service card animation error:', error);
+				const isVisible = entry.isIntersecting;
+				const wasVisible = sectionStates.services.visible;
+				sectionStates.services.visible = isVisible;
+				
+				// Element is entering viewport
+				if (isVisible && scrollDirection === 'down' && !sectionStates.services.animated.down) {
+					animateServicesSection('down');
+					sectionStates.services.animated.down = true;
+				} else if (isVisible && scrollDirection === 'up' && !sectionStates.services.animated.up) {
+					animateServicesSection('up');
+					sectionStates.services.animated.up = true;
+				} 
+				// Element is leaving viewport
+				else if (wasVisible && !isVisible) {
+					if (scrollDirection === 'up') {
+						// When scrolling up and services section moves out of view (below viewport)
+						animateServicesSectionExit('down');
+					} else {
+						// When scrolling down and services section moves out of view (above viewport)
+						animateServicesSectionExit('up');
 					}
-					servicesObserver.disconnect();
+					// Reset animation flags when section is out of view
+					sectionStates.services.animated = { up: false, down: false };
 				}
 			});
 		}, observerOptions);
 
-		// Expertise section animation - reveal line by line
+		// Expertise section observer
 		const expertiseObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					try {
-						// Line-by-line reveal animation - unique to this page
-						animate(
-							'.expertise-element',
-							{
-								opacity: [0, 1],
-								x: ['-30px', '0px'],
-								clipPath: ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Text reveal from left to right
-							},
-							{
-								delay: stagger(0.25), // Longer delay for more dramatic effect
-								duration: 0.8,
-								easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-							}
-						);
-					} catch (error) {
-						console.error('Expertise animation error:', error);
+				const isVisible = entry.isIntersecting;
+				const wasVisible = sectionStates.expertise.visible;
+				sectionStates.expertise.visible = isVisible;
+				
+				// Element is entering viewport
+				if (isVisible && scrollDirection === 'down' && !sectionStates.expertise.animated.down) {
+					animateExpertiseSection('down');
+					sectionStates.expertise.animated.down = true;
+				} else if (isVisible && scrollDirection === 'up' && !sectionStates.expertise.animated.up) {
+					animateExpertiseSection('up');
+					sectionStates.expertise.animated.up = true;
+				} 
+				// Element is leaving viewport
+				else if (wasVisible && !isVisible) {
+					if (scrollDirection === 'up') {
+						// When scrolling up and expertise section moves out of view (below viewport)
+						animateExpertiseSectionExit('down');
+					} else {
+						// When scrolling down and expertise section moves out of view (above viewport)
+						animateExpertiseSectionExit('up');
 					}
-					expertiseObserver.disconnect();
+					// Reset animation flags when section is out of view
+					sectionStates.expertise.animated = { up: false, down: false };
 				}
 			});
 		}, observerOptions);
 
-		// Testimonials animation
+		// Testimonial section observer
 		const testimonialObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					try {
-						// Staggered fade-in with scale and slide
-						animate(
-							'.testimonial-card',
-							{
-								opacity: [0, 1],
-								y: [60, 0],
-								scale: [0.9, 1]
-							},
-							{
-								delay: stagger(0.25),
-								duration: 0.8,
-								easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-							}
-						);
-
-						// Add gentle pulse after appearing
-						setTimeout(() => {
-							document.querySelectorAll('.testimonial-card').forEach((card, i) => {
-								animate(
-									card,
-									{
-										scale: [1, 1.02, 1],
-										boxShadow: [
-											'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-											'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
-											'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-										]
-									},
-									{
-										duration: 4 + i,
-										delay: i * 1.5,
-										repeat: Infinity,
-										easing: 'ease-in-out'
-									}
-								);
-							});
-						}, 1500);
-					} catch (error) {
-						console.error('Testimonial animation error:', error);
+				const isVisible = entry.isIntersecting;
+				const wasVisible = sectionStates.testimonial.visible;
+				sectionStates.testimonial.visible = isVisible;
+				
+				// Element is entering viewport
+				if (isVisible && scrollDirection === 'down' && !sectionStates.testimonial.animated.down) {
+					animateTestimonialSection('down');
+					sectionStates.testimonial.animated.down = true;
+				} else if (isVisible && scrollDirection === 'up' && !sectionStates.testimonial.animated.up) {
+					animateTestimonialSection('up');
+					sectionStates.testimonial.animated.up = true;
+				} 
+				// Element is leaving viewport
+				else if (wasVisible && !isVisible) {
+					if (scrollDirection === 'up') {
+						// When scrolling up and testimonial section moves out of view (below viewport)
+						animateTestimonialSectionExit('down');
+					} else {
+						// When scrolling down and testimonial section moves out of view (above viewport)
+						animateTestimonialSectionExit('up');
 					}
-					testimonialObserver.disconnect();
+					// Reset animation flags when section is out of view
+					sectionStates.testimonial.animated = { up: false, down: false };
 				}
 			});
 		}, observerOptions);
 
-		// CTA section animation - bounce in from bottom
+		// CTA section observer
 		const ctaObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					try {
-						animate(
-							'.cta-element',
-							{
-								opacity: [0, 1],
-								y: [40, 0],
-								scale: [0.9, 1.05, 1] // Slight overshoot for bounce effect
-							},
-							{
-								delay: stagger(0.2),
-								duration: 0.8,
-								easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)' // Custom bounce curve
-							}
-						);
-					} catch (error) {
-						console.error('CTA animation error:', error);
+				const isVisible = entry.isIntersecting;
+				const wasVisible = sectionStates.cta.visible;
+				sectionStates.cta.visible = isVisible;
+				
+				// Element is entering viewport
+				if (isVisible && scrollDirection === 'down' && !sectionStates.cta.animated.down) {
+					animateCTASection('down');
+					sectionStates.cta.animated.down = true;
+				} else if (isVisible && scrollDirection === 'up' && !sectionStates.cta.animated.up) {
+					animateCTASection('up');
+					sectionStates.cta.animated.up = true;
+				} 
+				// Element is leaving viewport
+				else if (wasVisible && !isVisible) {
+					if (scrollDirection === 'up') {
+						// When scrolling up and CTA section moves out of view (below viewport)
+						animateCTASectionExit('down');
+					} else {
+						// When scrolling down and CTA section moves out of view (above viewport)
+						animateCTASectionExit('up');
 					}
-					ctaObserver.disconnect();
+					// Reset animation flags when section is out of view
+					sectionStates.cta.animated = { up: false, down: false };
 				}
 			});
 		}, observerOptions);
 
+		// Animation functions for each section based on scroll direction
+		function animateHeroSection(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.hero-element',
+					{
+						opacity: [0, 1],
+						y: direction === 'down' ? [50, 0] : [-50, 0],
+						scale: direction === 'down' ? [0.9, 1] : [1.1, 1]
+					},
+					{
+						delay: stagger(0.2),
+						duration: 1.0,
+						easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+					}
+				);
+			} catch (error) {
+				console.error('Hero animation error:', error);
+			}
+		}
+
+		// Exit animations for when elements leave viewport
+		function animateHeroSectionExit(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.hero-element',
+					{
+						opacity: [1, 0],
+						y: direction === 'down' ? [0, 50] : [0, -50],
+						scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
+					},
+					{
+						delay: stagger(0.1, { from: 'last' }), // Reverse stagger for exit
+						duration: 0.6, // Faster exit animation
+						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+					}
+				);
+			} catch (error) {
+				console.error('Hero exit animation error:', error);
+			}
+		}
+
+		function animateServicesSection(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.service-card',
+					{
+						opacity: [0, 1],
+						y: direction === 'down' ? [80, 0] : [-80, 0],
+						x: direction === 'down' ? ['-40px', '0px'] : ['40px', '0px']
+					},
+					{
+						delay: stagger(0.15),
+						duration: 0.9,
+						easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+					}
+				);
+			} catch (error) {
+				console.error('Service card animation error:', error);
+			}
+		}
+
+		function animateServicesSectionExit(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.service-card',
+					{
+						opacity: [1, 0],
+						y: direction === 'down' ? [0, 80] : [0, -80],
+						x: direction === 'down' ? ['0px', '-40px'] : ['0px', '40px']
+					},
+					{
+						delay: stagger(0.1, { from: 'last' }),
+						duration: 0.6,
+						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+					}
+				);
+			} catch (error) {
+				console.error('Service card exit animation error:', error);
+			}
+		}
+
+		function animateExpertiseSection(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.expertise-element',
+					{
+						opacity: [0, 1],
+						x: direction === 'down' ? ['-30px', '0px'] : ['30px', '0px'],
+						clipPath: direction === 'down' 
+							? ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Left to right
+							: ['inset(0 0 0 50%)', 'inset(0 0% 0 0)']  // Right to left
+					},
+					{
+						delay: stagger(0.25),
+						duration: 0.8,
+						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+					}
+				);
+			} catch (error) {
+				console.error('Expertise animation error:', error);
+			}
+		}
+
+		function animateExpertiseSectionExit(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.expertise-element',
+					{
+						opacity: [1, 0],
+						x: direction === 'down' ? ['0px', '-30px'] : ['0px', '30px'],
+						clipPath: direction === 'down' 
+							? ['inset(0 0% 0 0)', 'inset(0 50% 0 0)'] // Right to left
+							: ['inset(0 0% 0 0)', 'inset(0 0 0 50%)']  // Left to right
+					},
+					{
+						delay: stagger(0.15, { from: 'last' }),
+						duration: 0.6,
+						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+					}
+				);
+			} catch (error) {
+				console.error('Expertise exit animation error:', error);
+			}
+		}
+
+		function animateTestimonialSection(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.testimonial-card',
+					{
+						opacity: [0, 1],
+						y: direction === 'down' ? [60, 0] : [-60, 0],
+						scale: [0.9, 1]
+					},
+					{
+						delay: stagger(0.25),
+						duration: 0.8,
+						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+					}
+				);
+
+				// Add gentle pulse after appearing
+				setTimeout(() => {
+					document.querySelectorAll('.testimonial-card').forEach((card, i) => {
+						animate(
+							card,
+							{
+								scale: [1, 1.02, 1],
+								boxShadow: [
+									'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+									'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
+									'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+								]
+							},
+							{
+								duration: 4 + i,
+								delay: i * 1.5,
+								repeat: Infinity,
+								easing: 'ease-in-out'
+							}
+						);
+					});
+				}, 1500);
+			} catch (error) {
+				console.error('Testimonial animation error:', error);
+			}
+		}
+
+		function animateTestimonialSectionExit(direction: 'up' | 'down') {
+			try {
+				// Stop the pulse animations when exiting
+				document.querySelectorAll('.testimonial-card').forEach((card) => {
+					animate(
+						card,
+						{ scale: 1 },
+						{ duration: 0.2 }
+					);
+				});
+				
+				// Exit animation
+				animate(
+					'.testimonial-card',
+					{
+						opacity: [1, 0],
+						y: direction === 'down' ? [0, 60] : [0, -60],
+						scale: [1, 0.9]
+					},
+					{
+						delay: stagger(0.15, { from: 'last' }),
+						duration: 0.6,
+						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+					}
+				);
+			} catch (error) {
+				console.error('Testimonial exit animation error:', error);
+			}
+		}
+
+		function animateCTASection(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.cta-element',
+					{
+						opacity: [0, 1],
+						y: direction === 'down' ? [40, 0] : [-40, 0],
+						scale: direction === 'down' ? [0.9, 1.05, 1] : [1.1, 0.95, 1] // Different bounce effect based on direction
+					},
+					{
+						delay: stagger(0.2),
+						duration: 0.8,
+						easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)'
+					}
+				);
+			} catch (error) {
+				console.error('CTA animation error:', error);
+			}
+		}
+
+		function animateCTASectionExit(direction: 'up' | 'down') {
+			try {
+				animate(
+					'.cta-element',
+					{
+						opacity: [1, 0],
+						y: direction === 'down' ? [0, 40] : [0, -40],
+						scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
+					},
+					{
+						delay: stagger(0.1, { from: 'last' }),
+						duration: 0.6,
+						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+					}
+				);
+			} catch (error) {
+				console.error('CTA exit animation error:', error);
+			}
+		}
+
 		// Observe sections
+		if (heroSection) heroObserver.observe(heroSection);
 		if (servicesSection) servicesObserver.observe(servicesSection);
 		if (expertiseSection) expertiseObserver.observe(expertiseSection);
 		if (testimonialSection) testimonialObserver.observe(testimonialSection);
