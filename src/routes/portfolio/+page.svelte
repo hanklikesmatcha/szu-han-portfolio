@@ -39,7 +39,7 @@
 	let filter = 'all';
 	let projectsGrid: HTMLElement;
 	let filtersContainer: HTMLElement;
-	let headingElement: HTMLElement;
+	let heroSection: HTMLElement;
 	let animationsApplied = false;
 
 	$: filteredProjects =
@@ -96,83 +96,76 @@
 	}
 
 	onMount(() => {
-		// Dramatic header entrance - slide in from top with shadow
+		// Hero section animation - more dramatic entrance with staggered reveal
 		try {
 			animate(
-				headingElement,
+				'.hero-element',
 				{
 					opacity: [0, 1],
-					y: [-50, 0],
-					filter: ['blur(8px)', 'blur(0px)']
+					y: [50, 0],
+					scale: [0.9, 1]
 				},
 				{
-					duration: 1.2,
-					easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
-				}
-			);
-
-			// Add subtle continuous animation after appearing
-			setTimeout(() => {
-				animate(
-					headingElement,
-					{
-						y: [0, -5, 0],
-						textShadow: [
-							'0 0px 0px rgba(59, 130, 246, 0)',
-							'0 5px 15px rgba(59, 130, 246, 0.3)',
-							'0 0px 0px rgba(59, 130, 246, 0)'
-						]
-					},
-					{
-						duration: 6,
-						repeat: Infinity,
-						easing: 'ease-in-out'
-					}
-				);
-			}, 1500);
-		} catch (error) {
-			console.error('Header animation error:', error);
-		}
-
-		// Animate the filters - revealing in sequence with bounce
-		try {
-			animate(
-				'.filter-btn',
-				{
-					opacity: [0, 1],
-					x: [-20, 0],
-					scale: [0.8, 1.05, 1] // Slight overshoot for bounce
-				},
-				{
-					delay: stagger(0.1),
-					duration: 0.7,
-					easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Custom bounce
-				}
-			);
-		} catch (error) {
-			console.error('Filter animation error:', error);
-		}
-
-		// Dramatic project cards animation - reveal with 3D effect
-		try {
-			animate(
-				'.project-card',
-				{
-					opacity: [0, 1],
-					y: [100, 0],
-					scale: [0.8, 1]
-				},
-				{
-					delay: stagger(0.2, { from: 'center' }), // Fan out from center
+					delay: stagger(0.2),
 					duration: 1.0,
-					easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+					easing: 'cubic-bezier(0.16, 1, 0.3, 1)' // Different easing than landing page
 				}
 			);
 		} catch (error) {
-			console.error('Project card animation error:', error);
+			console.error('Hero animation error:', error);
 		}
 
-		// Enhanced hover effects for project cards with 3D transformations
+		// About section entrance animation when scrolled to
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting && !animationsApplied) {
+						animationsApplied = true;
+
+						try {
+							// Diagonal reveal animation for filter buttons
+							animate(
+								'.filter-btn',
+								{
+									opacity: [0, 1],
+									y: [20, 0],
+									x: ['-20px', '0px']
+								},
+								{
+									delay: stagger(0.1),
+									duration: 0.7,
+									easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+								}
+							);
+
+							// Project cards animation
+							animate(
+								'.project-card',
+								{
+									opacity: [0, 1],
+									y: [60, 0],
+									scale: [0.95, 1]
+								},
+								{
+									delay: stagger(0.15, { from: 'center' }),
+									duration: 0.9,
+									easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+								}
+							);
+						} catch (error) {
+							console.error('Projects section animation error:', error);
+						}
+					}
+				});
+			},
+			{ threshold: 0.15, rootMargin: '-50px 0px -100px 0px' }
+		);
+
+		if (filtersContainer) {
+			observer.observe(filtersContainer);
+		}
+
+		// Add hover effect to project cards
 		document.querySelectorAll('.project-card').forEach((card) => {
 			card.addEventListener('mouseenter', () => {
 				try {
@@ -318,15 +311,58 @@
 	<meta name="description" content="Showcase of my development projects and work" />
 </svelte:head>
 
-<div class="perspective mx-auto max-w-6xl bg-[#1A202C] px-4 py-12">
-	<div bind:this={headingElement} class="header-container">
-		<h1 class="mb-2 text-4xl font-bold text-blue-400 md:text-5xl">Projects</h1>
-		<p class="mb-8 text-xl text-gray-300">
+<!-- Hero Section (Banner) -->
+<section class="bg-gradient-to-br from-gray-900 to-blue-900 py-16" bind:this={heroSection}>
+	<div class="container mx-auto px-4 text-center">
+		<h1 class="hero-element mb-6 text-4xl font-bold text-blue-400 md:text-5xl">Projects</h1>
+		<p class="hero-element mx-auto mb-6 max-w-3xl text-xl text-gray-300">
 			Crafting digital experiences with passion and precision. Each project represents my commitment
 			to building elegant, functional solutions that deliver real value.
 		</p>
+		<div class="hero-element flex justify-center gap-3">
+			<a
+				href="https://www.linkedin.com/in/szuhan-eng"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="group flex items-center justify-center rounded-lg bg-[#0077b5] p-3 text-white shadow-lg transition-all hover:bg-[#006699]"
+				aria-label="LinkedIn Profile"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-7 w-7 transform transition-transform group-hover:scale-110"
+					fill="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+					/>
+				</svg>
+			</a>
+			<a
+				href="mailto:szuhan.eng@gmail.com"
+				class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+				aria-label="Email Me"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-7 w-7 transform transition-transform group-hover:-translate-y-1"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+					/>
+				</svg>
+			</a>
+		</div>
 	</div>
+</section>
 
+<div class="perspective mx-auto max-w-6xl bg-[#1A202C] px-4 py-12">
 	<div bind:this={filtersContainer} class="mb-8">
 		<h2 class="mb-4 text-xl font-semibold text-blue-300">Filter:</h2>
 		<div class="flex flex-wrap gap-2">
@@ -402,6 +438,22 @@
 	/* 3D Animation styles */
 	.perspective {
 		perspective: 1200px; /* More pronounced perspective */
+	}
+
+	/* Hero elements styling */
+	.hero-element {
+		opacity: 0; /* Start invisible for animation */
+		transform-style: preserve-3d; /* Enable 3D transformations */
+		backface-visibility: hidden; /* Prevent flickering during 3D animations */
+		will-change: transform, opacity;
+	}
+
+	/* Ensure hero elements are visible if JS fails */
+	@media (prefers-reduced-motion: reduce) {
+		.hero-element {
+			opacity: 1 !important;
+			transform: none !important;
+		}
 	}
 
 	.project-card {
@@ -509,7 +561,6 @@
 		overflow: hidden;
 	}
 
-	.header-container,
 	.filter-btn {
 		opacity: 1; /* Start visible by default */
 		transform-style: preserve-3d; /* Enable 3D transformations */
@@ -544,7 +595,6 @@
 	/* Ensure content is visible if JS fails */
 	@media (prefers-reduced-motion: reduce) {
 		.project-card,
-		.header-container,
 		.filter-btn {
 			opacity: 1 !important;
 			transform: none !important;

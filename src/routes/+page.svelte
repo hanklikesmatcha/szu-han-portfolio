@@ -914,7 +914,7 @@
 		<div class="flex flex-col items-center">
 			<div class=" w-full max-w-3xl text-center">
 				<h1 class="hero-element animate-ready mb-4 text-4xl font-bold md:text-5xl">
-					Hi, I'm <span class="name-highlight text-blue-400">Hank</span> aka Szu-Han Chou
+					Hi, I'm <span class="name-highlight text-blue-400">Hank</span> aka Szu-Han
 				</h1>
 
 				<h2 class="hero-element animate-ready mb-6 text-2xl font-semibold text-blue-300 md:text-3xl">

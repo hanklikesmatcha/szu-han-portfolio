@@ -316,12 +316,46 @@
 		<p class="hero-element mx-auto mb-6 max-w-3xl text-xl text-gray-300">
 			I provide secure, quality-focused development solutions.
 		</p>
-		<a
-			href="mailto:szuhan.eng@gmail.com"
-			class="hero-element inline-block rounded-lg bg-blue-800 px-8 py-3 text-white transition-colors hover:bg-blue-700"
-		>
-			Get in Touch
-		</a>
+		<div class="hero-element flex justify-center gap-3">
+			<a
+				href="https://www.linkedin.com/in/szuhan-eng"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="group flex items-center justify-center rounded-lg bg-[#0077b5] p-3 text-white shadow-lg transition-all hover:bg-[#006699]"
+				aria-label="LinkedIn Profile"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-7 w-7 transform transition-transform group-hover:scale-110"
+					fill="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+					/>
+				</svg>
+			</a>
+			<a
+				href="mailto:szuhan.eng@gmail.com"
+				class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+				aria-label="Email Me"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-7 w-7 transform transition-transform group-hover:-translate-y-1"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+					/>
+				</svg>
+			</a>
+		</div>
 	</div>
 </section>
 
