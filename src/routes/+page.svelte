@@ -1107,7 +1107,7 @@
 		<div class="flex flex-col items-center">
 			<!-- Profile image added here -->
 			<div class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 shadow-lg shadow-blue-500/20 transition-transform duration-300 hover:scale-105">
-				<img src="/images/me.jpg" alt="Hank Chou" class="h-40 w-40 object-cover object-position-y-top" style="object-position: center 30%;" />
+				<img src="/images/me.jpg" alt="Hank Chou" class="h-40 w-40 object-cover object-position-y-top" style="object-position: 20% 10%;" />
 			</div>
 			
 			<div class="w-full max-w-3xl text-center">
