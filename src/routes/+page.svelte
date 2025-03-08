@@ -494,6 +494,9 @@
 
 			// Add to the first active firework
 			const parentFirework = parentFireworks[0];
+			
+			// Additional safety check to ensure parentFirework is defined before using it
+			if (!parentFirework) return;
 
 			// Reduced from 4 to 3 child particles
 			for (let i = 0; i < 3; i++) {
@@ -594,7 +597,11 @@
 		const fireworks: Firework[] = [];
 
 		// Make fireworks accessible to particle split function
-		(window as any).latestFireworksSequence = () => fireworks;
+		(window as any).latestFireworksSequence = () => {
+			// Return a copy of the array to prevent modification issues
+			// and ensure we always return at least an empty array
+			return fireworks ? [...fireworks] : [];
+		};
 
 		// Track time for fireworks scheduling
 		let startTime = performance.now();
@@ -678,6 +685,9 @@
 
 			// Update and draw fireworks
 			for (let i = fireworks.length - 1; i >= 0; i--) {
+				// Safety check to ensure this firework exists
+				if (!fireworks[i]) continue;
+				
 				// Draw the firework
 				fireworks[i].draw(fireworksCtx!);
 

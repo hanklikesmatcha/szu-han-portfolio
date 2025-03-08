@@ -81,7 +81,9 @@
 				// Create a dramatic flash of light over the entire navigation
 				const navFlash = document.createElement('div');
 				navFlash.className = 'nav-flash';
-				document.querySelector('nav')?.appendChild(navFlash);
+				const navElement = document.querySelector('nav');
+				if (!navElement) return;
+				navElement.appendChild(navFlash);
 
 				// Animate the flash
 				animate(
@@ -165,8 +167,10 @@
 					}
 				);
 
-				// Create particles explosion for the navigation
-				createTransitionParticles(toItem as HTMLElement, toIcon as HTMLElement);
+				// Create particles explosion for the navigation - only if toItem is available
+				if (toItem && toIcon) {
+					createTransitionParticles(toItem as HTMLElement, toIcon as HTMLElement);
+				}
 
 				// Dramatic effect for the label text
 				const toText = toItem.querySelector('.nav-text');
@@ -193,7 +197,7 @@
 
 	// Function to create particles during page transitions
 	function createTransitionParticles(container: HTMLElement, sourceElement: HTMLElement) {
-		if (!browser) return;
+		if (!browser || !container || !sourceElement) return;
 
 		const rect = sourceElement.getBoundingClientRect();
 		const containerRect = container.getBoundingClientRect();
@@ -203,6 +207,10 @@
 
 		// Create a burst of particles
 		const particleCount = 30; // More particles for more drama
+		const particles: HTMLDivElement[] = [];
+
+		// Create particles in a single batch using DocumentFragment for better performance
+		const fragment = document.createDocumentFragment();
 
 		for (let i = 0; i < particleCount; i++) {
 			const particle = document.createElement('div');
@@ -215,7 +223,8 @@
 
 			// More vibrant colors
 			const colorIndex = Math.floor(Math.random() * particleColors.length);
-			const color = particleColors[colorIndex];
+			// Add safety check for the particle colors array
+			const color = particleColors[colorIndex] || '#60a5fa';
 			particle.style.backgroundColor = color;
 			particle.style.boxShadow = `0 0 ${8 + Math.random() * 10}px ${color}`;
 
@@ -229,8 +238,15 @@
 			particle.style.left = `${centerX}px`;
 			particle.style.top = `${centerY}px`;
 
-			container.appendChild(particle);
+			fragment.appendChild(particle);
+			particles.push(particle);
+		}
 
+		// Add all particles to the DOM at once
+		container.appendChild(fragment);
+
+		// Animate each particle
+		particles.forEach(particle => {
 			// Calculate random end position with farther distance
 			const angle = Math.random() * Math.PI * 2;
 			const distance = 100 + Math.random() * 150;
@@ -256,7 +272,7 @@
 					particle.parentNode.removeChild(particle);
 				}
 			});
-		}
+		});
 	}
 
 	// Reset animation states when active path changes - only in browser environment
@@ -415,12 +431,16 @@
 		sourceElement: HTMLElement,
 		count: number = 5
 	) {
-		if (!browser || !container) return;
+		if (!browser || !container || !sourceElement) return;
 
 		const rect = container.getBoundingClientRect();
 		const iconRect = sourceElement.getBoundingClientRect();
 		const centerX = iconRect.width / 2;
 		const bottomY = iconRect.height;
+
+		// Create fragment for batch DOM operations
+		const fragment = document.createDocumentFragment();
+		const particles: HTMLDivElement[] = [];
 
 		// Create particles
 		for (let i = 0; i < count; i++) {
@@ -438,7 +458,8 @@
 			}
 
 			// Random color from our particle colors
-			const color = particleColors[Math.floor(Math.random() * particleColors.length)];
+			const colorIndex = Math.floor(Math.random() * particleColors.length);
+			const color = particleColors[colorIndex] || '#60a5fa'; // Fallback color if array access fails
 			particle.style.backgroundColor = color;
 			particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`; // Add glow to particles
 
@@ -452,11 +473,20 @@
 			particle.style.left = `${startX}px`;
 			particle.style.top = `${startY}px`;
 
-			container.appendChild(particle);
+			fragment.appendChild(particle);
+			particles.push(particle);
+		}
 
+		// Add all particles at once
+		container.appendChild(fragment);
+
+		// Animate particles
+		particles.forEach(particle => {
 			// More dramatic animation paths
 			const angle = Math.random() * Math.PI; // Semi-circle above
 			const distance = 40 + Math.random() * 80; // Further distance
+			const startX = parseFloat(particle.style.left) || centerX;
+			const startY = parseFloat(particle.style.top) || bottomY;
 			const endX = startX + Math.cos(angle) * distance - 20;
 			const endY = startY - Math.sin(angle) * distance - 40;
 
@@ -478,7 +508,7 @@
 					particle.parentNode.removeChild(particle);
 				}
 			});
-		}
+		});
 	}
 
 	// Handle icon leave animation
@@ -584,11 +614,12 @@
 
 		// Create particles for the explosion - further reduced for better performance
 		const particleCount = 50; // Reduced from 70 for even better performance
+		
+		// Batch DOM operations with DocumentFragment
+		const fragment = document.createDocumentFragment();
 		const particles: HTMLDivElement[] = [];
 
-		// Batch DOM operations for better performance
-		const fragment = document.createDocumentFragment();
-
+		// Create all particles first
 		for (let i = 0; i < particleCount; i++) {
 			const particle = document.createElement('div');
 			particle.className = 'firework-particle';
@@ -605,7 +636,8 @@
 			particle.style.height = `${particleSize}px`;
 
 			// Random color
-			const color = particleColors[Math.floor(Math.random() * particleColors.length)];
+			const colorIndex = Math.floor(Math.random() * particleColors.length);
+			const color = particleColors[colorIndex] || '#60a5fa'; // Fallback if array access fails
 			particle.style.backgroundColor = color;
 
 			// Set initial position
@@ -619,8 +651,8 @@
 		// Add all particles to DOM at once (more efficient)
 		fireworksContainer.appendChild(fragment);
 
-		// Pre-calculate random animations for each particle
-		particles.forEach((particle, index) => {
+		// Animate all particles
+		particles.forEach((particle) => {
 			// Detect streamers
 			const isStreamer = particle.classList.contains('firework-streamer');
 
@@ -634,13 +666,13 @@
 			const randomY = `${Math.sin(angle) * distance + (isStreamer ? 50 : 0)}px`; // Streamers fall more
 
 			// Simplified animations - removed z-axis for better performance
-			const randomColor = particleColors[Math.floor(Math.random() * particleColors.length)];
+			const randomColor = particleColors[Math.floor(Math.random() * particleColors.length)] || particle.style.backgroundColor;
 
 			// Reduced duration for better performance
 			const duration = isStreamer ? 3.0 : 2.5;
 
 			// Animate with fewer properties for better performance
-			animate(
+			const animationPromise = animate(
 				particle,
 				{
 					opacity: isStreamer ? [1, 1, 0.8, 0] : [1, 0.9, 0],
@@ -655,20 +687,33 @@
 				},
 				{
 					duration: duration,
-					easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-					delay: index * 0.002 // Even faster stagger for less resource usage
+					easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
 				}
-			).finished.then(() => {
-				// Remove each particle immediately when its animation completes
-				if (particle.parentNode) {
-					particle.parentNode.removeChild(particle);
-				}
-			});
+			);
+
+			if (animationPromise && animationPromise.finished) {
+				animationPromise.finished.then(() => {
+					// Remove each particle immediately when its animation completes
+					if (particle.parentNode) {
+						particle.parentNode.removeChild(particle);
+					}
+				}).catch(error => {
+					console.error('Particle animation error:', error);
+					// Clean up even if there's an error
+					if (particle.parentNode) {
+						particle.parentNode.removeChild(particle);
+					}
+				});
+			}
 		});
 
 		// Reset animation flag after reasonable time (safety cleanup)
 		setTimeout(() => {
 			isAnimatingFireworks = false;
+			// Clear any remaining particles for safety
+			if (fireworksContainer) {
+				fireworksContainer.innerHTML = '';
+			}
 		}, 3500); // Shorter duration than before for better performance
 	}
 
