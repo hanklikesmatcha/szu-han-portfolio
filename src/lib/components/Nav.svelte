@@ -86,7 +86,7 @@
 				navElement.appendChild(navFlash);
 
 				// Animate the flash
-				animate(
+				const flashAnimation = animate(
 					navFlash,
 					{
 						opacity: [0.7, 0]
@@ -95,11 +95,21 @@
 						duration: 0.8,
 						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
 					}
-				).finished.then(() => {
-					if (navFlash.parentNode) {
-						navFlash.parentNode.removeChild(navFlash);
-					}
-				});
+				);
+				
+				if (flashAnimation && flashAnimation.finished) {
+					flashAnimation.finished.then(() => {
+						if (navFlash.parentNode) {
+							navFlash.parentNode.removeChild(navFlash);
+						}
+					}).catch(error => {
+						console.error('Flash animation error:', error);
+						// Still clean up on error
+						if (navFlash.parentNode) {
+							navFlash.parentNode.removeChild(navFlash);
+						}
+					});
+				}
 
 				// Create multiple ripple effects on the new active item
 				for (let i = 0; i < 3; i++) {
@@ -126,7 +136,13 @@
 							delay: i * 0.15,
 							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
 						}
-					).finished.then(() => {
+					).finished?.then(() => {
+						if (ripple.parentNode) {
+							ripple.parentNode.removeChild(ripple);
+						}
+					}).catch(error => {
+						console.error('Ripple animation error:', error);
+						// Clean up on error
 						if (ripple.parentNode) {
 							ripple.parentNode.removeChild(ripple);
 						}
@@ -139,7 +155,7 @@
 					{
 						scale: [1, 0.5],
 						opacity: [1, 0.5, 1],
-						rotate: ['0deg', '360deg'],
+						rotate: [0, 360],
 						y: [0, -20, 0]
 					},
 					{
@@ -153,17 +169,22 @@
 					toIcon,
 					{
 						scale: [1, 2.5, 1.2, 1],
-						rotate: ['0deg', '-15deg', '15deg', '-5deg', '5deg', '0deg'],
+						rotate: [0, -15, 15, -5, 5, 0],
 						y: [0, -30, 5, 0],
-						filter: [
-							'drop-shadow(0 0 0px rgba(59, 130, 246, 0))',
-							'drop-shadow(0 0 30px rgba(59, 130, 246, 0.9))',
-							'drop-shadow(0 0 10px rgba(59, 130, 246, 0.6))'
-						]
+						filter: 'drop-shadow(0 0 30px rgba(59, 130, 246, 0.9))'
 					},
 					{
 						duration: 1.2,
-						easing: spring({ stiffness: 300, damping: 10 }) // More bouncy spring
+						easing: (x) => {
+							try {
+								// Safely call spring with fallback
+								return spring({ stiffness: 300, damping: 10 })(x) || x;
+							} catch (error) {
+								console.error('Spring animation error:', error);
+								// Fallback to a simple cubic bezier easing
+								return 0.34 * (1 - Math.cos(Math.PI * x));
+							}
+						}
 					}
 				);
 
@@ -180,7 +201,7 @@
 						{
 							scale: [1, 1.8, 1],
 							y: [0, -15, 0],
-							filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'],
+							filter: 'blur(2px) blur(0px)', // Simplified filter approach
 							color: ['#e5e7eb', '#60a5fa', '#93c5fd']
 						},
 						{
@@ -222,9 +243,9 @@
 			particle.style.height = `${size}px`;
 
 			// More vibrant colors
-			const colorIndex = Math.floor(Math.random() * particleColors.length);
+			const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
 			// Add safety check for the particle colors array
-			const color = particleColors[colorIndex] || '#60a5fa';
+			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
 			particle.style.backgroundColor = color;
 			particle.style.boxShadow = `0 0 ${8 + Math.random() * 10}px ${color}`;
 
@@ -397,7 +418,7 @@
 			{
 				scale: 1.8,
 				y: -20,
-				rotate: Math.random() > 0.5 ? '15deg' : '-15deg',
+				rotate: Math.random() > 0.5 ? 15 : -15,
 				fill: '#60a5fa',
 				filter: 'drop-shadow(0 0 15px rgba(59, 130, 246, 0.9))'
 			},
@@ -458,8 +479,8 @@
 			}
 
 			// Random color from our particle colors
-			const colorIndex = Math.floor(Math.random() * particleColors.length);
-			const color = particleColors[colorIndex] || '#60a5fa'; // Fallback color if array access fails
+			const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
+			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa'; // Fallback color if array access fails
 			particle.style.backgroundColor = color;
 			particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`; // Add glow to particles
 
@@ -635,9 +656,9 @@
 			particle.style.width = `${particleSize}px`;
 			particle.style.height = `${particleSize}px`;
 
-			// Random color
-			const colorIndex = Math.floor(Math.random() * particleColors.length);
-			const color = particleColors[colorIndex] || '#60a5fa'; // Fallback if array access fails
+			// Random color - fix the colorIndex to ensure it's safe
+			const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
+			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa'; // Fallback if array access fails
 			particle.style.backgroundColor = color;
 
 			// Set initial position
@@ -666,7 +687,9 @@
 			const randomY = `${Math.sin(angle) * distance + (isStreamer ? 50 : 0)}px`; // Streamers fall more
 
 			// Simplified animations - removed z-axis for better performance
-			const randomColor = particleColors[Math.floor(Math.random() * particleColors.length)] || particle.style.backgroundColor;
+			const randomColor = particleColors && particleColors.length > 0 
+				? particleColors[Math.floor(Math.random() * particleColors.length)] 
+				: particle.style.backgroundColor || '#60a5fa';
 
 			// Reduced duration for better performance
 			const duration = isStreamer ? 3.0 : 2.5;
@@ -773,7 +796,7 @@
 						{
 							opacity: [0, 1],
 							scale: [0.9, 1],
-							filter: ['blur(10px)', 'blur(0px)']
+							filter: 'blur(0px)' // Simplified filter approach
 						},
 						{
 							duration: 1.2,
@@ -794,7 +817,7 @@
 							rotateX: ['45deg', '0deg'],
 							rotateY: ['25deg', '0deg'],
 							scale: [0.7, 1],
-							filter: ['blur(12px)', 'blur(0px)']
+							filter: 'blur(0px)' // Simplified filter approach
 						},
 						{
 							delay: stagger(0.15, { from: 'first' }),
@@ -856,7 +879,8 @@
 								particle.style.height = `${size}px`;
 
 								// Vibrant color
-								const color = particleColors[Math.floor(Math.random() * particleColors.length)];
+								const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
+								const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
 								particle.style.backgroundColor = color;
 								particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`;
 
@@ -898,17 +922,23 @@
 								iconElement,
 								{
 									scale: [0.2, 1.7, 1],
-									y: ['-150px', '20px', '0px'],
-									rotate: ['-180deg', '20deg', '0deg'],
-									filter: [
-										'drop-shadow(0 0 0px rgba(59, 130, 246, 0))',
-										'drop-shadow(0 0 40px rgba(59, 130, 246, 1))',
-										'drop-shadow(0 0 0px rgba(59, 130, 246, 0))'
-									]
+									y: [-150, 20, 0],
+									rotate: [-180, 20, 0],
+									filter: 'drop-shadow(0 0 40px rgba(59, 130, 246, 1))'
 								},
 								{
 									duration: 1.5,
-									easing: spring({ stiffness: 150, damping: 12 })
+									delay: 0.1,
+									easing: (x) => {
+										try {
+											// Safely call spring with fallback
+											return spring({ stiffness: 150, damping: 12 })(x) || x;
+										} catch (error) {
+											console.error('Spring animation error:', error);
+											// Fallback to a simple cubic bezier easing
+											return 0.34 * (1 - Math.cos(Math.PI * x));
+										}
+									}
 								}
 							);
 						}, index * 300); // Stagger the icons by 300ms each
@@ -935,7 +965,7 @@
 											opacity: [0, 1],
 											y: ['40px', '-10px', '0px'],
 											scale: [0.5, 1.2, 1],
-											filter: ['blur(8px)', 'blur(1px)', 'blur(0px)']
+											filter: 'blur(0px)' // Simplified filter approach
 										},
 										{
 											duration: 1.0,

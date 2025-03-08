@@ -261,19 +261,22 @@
 		// Animation functions for each section based on scroll direction
 		function animateHeroSection(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.hero-element',
-					{
-						opacity: [0, 1],
-						y: direction === 'down' ? [50, 0] : [-50, 0],
-						scale: direction === 'down' ? [0.9, 1] : [1.1, 1]
-					},
-					{
-						delay: stagger(0.2),
-						duration: 1.0,
-						easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
-					}
-				);
+				const elements = document.querySelectorAll('.hero-element');
+				if (elements && elements.length > 0) {
+					animate(
+						'.hero-element',
+						{
+							opacity: [0, 1],
+							y: direction === 'down' ? [50, 0] : [-50, 0],
+							scale: direction === 'down' ? [0.9, 1] : [1.1, 1]
+						},
+						{
+							delay: stagger(0.2),
+							duration: 1.0,
+							easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('Hero animation error:', error);
 			}
@@ -282,19 +285,23 @@
 		// Exit animations for when elements leave viewport
 		function animateHeroSectionExit(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.hero-element',
-					{
-						opacity: [1, 0],
-						y: direction === 'down' ? [0, 50] : [0, -50],
-						scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
-					},
-					{
-						delay: stagger(0.1, { from: 'last' }), // Reverse stagger for exit
-						duration: 0.6, // Faster exit animation
-						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-					}
-				);
+				// Check if elements exist before animating
+				const elements = document.querySelectorAll('.hero-element');
+				if (elements && elements.length > 0) {
+					animate(
+						'.hero-element',
+						{
+							opacity: [1, 0],
+							y: direction === 'down' ? [0, 50] : [0, -50],
+							scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
+						},
+						{
+							delay: stagger(0.1, { from: 'last' }), // Reverse stagger for exit
+							duration: 0.6, // Faster exit animation
+							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('Hero exit animation error:', error);
 			}
@@ -302,19 +309,22 @@
 
 		function animateServicesSection(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.service-card',
-					{
-						opacity: [0, 1],
-						y: direction === 'down' ? [80, 0] : [-80, 0],
-						x: direction === 'down' ? ['-40px', '0px'] : ['40px', '0px']
-					},
-					{
-						delay: stagger(0.15),
-						duration: 0.9,
-						easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-					}
-				);
+				const elements = document.querySelectorAll('.service-card');
+				if (elements && elements.length > 0) {
+					animate(
+						'.service-card',
+						{
+							opacity: [0, 1],
+							y: direction === 'down' ? [80, 0] : [-80, 0],
+							x: direction === 'down' ? ['-40px', '0px'] : ['40px', '0px']
+						},
+						{
+							delay: stagger(0.15),
+							duration: 0.9,
+							easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('Service card animation error:', error);
 			}
@@ -322,19 +332,23 @@
 
 		function animateServicesSectionExit(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.service-card',
-					{
-						opacity: [1, 0],
-						y: direction === 'down' ? [0, 80] : [0, -80],
-						x: direction === 'down' ? ['0px', '-40px'] : ['0px', '40px']
-					},
-					{
-						delay: stagger(0.1, { from: 'last' }),
-						duration: 0.6,
-						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-					}
-				);
+				// Check if elements exist before animating
+				const elements = document.querySelectorAll('.service-card');
+				if (elements && elements.length > 0) {
+					animate(
+						'.service-card',
+						{
+							opacity: [1, 0],
+							y: direction === 'down' ? [0, 80] : [0, -80],
+							x: direction === 'down' ? ['0px', '-40px'] : ['0px', '40px']
+						},
+						{
+							delay: stagger(0.1, { from: 'last' }),
+							duration: 0.6,
+							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('Service card exit animation error:', error);
 			}
@@ -342,21 +356,24 @@
 
 		function animateExpertiseSection(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.expertise-element',
-					{
-						opacity: [0, 1],
-						x: direction === 'down' ? ['-30px', '0px'] : ['30px', '0px'],
-						clipPath: direction === 'down' 
-							? ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Left to right
-							: ['inset(0 0 0 50%)', 'inset(0 0% 0 0)']  // Right to left
-					},
-					{
-						delay: stagger(0.25),
-						duration: 0.8,
-						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-					}
-				);
+				const elements = document.querySelectorAll('.expertise-element');
+				if (elements && elements.length > 0) {
+					animate(
+						'.expertise-element',
+						{
+							opacity: [0, 1],
+							x: direction === 'down' ? ['-30px', '0px'] : ['30px', '0px'],
+							clipPath: direction === 'down' 
+								? ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Left to right
+								: ['inset(0 0 0 50%)', 'inset(0 0% 0 0)']  // Right to left
+						},
+						{
+							delay: stagger(0.25),
+							duration: 0.8,
+							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('Expertise animation error:', error);
 			}
@@ -364,21 +381,25 @@
 
 		function animateExpertiseSectionExit(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.expertise-element',
-					{
-						opacity: [1, 0],
-						x: direction === 'down' ? ['0px', '-30px'] : ['0px', '30px'],
-						clipPath: direction === 'down' 
-							? ['inset(0 0% 0 0)', 'inset(0 50% 0 0)'] // Right to left
-							: ['inset(0 0% 0 0)', 'inset(0 0 0 50%)']  // Left to right
-					},
-					{
-						delay: stagger(0.15, { from: 'last' }),
-						duration: 0.6,
-						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-					}
-				);
+				// Check if elements exist before animating
+				const elements = document.querySelectorAll('.expertise-element');
+				if (elements && elements.length > 0) {
+					animate(
+						'.expertise-element',
+						{
+							opacity: [1, 0],
+							x: direction === 'down' ? ['0px', '-30px'] : ['0px', '30px'],
+							clipPath: direction === 'down' 
+								? ['inset(0 0% 0 0)', 'inset(0 50% 0 0)'] // Right to left
+								: ['inset(0 0% 0 0)', 'inset(0 0 0 50%)']  // Left to right
+						},
+						{
+							delay: stagger(0.15, { from: 'last' }),
+							duration: 0.6,
+							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('Expertise exit animation error:', error);
 			}
@@ -386,42 +407,48 @@
 
 		function animateTestimonialSection(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.testimonial-card',
-					{
-						opacity: [0, 1],
-						y: direction === 'down' ? [60, 0] : [-60, 0],
-						scale: [0.9, 1]
-					},
-					{
-						delay: stagger(0.25),
-						duration: 0.8,
-						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-					}
-				);
+				const elements = document.querySelectorAll('.testimonial-card');
+				if (elements && elements.length > 0) {
+					animate(
+						'.testimonial-card',
+						{
+							opacity: [0, 1],
+							y: direction === 'down' ? [60, 0] : [-60, 0],
+							scale: [0.9, 1]
+						},
+						{
+							delay: stagger(0.25),
+							duration: 0.8,
+							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+						}
+					);
 
-				// Add gentle pulse after appearing
-				setTimeout(() => {
-					document.querySelectorAll('.testimonial-card').forEach((card, i) => {
-						animate(
-							card,
-							{
-								scale: [1, 1.02, 1],
-								boxShadow: [
-									'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-									'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
-									'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-								]
-							},
-							{
-								duration: 4 + i,
-								delay: i * 1.5,
-								repeat: Infinity,
-								easing: 'ease-in-out'
-							}
-						);
-					});
-				}, 1500);
+					// Add gentle pulse after appearing
+					setTimeout(() => {
+						const cards = document.querySelectorAll('.testimonial-card');
+						if (cards && cards.length > 0) {
+							cards.forEach((card, i) => {
+								animate(
+									card,
+									{
+										scale: [1, 1.02, 1],
+										boxShadow: [
+											'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+											'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
+											'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+										]
+									},
+									{
+										duration: 4 + i,
+										delay: i * 1.5,
+										repeat: Infinity,
+										easing: 'ease-in-out'
+									}
+								);
+							});
+						}
+					}, 1500);
+				}
 			} catch (error) {
 				console.error('Testimonial animation error:', error);
 			}
@@ -429,29 +456,33 @@
 
 		function animateTestimonialSectionExit(direction: 'up' | 'down') {
 			try {
-				// Stop the pulse animations when exiting
-				document.querySelectorAll('.testimonial-card').forEach((card) => {
+				// Check if elements exist before animating
+				const elements = document.querySelectorAll('.testimonial-card');
+				if (elements && elements.length > 0) {
+					// Stop the pulse animations when exiting
+					document.querySelectorAll('.testimonial-card').forEach((card) => {
+						animate(
+							card,
+							{ scale: 1 },
+							{ duration: 0.2 }
+						);
+					});
+					
+					// Exit animation
 					animate(
-						card,
-						{ scale: 1 },
-						{ duration: 0.2 }
+						'.testimonial-card',
+						{
+							opacity: [1, 0],
+							y: direction === 'down' ? [0, 60] : [0, -60],
+							scale: [1, 0.9]
+						},
+						{
+							delay: stagger(0.15, { from: 'last' }),
+							duration: 0.6,
+							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+						}
 					);
-				});
-				
-				// Exit animation
-				animate(
-					'.testimonial-card',
-					{
-						opacity: [1, 0],
-						y: direction === 'down' ? [0, 60] : [0, -60],
-						scale: [1, 0.9]
-					},
-					{
-						delay: stagger(0.15, { from: 'last' }),
-						duration: 0.6,
-						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-					}
-				);
+				}
 			} catch (error) {
 				console.error('Testimonial exit animation error:', error);
 			}
@@ -459,19 +490,22 @@
 
 		function animateCTASection(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.cta-element',
-					{
-						opacity: [0, 1],
-						y: direction === 'down' ? [40, 0] : [-40, 0],
-						scale: direction === 'down' ? [0.9, 1.05, 1] : [1.1, 0.95, 1] // Different bounce effect based on direction
-					},
-					{
-						delay: stagger(0.2),
-						duration: 0.8,
-						easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)'
-					}
-				);
+				const elements = document.querySelectorAll('.cta-element');
+				if (elements && elements.length > 0) {
+					animate(
+						'.cta-element',
+						{
+							opacity: [0, 1],
+							y: direction === 'down' ? [40, 0] : [-40, 0],
+							scale: direction === 'down' ? [0.9, 1.05, 1] : [1.1, 0.95, 1] // Different bounce effect based on direction
+						},
+						{
+							delay: stagger(0.2),
+							duration: 0.8,
+							easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('CTA animation error:', error);
 			}
@@ -479,19 +513,23 @@
 
 		function animateCTASectionExit(direction: 'up' | 'down') {
 			try {
-				animate(
-					'.cta-element',
-					{
-						opacity: [1, 0],
-						y: direction === 'down' ? [0, 40] : [0, -40],
-						scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
-					},
-					{
-						delay: stagger(0.1, { from: 'last' }),
-						duration: 0.6,
-						easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-					}
-				);
+				// Check if elements exist before animating
+				const elements = document.querySelectorAll('.cta-element');
+				if (elements && elements.length > 0) {
+					animate(
+						'.cta-element',
+						{
+							opacity: [1, 0],
+							y: direction === 'down' ? [0, 40] : [0, -40],
+							scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
+						},
+						{
+							delay: stagger(0.1, { from: 'last' }),
+							duration: 0.6,
+							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
+						}
+					);
+				}
 			} catch (error) {
 				console.error('CTA exit animation error:', error);
 			}
@@ -504,71 +542,113 @@
 		if (testimonialSection) testimonialObserver.observe(testimonialSection);
 		if (ctaSection) ctaObserver.observe(ctaSection);
 
-		// Add hover effect to service cards
-		document.querySelectorAll('.service-card').forEach((card) => {
-			card.addEventListener('mouseenter', () => {
-				animate(
-					card,
-					{
-						y: -10,
-						scale: 1.02,
-						boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
-					},
-					{
-						duration: 0.3,
-						easing: spring({ stiffness: 300, damping: 15 })
-					}
-				);
-			});
+		// Add hover effect to service cards safely
+		const serviceCards = document.querySelectorAll('.service-card');
+		if (serviceCards && serviceCards.length > 0) {
+			serviceCards.forEach((card) => {
+				card.addEventListener('mouseenter', () => {
+					animate(
+						card,
+						{
+							y: -10,
+							scale: 1.02,
+							boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
+						},
+						{
+							duration: 0.3,
+							easing: (x) => {
+								try {
+									// Safely call spring with fallback
+									return spring({ stiffness: 300, damping: 15 })(x) || x;
+								} catch (error) {
+									console.error('Spring animation error:', error);
+									// Fallback to a simple cubic bezier easing
+									return 0.34 * (1 - Math.cos(Math.PI * x));
+								}
+							}
+						}
+					);
+				});
 
-			card.addEventListener('mouseleave', () => {
-				animate(
-					card,
-					{
-						y: 0,
-						scale: 1,
-						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-					},
-					{
-						duration: 0.3,
-						easing: spring({ stiffness: 300, damping: 15 })
-					}
-				);
+				card.addEventListener('mouseleave', () => {
+					animate(
+						card,
+						{
+							y: 0,
+							scale: 1,
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+						},
+						{
+							duration: 0.3,
+							easing: (x) => {
+								try {
+									// Safely call spring with fallback
+									return spring({ stiffness: 300, damping: 15 })(x) || x;
+								} catch (error) {
+									console.error('Spring animation error:', error);
+									// Fallback to a simple cubic bezier easing
+									return 0.34 * (1 - Math.cos(Math.PI * x));
+								}
+							}
+						}
+					);
+				});
 			});
-		});
+		}
 
-		// Add hover effect to testimonial cards
-		document.querySelectorAll('.testimonial-card').forEach((card) => {
-			card.addEventListener('mouseenter', () => {
-				animate(
-					card,
-					{
-						y: -5,
-						scale: 1.03,
-						boxShadow: '0 15px 25px -5px rgba(0, 0, 0, 0.25)'
-					},
-					{
-						duration: 0.3,
-						easing: spring({ stiffness: 300, damping: 15 })
-					}
-				);
-			});
+		// Add hover effect to testimonial cards safely
+		const testimonialCards = document.querySelectorAll('.testimonial-card');
+		if (testimonialCards && testimonialCards.length > 0) {
+			testimonialCards.forEach((card) => {
+				card.addEventListener('mouseenter', () => {
+					animate(
+						card,
+						{
+							y: -5,
+							scale: 1.03,
+							boxShadow: '0 15px 25px -5px rgba(0, 0, 0, 0.25)'
+						},
+						{
+							duration: 0.3,
+							easing: (x) => {
+								try {
+									// Safely call spring with fallback
+									return spring({ stiffness: 300, damping: 15 })(x) || x;
+								} catch (error) {
+									console.error('Spring animation error:', error);
+									// Fallback to a simple cubic bezier easing
+									return 0.34 * (1 - Math.cos(Math.PI * x));
+								}
+							}
+						}
+					);
+				});
 
-			card.addEventListener('mouseleave', () => {
-				animate(
-					card,
-					{
-						y: 0,
-						scale: 1,
-						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-					},
-					{
-						duration: 0.3,
-						easing: spring({ stiffness: 300, damping: 15 })
-					}
-				);
+				card.addEventListener('mouseleave', () => {
+					animate(
+						card,
+						{
+							y: 0,
+							scale: 1,
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+						},
+						{
+							duration: 0.3,
+							easing: (x) => {
+								try {
+									// Safely call spring with fallback
+									return spring({ stiffness: 300, damping: 15 })(x) || x;
+								} catch (error) {
+									console.error('Spring animation error:', error);
+									// Fallback to a simple cubic bezier easing
+									return 0.34 * (1 - Math.cos(Math.PI * x));
+								}
+							}
+						}
+					);
+				});
 			});
-		});
+		}
 	});
 </script>
 

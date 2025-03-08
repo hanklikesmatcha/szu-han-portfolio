@@ -864,7 +864,16 @@
 								{
 									delay: stagger(0.2, { start: 0.1 }),
 									duration: 0.8,
-									easing: spring({ stiffness: 100, damping: 15 })
+									easing: (x) => {
+										try {
+											// Safely call spring with fallback
+											return spring({ stiffness: 100, damping: 15 })(x) || x;
+										} catch (error) {
+											console.error('Spring animation error:', error);
+											// Fallback to a simple cubic bezier easing
+											return 0.34 * (1 - Math.cos(Math.PI * x));
+										}
+									}
 								}
 							);
 
@@ -878,7 +887,16 @@
 								},
 								{
 									duration: 0.9,
-									easing: spring({ stiffness: 50, damping: 15 })
+									easing: (x) => {
+										try {
+											// Safely call spring with fallback
+											return spring({ stiffness: 50, damping: 15 })(x) || x;
+										} catch (error) {
+											console.error('Spring animation error:', error);
+											// Fallback to a simple cubic bezier easing
+											return 0.34 * (1 - Math.cos(Math.PI * x));
+										}
+									}
 								}
 							);
 						} catch (error) {

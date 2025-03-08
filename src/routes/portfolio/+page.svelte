@@ -81,7 +81,16 @@
 					{
 						delay: stagger(0.1),
 						duration: 0.4,
-						easing: spring({ stiffness: 100, damping: 12 })
+						easing: (x) => {
+							try {
+								// Safely call spring with fallback
+								return spring({ stiffness: 100, damping: 12 })(x) || x;
+							} catch (error) {
+								console.error('Spring animation error:', error);
+								// Fallback to a simple cubic bezier easing
+								return 0.34 * (1 - Math.cos(Math.PI * x));
+							}
+						}
 					}
 				);
 
