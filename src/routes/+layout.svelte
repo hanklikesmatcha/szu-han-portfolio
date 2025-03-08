@@ -15,8 +15,8 @@
 	let animationsLoaded = false;
 
 	// Enhanced animation states for more dramatic effect
-	const inAnimation = { 
-		opacity: [0, 1], 
+	const inAnimation = {
+		opacity: [0, 1],
 		y: [80, 0],
 		scale: [0.9, 1],
 		filter: ['blur(15px)', 'blur(0px)'] // Add blur effect for dramatic transitions
@@ -25,28 +25,29 @@
 	onMount(() => {
 		// Mark animations as loaded
 		animationsLoaded = true;
-		
+
 		// Capture initial path
 		currentPath = $page.url.pathname;
 		isFirstLoad = false;
-		
+
 		// More dramatic initial page entrance animation
-		console.log("Running page content animation");
+		console.log('Running page content animation');
 		try {
 			const pageContent = document.querySelector('.page-content');
 			if (pageContent) {
 				// More dramatic entrance from bottom with scale
-				animate('.page-content', 
-					{ 
+				animate(
+					'.page-content',
+					{
 						opacity: [0, 1],
 						y: [100, 0],
 						scale: [0.9, 1]
-					}, 
+					},
 					{ duration: 1.4, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
 				);
 			}
 		} catch (error) {
-			console.error("Animation error:", error);
+			console.error('Animation error:', error);
 		}
 	});
 
@@ -56,53 +57,55 @@
 			// Page has changed - trigger transition
 			const oldPath = currentPath;
 			currentPath = $page.url.pathname;
-			
+
 			// Animate page content with enhanced effects
-			console.log("Running page transition animation");
+			console.log('Running page transition animation');
 			try {
 				const pageContent = document.querySelector('.page-content');
 				if (pageContent) {
 					// Choose different transition effect based on navigation direction
 					if (determineNavigationDirection(oldPath, currentPath) === 'forward') {
 						// Forward navigation - slide left and fade
-						animate('.page-content', 
-							{ 
+						animate(
+							'.page-content',
+							{
 								opacity: [0, 1],
 								x: ['5%', '0%'],
 								scale: [0.95, 1]
-							}, 
+							},
 							{ duration: 1.0, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
 						);
 					} else {
 						// Backward navigation - different animation (slide right)
-						animate('.page-content', 
-							{ 
+						animate(
+							'.page-content',
+							{
 								opacity: [0, 1],
 								x: ['-5%', '0%'],
 								scale: [0.95, 1]
-							}, 
+							},
 							{ duration: 1.0, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
 						);
 					}
 				}
 			} catch (error) {
-				console.error("Animation error:", error);
+				console.error('Animation error:', error);
 			}
 		}
 	});
-	
+
 	// Helper function to guess navigation direction
 	function determineNavigationDirection(oldPath: string, newPath: string): 'forward' | 'backward' {
 		// Simple heuristic - deeper paths are "forward"
 		// This is just a guess based on path depth
 		const oldDepth = (oldPath.match(/\//g) || []).length;
 		const newDepth = (newPath.match(/\//g) || []).length;
-		
+
 		return newDepth >= oldDepth ? 'forward' : 'backward';
 	}
 </script>
 
-<div class="min-h-screen flex flex-col bg-[#171923] text-gray-100 perspective-container">
+<div class="perspective-container flex min-h-screen flex-col bg-[#171923] text-gray-100">
 	<header class="border-b border-gray-800">
 		<Nav />
 	</header>
@@ -117,7 +120,7 @@
 		</ParaglideJS>
 	</main>
 
-	<footer class="bg-[#111827] py-6 border-t border-gray-800">
+	<footer class="border-t border-gray-800 bg-[#111827] py-6">
 		<Footer />
 	</footer>
 </div>
@@ -128,24 +131,27 @@
 		color: #f3f4f6;
 		overflow-x: hidden; /* Prevent horizontal scrollbars during animations */
 	}
-	
+
 	/* Enhanced animation handling */
 	.perspective-container {
 		perspective: 1200px; /* Add perspective to entire container */
 	}
-	
+
 	.page-content {
 		opacity: 1; /* Start visible by default */
 		will-change: transform, opacity, filter;
 		transform-style: preserve-3d;
-		transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease; /* Fallback for when JS is disabled */
+		transition:
+			opacity 0.5s ease,
+			transform 0.5s ease,
+			filter 0.5s ease; /* Fallback for when JS is disabled */
 	}
-	
+
 	/* Make content fail safe but don't override opacity for animations */
-	:global(.hero-element), 
-	:global(.service-card), 
-	:global(.expertise-element), 
-	:global(.testimonial-card), 
+	:global(.hero-element),
+	:global(.service-card),
+	:global(.expertise-element),
+	:global(.testimonial-card),
 	:global(.cta-element),
 	:global(.project-card),
 	:global(.filter-btn),
@@ -155,20 +161,20 @@
 		transform-style: preserve-3d;
 		backface-visibility: hidden;
 	}
-	
+
 	.transition-container {
 		position: relative;
 		width: 100%;
 	}
-	
+
 	/* Ensure content is visible if JS fails or reduced motion is preferred */
 	@media (prefers-reduced-motion: reduce) {
 		.page-content,
 		:global(.animate-ready),
-		:global(.hero-element), 
-		:global(.service-card), 
-		:global(.expertise-element), 
-		:global(.testimonial-card), 
+		:global(.hero-element),
+		:global(.service-card),
+		:global(.expertise-element),
+		:global(.testimonial-card),
 		:global(.cta-element),
 		:global(.project-card),
 		:global(.filter-btn),

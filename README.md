@@ -26,12 +26,14 @@ A modern, responsive portfolio website built with SvelteKit and TailwindCSS to s
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/yourusername/portfolio.git
 cd portfolio
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 # or
@@ -39,6 +41,7 @@ pnpm install
 ```
 
 3. Start the development server
+
 ```bash
 npm run dev
 # or
@@ -61,6 +64,7 @@ Update your personal information in the following files:
 ### Images
 
 Add your images to the `static/images` directory:
+
 - Project screenshots
 - Profile photo
 - Testimonial photos
@@ -74,6 +78,7 @@ This site can be deployed to any platform that supports SvelteKit. Here are a fe
 - [Cloudflare Pages](https://pages.cloudflare.com/)
 
 Example deployment command:
+
 ```bash
 npm run build
 ```
