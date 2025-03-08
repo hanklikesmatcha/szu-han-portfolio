@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hank Chou - OG Image Preview</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #1e293b;
+      height: 100vh;
+    }
+    .preview-container {
+      width: 1200px;
+      height: 630px;
+      background-color: #0f172a;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      box-sizing: border-box;
+      color: white;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .profile-section {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: flex-start;
+      margin-bottom: 40px;
+    }
+    .profile-image {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 3px solid #3b82f6;
+      object-fit: cover;
+      object-position: center 30%;
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+      margin-right: 40px;
+    }
+    .name-section {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .main-name {
+      font-size: 64px;
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .aka {
+      font-size: 40px;
+      font-weight: 600;
+      margin: 0 0 0 10px;
+      color: #8a87ff;
+    }
+    .full-name {
+      color: #e5e7eb;
+      font-size: 54px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .title {
+      color: #8a87ff;
+      font-size: 36px;
+      font-weight: 500;
+      margin: 10px 0 0 0;
+      letter-spacing: 0.05em;
+    }
+    .tagline {
+      color: #e5e7eb;
+      font-size: 24px;
+      font-weight: 400;
+      margin: 10px 0 0 0;
+    }
+    .skills-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 40px;
+      justify-content: center;
+    }
+    .skill-tag {
+      background-color: #2D3748;
+      color: #60a5fa;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 18px;
+      border: 1px solid #3b82f6;
+    }
+    .website {
+      position: absolute;
+      bottom: 40px;
+      text-align: center;
+      font-size: 24px;
+      color: #60a5fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    <div class="profile-section">
+      <img src="/images/me.jpg" alt="Hank Chou" class="profile-image">
+      <div class="name-section">
+        <div style="display: flex; align-items: baseline;">
+          <h1 class="main-name">Hank</h1>
+          <span class="aka">aka</span>
+        </div>
+        <h1 class="full-name">Szu-Han</h1>
+        <h2 class="title">Technical Solutions</h2>
+        <p class="tagline">AI-Powered Software Engineering</p>
+      </div>
+    </div>
+    
+    <div class="skills-section">
+      <span class="skill-tag">Python</span>
+      <span class="skill-tag">TypeScript</span>
+      <span class="skill-tag">Cloud Services</span>
+      <span class="skill-tag">AWS</span>
+      <span class="skill-tag">Azure</span>
+      <span class="skill-tag">Machine Learning</span>
+      <span class="skill-tag">LangChain</span>
+      <span class="skill-tag">PyTorch</span>
+    </div>
+    
+    <div class="website">hankchou.me</div>
+  </div>
+</body>
+</html> 

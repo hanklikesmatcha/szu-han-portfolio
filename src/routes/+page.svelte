@@ -910,7 +910,9 @@
 	<meta property="og:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://hankchou.me" />
-	<meta property="og:image" content="https://hankchou.me/hank-logo.svg" />
+	<meta property="og:image" content="https://hankchou.me/images/hank-og-image.png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
 	<meta property="og:image:alt" content="Hank Chou - Technical Solutions" />
 	<meta property="og:site_name" content="Hank Chou" />
 	
@@ -918,7 +920,7 @@
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Szu-Han Chou aka Hank - Portfolio" />
 	<meta name="twitter:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
-	<meta name="twitter:image" content="https://hankchou.me/hank-logo.svg" />
+	<meta name="twitter:image" content="https://hankchou.me/images/hank-og-image.png" />
 </svelte:head>
 
 <section class="perspective relative bg-[#1A202C] py-12 text-gray-100" bind:this={heroSection}>
@@ -926,7 +928,12 @@
 	<canvas class="fireworks-canvas" bind:this={fireworksCanvas}></canvas>
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col items-center">
-			<div class=" w-full max-w-3xl text-center">
+			<!-- Profile image added here -->
+			<div class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 shadow-lg shadow-blue-500/20 transition-transform duration-300 hover:scale-105">
+				<img src="/images/me.jpg" alt="Hank Chou" class="h-40 w-40 object-cover object-position-y-top" style="object-position: center 30%;" />
+			</div>
+			
+			<div class="w-full max-w-3xl text-center">
 				<h1 class="hero-element animate-ready mb-4 text-4xl font-bold md:text-5xl">
 					Hi, I'm <span class="name-highlight text-blue-400">Hank</span> aka Szu-Han
 				</h1>
@@ -936,9 +943,9 @@
 				</h2>
 
 				<p class="hero-element animate-ready m-4 mt-2 rounded-lg bg-[#2D3748]/60 p-3 text-lg text-gray-100 shadow-inner">
-					Full-stack developer transforming business challenges into competitive advantages. 
-					I deliver scalable, secure applications with modern architecture and exceptional 
-					user experience.
+					I'm a passionate full-stack developer who loves turning business challenges into technical wins. 
+					When I'm not coding, you might find me exploring the outdoors or enjoying good food with friends.
+					Let's build something amazing together!
 				</p>
 
 				<!-- Contact buttons under name -->
@@ -1025,19 +1032,22 @@
 					class="about-element animate-ready transition-transform duration-300 hover:translate-y-[-2px]"
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Background</h3>
-					<p class="text-gray-200">
-						With experience in full-stack development, I specialize in building secure and
-						maintainable software solutions. My technical expertise spans <span
-							class="font-bold transition-colors duration-300 hover:text-blue-300">Python</span
-						>
-						and
-						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
-							>TypeScript</span
-						>. My development philosophy centers around creating user-focused applications that
-						solve real problems while balancing technical excellence with business needs. I'm highly
-						collaborative and committed to continuous improvement, enjoying both mentoring others
-						and learning new technologies.
+					<p class="text-gray-200 mb-6">
+						Hey there! I'm a full-stack dev who loves building user-friendly software that actually solves problems. 
+						I grew up in Taipei (that's the beautiful city in the photo!), which sparked my love for connecting technology 
+						with vibrant communities. My technical toolkit includes <span
+							class="font-bold transition-colors duration-300 hover:text-blue-300">Python</span> and
+						<span class="font-bold transition-colors duration-300 hover:text-blue-300">TypeScript</span>. 
+						I enjoy collaboration and believe in making tech accessible to everyone, so don't hesitate to reach out 
+						if you want to chat about a project or just talk tech!
 					</p>
+					
+					<div class="mx-auto overflow-hidden rounded-lg border-2 border-gray-700 shadow-lg transition-transform duration-300 hover:scale-105 max-w-md">
+						<img src="/images/hometown.jpg" alt="Taipei City - My Hometown" class="w-full object-cover" />
+						<div class="bg-[#1A202C]/80 p-2 text-center text-sm text-blue-300">
+							Taipei - Where I'm From
+						</div>
+					</div>
 				</div>
 
 				<div
@@ -1045,10 +1055,8 @@
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">Education & Experience</h3>
 					<p class="text-gray-200">
-						I hold a Postgraduate Certificate in Computer & Information Sciences from Auckland
-						University of Technology and a Graduate Diploma in IT from Wellington Technology
-						Institute, along with a Bachelor of Engineering. My professional journey includes roles
-						at <a
+						I've been fortunate to study at Auckland University of Technology (Postgraduate Certificate in Computer & Information Sciences) 
+						and Wellington Technology Institute (Graduate Diploma in IT), along with my Bachelor of Engineering background. I've had a blast working with amazing teams at <a
 							href="https://octopus.energy/"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -1075,16 +1083,13 @@
 							rel="noopener noreferrer"
 							class="font-medium text-pink-300 transition-colors duration-300 hover:text-pink-200 hover:underline"
 							>Taggun</a
-						>, where I've worked on diverse projects from carbon accounting to AI integration. I've
-						also contributed as a Python Bootcamp Instructor for Summer of Tech and as a Developer
-						for
-						<a
+						>. One of my proudest achievements was helping <a
 							href="https://thegoodregistry.com/"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="font-medium text-pink-300 transition-colors duration-300 hover:text-pink-200 hover:underline"
 							>The Good Registry</a
-						>, automating processes that helped raise over $500,000 NZD for charities.
+						> raise over $500,000 NZD for charities through automated processes I developed.
 					</p>
 				</div>
 
@@ -1093,20 +1098,16 @@
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Approach</h3>
 					<p class="text-gray-200">
-						I believe in writing clean, maintainable code with a focus on performance and user
-						experience. I specialize in building <span
+						I'm all about creating tech that makes life better and easier for people. I get excited about <span
 							class="font-bold transition-colors duration-300 hover:text-blue-300"
 							>AI-driven software solutions</span
-						>, designing
-						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
+						>, crafting elegant <span class="font-bold transition-colors duration-300 hover:text-blue-300"
 							>RESTful & GraphQL APIs</span
-						>, and utilizing
-						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
+						>, and integrating <span class="font-bold transition-colors duration-300 hover:text-blue-300"
 							>machine learning models</span
-						>. My development philosophy centers around creating user-focused applications that
-						solve real problems while balancing technical excellence with business needs. I'm highly
-						collaborative and committed to continuous improvement, enjoying both mentoring others
-						and learning new technologies.
+						> that actually solve real problems. I'm a firm believer in clean code that other developers will thank you for later! 
+						I love both teaching others what I know and continuously learning new technologies - the tech world never stands still, 
+						and neither do I!
 					</p>
 				</div>
 			</div>
