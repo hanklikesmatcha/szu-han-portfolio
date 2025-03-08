@@ -47,28 +47,9 @@
 		}
 	];
 
-	// Testimonials based on recommendations
-	const testimonials = [
-		{
-			name: 'Richard Clark',
-			company: 'Sharesies',
-			position: 'Co-Founder',
-			quote:
-				'Hank is hard-working, enthusiastic and has grown into a proficient and dependable member of the Sharesies technical team. His determination, communication and drive to learn make him a capable developer who can confidently pick up and solve unfamiliar tasks.'
-		},
-		{
-			name: 'Christine Langdon',
-			company: 'The Good Registry',
-			position: 'Founder',
-			quote:
-				'Hank volunteered to help our social giving platform, The Good Registry, to solve a problem we had with issuing gift cards in bulk from our e-commerce platform. He provided a perfect solution for us and did it with great professionalism, skill and passion.'
-		}
-	];
-
 	let heroSection: HTMLElement;
 	let servicesSection: HTMLElement;
 	let expertiseSection: HTMLElement;
-	let testimonialSection: HTMLElement;
 	let ctaSection: HTMLElement;
 	
 	// Track scroll position and direction
@@ -80,7 +61,6 @@
 		hero: { visible: false, animated: { down: false, up: false } },
 		services: { visible: false, animated: { down: false, up: false } },
 		expertise: { visible: false, animated: { down: false, up: false } },
-		testimonial: { visible: false, animated: { down: false, up: false } },
 		cta: { visible: false, animated: { down: false, up: false } }
 	};
 
@@ -194,36 +174,6 @@
 					}
 					// Reset animation flags when section is out of view
 					sectionStates.expertise.animated = { up: false, down: false };
-				}
-			});
-		}, observerOptions);
-
-		// Testimonial section observer
-		const testimonialObserver = new IntersectionObserver((entries) => {
-			entries.forEach((entry) => {
-				const isVisible = entry.isIntersecting;
-				const wasVisible = sectionStates.testimonial.visible;
-				sectionStates.testimonial.visible = isVisible;
-				
-				// Element is entering viewport
-				if (isVisible && scrollDirection === 'down' && !sectionStates.testimonial.animated.down) {
-					animateTestimonialSection('down');
-					sectionStates.testimonial.animated.down = true;
-				} else if (isVisible && scrollDirection === 'up' && !sectionStates.testimonial.animated.up) {
-					animateTestimonialSection('up');
-					sectionStates.testimonial.animated.up = true;
-				} 
-				// Element is leaving viewport
-				else if (wasVisible && !isVisible) {
-					if (scrollDirection === 'up') {
-						// When scrolling up and testimonial section moves out of view (below viewport)
-						animateTestimonialSectionExit('down');
-					} else {
-						// When scrolling down and testimonial section moves out of view (above viewport)
-						animateTestimonialSectionExit('up');
-					}
-					// Reset animation flags when section is out of view
-					sectionStates.testimonial.animated = { up: false, down: false };
 				}
 			});
 		}, observerOptions);
@@ -405,89 +355,6 @@
 			}
 		}
 
-		function animateTestimonialSection(direction: 'up' | 'down') {
-			try {
-				const elements = document.querySelectorAll('.testimonial-card');
-				if (elements && elements.length > 0) {
-					animate(
-						'.testimonial-card',
-						{
-							opacity: [0, 1],
-							y: direction === 'down' ? [60, 0] : [-60, 0],
-							scale: [0.9, 1]
-						},
-						{
-							delay: stagger(0.25),
-							duration: 0.8,
-							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-						}
-					);
-
-					// Add gentle pulse after appearing
-					setTimeout(() => {
-						const cards = document.querySelectorAll('.testimonial-card');
-						if (cards && cards.length > 0) {
-							cards.forEach((card, i) => {
-								animate(
-									card,
-									{
-										scale: [1, 1.02, 1],
-										boxShadow: [
-											'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-											'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
-											'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-										]
-									},
-									{
-										duration: 4 + i,
-										delay: i * 1.5,
-										repeat: Infinity,
-										easing: 'ease-in-out'
-									}
-								);
-							});
-						}
-					}, 1500);
-				}
-			} catch (error) {
-				console.error('Testimonial animation error:', error);
-			}
-		}
-
-		function animateTestimonialSectionExit(direction: 'up' | 'down') {
-			try {
-				// Check if elements exist before animating
-				const elements = document.querySelectorAll('.testimonial-card');
-				if (elements && elements.length > 0) {
-					// Stop the pulse animations when exiting
-					document.querySelectorAll('.testimonial-card').forEach((card) => {
-						animate(
-							card,
-							{ scale: 1 },
-							{ duration: 0.2 }
-						);
-					});
-					
-					// Exit animation
-					animate(
-						'.testimonial-card',
-						{
-							opacity: [1, 0],
-							y: direction === 'down' ? [0, 60] : [0, -60],
-							scale: [1, 0.9]
-						},
-						{
-							delay: stagger(0.15, { from: 'last' }),
-							duration: 0.6,
-							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-						}
-					);
-				}
-			} catch (error) {
-				console.error('Testimonial exit animation error:', error);
-			}
-		}
-
 		function animateCTASection(direction: 'up' | 'down') {
 			try {
 				const elements = document.querySelectorAll('.cta-element');
@@ -539,7 +406,6 @@
 		if (heroSection) heroObserver.observe(heroSection);
 		if (servicesSection) servicesObserver.observe(servicesSection);
 		if (expertiseSection) expertiseObserver.observe(expertiseSection);
-		if (testimonialSection) testimonialObserver.observe(testimonialSection);
 		if (ctaSection) ctaObserver.observe(ctaSection);
 
 		// Add hover effect to service cards safely
@@ -553,60 +419,6 @@
 							y: -10,
 							scale: 1.02,
 							boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
-						},
-						{
-							duration: 0.3,
-							easing: (x) => {
-								try {
-									// Safely call spring with fallback
-									return spring({ stiffness: 300, damping: 15 })(x) || x;
-								} catch (error) {
-									console.error('Spring animation error:', error);
-									// Fallback to a simple cubic bezier easing
-									return 0.34 * (1 - Math.cos(Math.PI * x));
-								}
-							}
-						}
-					);
-				});
-
-				card.addEventListener('mouseleave', () => {
-					animate(
-						card,
-						{
-							y: 0,
-							scale: 1,
-							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-						},
-						{
-							duration: 0.3,
-							easing: (x) => {
-								try {
-									// Safely call spring with fallback
-									return spring({ stiffness: 300, damping: 15 })(x) || x;
-								} catch (error) {
-									console.error('Spring animation error:', error);
-									// Fallback to a simple cubic bezier easing
-									return 0.34 * (1 - Math.cos(Math.PI * x));
-								}
-							}
-						}
-					);
-				});
-			});
-		}
-
-		// Add hover effect to testimonial cards safely
-		const testimonialCards = document.querySelectorAll('.testimonial-card');
-		if (testimonialCards && testimonialCards.length > 0) {
-			testimonialCards.forEach((card) => {
-				card.addEventListener('mouseenter', () => {
-					animate(
-						card,
-						{
-							y: -5,
-							scale: 1.03,
-							boxShadow: '0 15px 25px -5px rgba(0, 0, 0, 0.25)'
 						},
 						{
 							duration: 0.3,
@@ -776,25 +588,6 @@
 	</div>
 </section>
 
-<!-- Testimonials Section -->
-<section class="bg-gray-800 py-16" bind:this={testimonialSection}>
-	<div class="container mx-auto px-4">
-		<h2 class="mb-10 text-center text-3xl font-bold text-blue-400">Testimonials</h2>
-
-		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			{#each testimonials as testimonial}
-				<div class="testimonial-card rounded-xl border border-gray-700 bg-gray-900 p-6">
-					<p class="mb-4 text-gray-300 italic">"{testimonial.quote}"</p>
-					<div>
-						<h3 class="font-bold text-blue-300">{testimonial.name}</h3>
-						<p class="text-gray-400">{testimonial.position}, {testimonial.company}</p>
-					</div>
-				</div>
-			{/each}
-		</div>
-	</div>
-</section>
-
 <!-- CTA Section -->
 <section class="bg-gray-900 py-12" bind:this={ctaSection}>
 	<div class="container mx-auto px-4 text-center">
@@ -821,7 +614,6 @@
 	.hero-element,
 	.service-card,
 	.expertise-element,
-	.testimonial-card,
 	.cta-element {
 		opacity: 1;
 	}
@@ -831,14 +623,8 @@
 		border-color: #4a5568;
 	}
 
-	.testimonial-card {
-		background-color: #1a202c;
-		border-color: #4a5568;
-	}
-
 	/* Keep other transition effects */
-	.service-card,
-	.testimonial-card {
+	.service-card {
 		will-change: transform, opacity, box-shadow;
 		transition: border-color 0.3s ease;
 	}

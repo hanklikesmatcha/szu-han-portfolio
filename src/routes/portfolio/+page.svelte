@@ -40,6 +40,7 @@
 	let projectsGrid: HTMLElement;
 	let filtersContainer: HTMLElement;
 	let heroSection: HTMLElement;
+	let ctaSection: HTMLElement;
 	let animationsApplied = false;
 
 	$: filteredProjects =
@@ -189,6 +190,43 @@
 
 		if (filtersContainer) {
 			observer.observe(filtersContainer);
+		}
+
+		// CTA section animation when scrolled to
+		const ctaObserver = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						try {
+							animate(
+								'.cta-element',
+								{
+									opacity: [0, 1],
+									y: [20, 0],
+									scale: [0.9, 1.05, 1]
+								},
+								{
+									delay: stagger(0.2),
+									duration: 0.8,
+									easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)'
+								}
+							);
+						} catch (error) {
+							console.error('CTA animation error:', error);
+							// Ensure CTA elements are visible if animation fails
+							document.querySelectorAll('.cta-element').forEach((el) => {
+								(el as HTMLElement).style.opacity = '1';
+								(el as HTMLElement).style.transform = 'translateY(0) scale(1)';
+							});
+						}
+					}
+				});
+			},
+			{ threshold: 0.2 }
+		);
+
+		if (ctaSection) {
+			ctaObserver.observe(ctaSection);
 		}
 
 		// Add hover effect to project cards
@@ -399,12 +437,22 @@
 		<div class="flex flex-wrap gap-2">
 			{#each filters as filterOption}
 				<button
-					class="filter-btn rounded-full px-4 py-2 text-sm {filter === filterOption
-						? 'bg-blue-800 text-white'
-						: 'border border-gray-700 bg-[#2D3748] text-gray-300 hover:bg-gray-700'}"
+					class="filter-btn relative flex items-center border px-4 py-1.5 text-sm transition-all {filter === filterOption
+						? 'border-blue-400 bg-blue-900/40 text-white shadow-inner shadow-blue-500/30'
+						: 'border-gray-700 bg-[#2D3748]/70 text-gray-300 hover:border-blue-400/50 hover:bg-[#2D3748]'}"
 					on:click={() => changeFilter(filterOption)}
 				>
+					{#if filter === filterOption}
+						<span class="mr-2 flex items-center text-blue-300">
+							<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+							</svg>
+						</span>
+					{/if}
 					{filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+					{#if filter === filterOption}
+						<span class="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-500 to-purple-500"></span>
+					{/if}
 				</button>
 			{/each}
 		</div>
@@ -464,6 +512,27 @@
 		{/each}
 	</div>
 </div>
+
+<!-- CTA Section -->
+<section class="bg-gray-900 py-12" bind:this={ctaSection}>
+	<div class="container mx-auto px-4 text-center">
+		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">Interested in working together?</h2>
+		<div class="flex justify-center gap-4">
+			<a
+				href="mailto:szuhan.eng@gmail.com"
+				class="cta-element rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:bg-blue-700 hover:transform hover:scale-105"
+			>
+				Contact Me
+			</a>
+			<a
+				href="/services"
+				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:bg-gray-800 hover:transform hover:scale-105"
+			>
+				View My Services
+			</a>
+		</div>
+	</div>
+</section>
 
 <style>
 	/* 3D Animation styles */
@@ -601,22 +670,33 @@
 		overflow: hidden;
 	}
 
+	/* Updated filter button styling */
 	.filter-btn {
 		opacity: 1; /* Start visible by default */
 		transform-style: preserve-3d; /* Enable 3D transformations */
 		backface-visibility: hidden; /* Prevent flickering */
 		will-change: transform, opacity, filter;
+		border-radius: 4px; /* Sharper corners, distinct from rounded-lg navigation buttons */
+		position: relative;
+		overflow: hidden; /* For the gradient line effect */
 	}
 
 	/* Hover effects with enhanced 3D */
 	.filter-btn {
 		transition:
 			background-color 0.3s ease,
-			transform 0.3s ease;
+			transform 0.3s ease,
+			border-color 0.3s ease,
+			box-shadow 0.3s ease;
 	}
 
 	.filter-btn:hover {
-		transform: translateY(-3px) scale(1.05);
+		transform: translateY(-2px);
+		box-shadow: 0 3px 10px -2px rgba(66, 153, 225, 0.25);
+	}
+
+	.filter-btn:active {
+		transform: translateY(1px);
 	}
 
 	.project-image img {
@@ -632,10 +712,20 @@
 		transform: translateY(-3px) scale(1.05);
 	}
 
+	/* CTA element styling */
+	.cta-element {
+		opacity: 1; /* Start visible by default */
+		transform-style: preserve-3d;
+		backface-visibility: hidden;
+		will-change: transform, opacity;
+		transition: all 0.3s ease;
+	}
+
 	/* Ensure content is visible if JS fails */
 	@media (prefers-reduced-motion: reduce) {
 		.project-card,
-		.filter-btn {
+		.filter-btn,
+		.cta-element {
 			opacity: 1 !important;
 			transform: none !important;
 			filter: none !important;

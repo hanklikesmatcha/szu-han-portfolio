@@ -30,6 +30,72 @@
 	let fireworksCtx: CanvasRenderingContext2D | null;
 	let fireworksAnimationId: number;
 	let contentReady = false; // Flag to control when to show content
+	let testimonialSection: HTMLElement; // Added for testimonial section
+
+	// Add click counters for name animations
+	let hankClickCount = 0;
+	let szuhanClickCount = 0;
+
+	// Function to handle name click animations
+	function handleNameClick(name: 'hank' | 'szuhan') {
+		if (name === 'hank') {
+			hankClickCount++;
+			const animation = hankClickCount % 4;
+			
+			const hankElement = document.querySelector('.hank-highlight');
+			if (!hankElement) return;
+			
+			// Remove any existing animation classes
+			hankElement.classList.remove('hank-pulse', 'hank-shake', 'hank-rotate', 'hank-bounce');
+			
+			// Force a reflow to restart animation
+			void (hankElement as HTMLElement).offsetWidth;
+			
+			// Apply a different animation based on click count
+			switch(animation) {
+				case 0:
+					hankElement.classList.add('hank-pulse');
+					break;
+				case 1:
+					hankElement.classList.add('hank-shake');
+					break;
+				case 2:
+					hankElement.classList.add('hank-rotate');
+					break;
+				case 3:
+					hankElement.classList.add('hank-bounce');
+					break;
+			}
+		} else {
+			szuhanClickCount++;
+			const animation = szuhanClickCount % 4;
+			
+			const szuhanElement = document.querySelector('.szuhan-highlight');
+			if (!szuhanElement) return;
+			
+			// Remove any existing animation classes
+			szuhanElement.classList.remove('szuhan-pulse', 'szuhan-shake', 'szuhan-rotate', 'szuhan-bounce');
+			
+			// Force a reflow to restart animation
+			void (szuhanElement as HTMLElement).offsetWidth;
+			
+			// Apply a different animation based on click count
+			switch(animation) {
+				case 0:
+					szuhanElement.classList.add('szuhan-pulse');
+					break;
+				case 1:
+					szuhanElement.classList.add('szuhan-shake');
+					break;
+				case 2:
+					szuhanElement.classList.add('szuhan-rotate');
+					break;
+				case 3:
+					szuhanElement.classList.add('szuhan-bounce');
+					break;
+			}
+		}
+	}
 
 	// Fireworks class for optimized Canvas-based rendering
 	class Firework {
@@ -772,12 +838,12 @@
 						'.skill-tag',
 						{
 							opacity: [0, 1],
-							scale: [0.7, 1],
-							y: [30, 0]
+							scale: [0.8, 1],
+							y: [20, 0]
 						},
 						{
-							delay: stagger(0.03, { from: 'center' }),
-							duration: 0.8
+							delay: stagger(0.025, { from: 'center' }),
+							duration: 0.6
 						}
 					);
 				}
@@ -787,7 +853,7 @@
 					(el as HTMLElement).style.opacity = '1';
 				});
 			}
-		}, 400);
+		}, 600);
 
 		// Buttons animation
 		setTimeout(() => {
@@ -846,7 +912,7 @@
 		}
 
 		// About section entrance animation when scrolled to
-		const observer = new IntersectionObserver(
+		const aboutObserver = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
 					if (entry.isIntersecting && !isAnimated) {
@@ -912,7 +978,68 @@
 		);
 
 		if (aboutSection) {
-			observer.observe(aboutSection);
+			aboutObserver.observe(aboutSection);
+		}
+
+		// Testimonial section animation when scrolled to
+		const testimonialObserver = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						try {
+							animate(
+								'.testimonial-card',
+								{
+									opacity: [0, 1],
+									y: [60, 0],
+									scale: [0.9, 1]
+								},
+								{
+									delay: stagger(0.25),
+									duration: 0.8,
+									easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+								}
+							);
+
+							// Add gentle pulse after appearing
+							setTimeout(() => {
+								const cards = document.querySelectorAll('.testimonial-card');
+								if (cards && cards.length > 0) {
+									cards.forEach((card, i) => {
+										animate(
+											card,
+											{
+												scale: [1, 1.02, 1],
+												boxShadow: [
+													'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+													'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
+													'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+												]
+											},
+											{
+												duration: 4 + i,
+												delay: i * 1.5,
+												repeat: Infinity,
+												easing: 'ease-in-out'
+											}
+										);
+									});
+								}
+							}, 1500);
+						} catch (error) {
+							console.error('Testimonial animation error:', error);
+							document.querySelectorAll('.testimonial-card').forEach((el) => {
+								(el as HTMLElement).style.opacity = '1';
+							});
+						}
+					}
+				});
+			},
+			{ threshold: 0.1, rootMargin: '-50px' }
+		);
+
+		if (testimonialSection) {
+			testimonialObserver.observe(testimonialSection);
 		}
 
 		// Clean up on component unmount
@@ -963,7 +1090,7 @@
 			
 			<div class="w-full max-w-3xl text-center">
 				<h1 class="hero-element animate-ready mb-4 text-4xl font-bold md:text-5xl">
-					Hi, I'm <span class="name-highlight text-blue-400">Hank</span> aka Szu-Han
+					Hi, I'm <span class="hank-highlight" on:click={() => handleNameClick('hank')}>Hank</span> aka <span class="szuhan-highlight" on:click={() => handleNameClick('szuhan')}>Szu-Han</span>
 				</h1>
 
 				<h2 class="hero-element animate-ready mb-6 text-2xl font-semibold text-blue-300 md:text-3xl">
@@ -1019,7 +1146,8 @@
 				</div>
 			</div>
 
-			<div class="m-4 flex flex-wrap justify-center gap-3">
+			<!-- Increased margins for skills section to prevent overlap -->
+			<div class="my-8 mb-10 flex flex-wrap justify-center gap-3">
 				{#each skills as skill}
 					<span
 						class="skill-tag animate-ready rounded-full border border-gray-700 bg-[#2D3748] px-3 py-1 text-sm text-blue-300 transition-colors hover:border-blue-500"
@@ -1028,7 +1156,8 @@
 				{/each}
 			</div>
 
-			<div class="flex justify-center gap-4">
+			<!-- Added more top margin to the buttons section -->
+			<div class="mt-6 flex justify-center gap-4">
 				<a
 					href="/portfolio"
 					class="hero-button animate-ready rounded-lg bg-blue-700 px-6 py-3 text-white shadow-lg transition-colors hover:bg-blue-600"
@@ -1143,6 +1272,33 @@
 	</div>
 </section>
 
+<!-- New Testimonials section added below the About Me section -->
+<section class="bg-[#1A202C] py-12 text-gray-100" bind:this={testimonialSection}>
+	<div class="container mx-auto px-4">
+		<h2 class="mb-8 text-center text-3xl font-bold text-blue-400">
+			What People Say
+		</h2>
+
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+			<div class="testimonial-card rounded-xl border border-gray-700 bg-[#1E2433] p-6 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl">
+				<p class="mb-4 text-gray-300 italic">"Hank is hard-working, enthusiastic and has grown into a proficient and dependable member of the Sharesies technical team. His determination, communication and drive to learn make him a capable developer who can confidently pick up and solve unfamiliar tasks."</p>
+				<div>
+					<h3 class="font-bold text-blue-300">Richard Clark</h3>
+					<p class="text-gray-400">Technical Director, Sharesies</p>
+				</div>
+			</div>
+			
+			<div class="testimonial-card rounded-xl border border-gray-700 bg-[#1E2433] p-6 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl">
+				<p class="mb-4 text-gray-300 italic">"Hank volunteered to help our social giving platform, The Good Registry, to solve a problem we had with issuing gift cards in bulk from our e-commerce platform. He provided a perfect solution for us and did it with great professionalism, skill and passion."</p>
+				<div>
+					<h3 class="font-bold text-blue-300">Christine Langdon</h3>
+					<p class="text-gray-400">Founder, The Good Registry</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
 <style>
 	:global(body) {
 		background-color: #111827; /* bg-gray-900 */
@@ -1173,11 +1329,14 @@
 		transition:
 			border-color 0.3s ease,
 			transform 0.4s ease;
+		position: relative; /* Add positioning context */
+		z-index: 5; /* Ensure proper stacking */
 	}
 
 	.skill-tag:hover {
 		border-color: #3b82f6; /* blue-500 */
 		transform: translateY(-2px) scale(1.05);
+		z-index: 10; /* Raise above other skills when hovered */
 	}
 
 	.hero-button {
@@ -1187,6 +1346,19 @@
 	.hero-button:hover {
 		transform: translateY(-3px) scale(1.03);
 		box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.5);
+	}
+
+	/* Testimonial card styling */
+	.testimonial-card {
+		opacity: 0; /* Start hidden for animation */
+		will-change: transform, opacity, box-shadow;
+		transition: all 0.3s ease;
+	}
+
+	.testimonial-card:hover {
+		transform: translateY(-5px) scale(1.01);
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+		border-color: #3b82f6; /* blue-500 */
 	}
 
 	/* Ensure content is visible if JS fails */
@@ -1222,5 +1394,129 @@
 	.name-highlight {
 		position: relative;
 		z-index: 5;
+	}
+
+	/* Styling for Hank's name */
+	.hank-highlight {
+		position: relative;
+		display: inline-block;
+		color: #f472b6; /* Neon pink base color */
+		font-weight: 800;
+		text-shadow: 0 0 8px rgba(244, 114, 182, 0.6);
+		transition: all 0.3s ease;
+		cursor: pointer;
+		z-index: 5;
+	}
+
+	.hank-highlight::after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 100%;
+		height: 3px;
+		background: linear-gradient(90deg, #f472b6, #ec4899);
+		border-radius: 2px;
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.hank-highlight:hover {
+		color: #ec4899; /* Brighter pink on hover */
+		transform: translateY(-2px);
+		text-shadow: 0 0 12px rgba(236, 72, 153, 0.8);
+	}
+
+	.hank-highlight:hover::after {
+		transform: scaleX(1);
+		transform-origin: left;
+	}
+
+	/* Styling for Szu-Han's name */
+	.szuhan-highlight {
+		position: relative;
+		display: inline-block;
+		color: #60a5fa; /* Neon blue base color */
+		font-weight: 800;
+		text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+		transition: all 0.3s ease;
+		cursor: pointer;
+		z-index: 5;
+	}
+
+	.szuhan-highlight::after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 100%;
+		height: 3px;
+		background: linear-gradient(90deg, #3b82f6, #60a5fa);
+		border-radius: 2px;
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.szuhan-highlight:hover {
+		color: #3b82f6; /* Brighter blue on hover */
+		transform: translateY(-2px);
+		text-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+	}
+
+	.szuhan-highlight:hover::after {
+		transform: scaleX(1);
+		transform-origin: left;
+	}
+
+	/* Click animations for both names */
+	/* Pulse animation */
+	@keyframes name-pulse {
+		0% { transform: scale(1); opacity: 1; }
+		50% { transform: scale(1.2); opacity: 0.8; }
+		100% { transform: scale(1); opacity: 1; }
+	}
+
+	.hank-pulse, .szuhan-pulse {
+		animation: name-pulse 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	}
+
+	/* Shake animation */
+	@keyframes name-shake {
+		0% { transform: translateX(0); }
+		20% { transform: translateX(-5px) rotate(-3deg); }
+		40% { transform: translateX(5px) rotate(3deg); }
+		60% { transform: translateX(-5px) rotate(-3deg); }
+		80% { transform: translateX(5px) rotate(3deg); }
+		100% { transform: translateX(0); }
+	}
+
+	.hank-shake, .szuhan-shake {
+		animation: name-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+	}
+
+	/* 3D Rotate animation */
+	@keyframes name-rotate {
+		0% { transform: rotateY(0); }
+		50% { transform: rotateY(180deg); }
+		100% { transform: rotateY(360deg); }
+	}
+
+	.hank-rotate, .szuhan-rotate {
+		animation: name-rotate 0.6s ease-in-out;
+		transform-style: preserve-3d;
+		backface-visibility: visible;
+	}
+
+	/* Bounce animation */
+	@keyframes name-bounce {
+		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+		40% { transform: translateY(-20px); }
+		60% { transform: translateY(-10px); }
+	}
+
+	.hank-bounce, .szuhan-bounce {
+		animation: name-bounce 0.7s ease;
 	}
 </style>
