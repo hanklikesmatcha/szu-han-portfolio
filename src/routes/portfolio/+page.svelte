@@ -95,7 +95,19 @@
 		});
 	}
 
+	// Function to ensure hero elements are visible
+	function ensureHeroElementsVisible() {
+		// Force hero elements to be visible as a fallback
+		document.querySelectorAll('.hero-element').forEach((el) => {
+			(el as HTMLElement).style.opacity = '1';
+			(el as HTMLElement).style.transform = 'translateY(0) scale(1)';
+		});
+	}
+
 	onMount(() => {
+		// Ensure hero elements are visible immediately to prevent flashing
+		ensureHeroElementsVisible();
+
 		// Hero section animation - more dramatic entrance with staggered reveal
 		try {
 			animate(
@@ -110,9 +122,14 @@
 					duration: 1.0,
 					easing: 'cubic-bezier(0.16, 1, 0.3, 1)' // Different easing than landing page
 				}
-			);
+			).finished.catch(() => {
+				// Ensure visibility if animation fails
+				ensureHeroElementsVisible();
+			});
 		} catch (error) {
 			console.error('Hero animation error:', error);
+			// Ensure visibility if animation fails to start
+			ensureHeroElementsVisible();
 		}
 
 		// About section entrance animation when scrolled to
@@ -303,6 +320,11 @@
 				);
 			}, 1500); // Start after initial animations
 		});
+
+		// Clean up by making sure elements remain visible when component is destroyed
+		return () => {
+			ensureHeroElementsVisible();
+		};
 	});
 </script>
 
@@ -446,6 +468,15 @@
 		transform-style: preserve-3d; /* Enable 3D transformations */
 		backface-visibility: hidden; /* Prevent flickering during 3D animations */
 		will-change: transform, opacity;
+		animation: ensure-visible 0.1s forwards 1s; /* Fallback animation to ensure visibility */
+	}
+
+	/* Fallback animation to ensure hero elements are always visible */
+	@keyframes ensure-visible {
+		to {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
 	}
 
 	/* Ensure hero elements are visible if JS fails */
