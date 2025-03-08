@@ -900,13 +900,13 @@
 </script>
 
 <svelte:head>
-	<title>Szu-Han Chou aka Hank - Portfolio</title>
+	<title>Hank - Portfolio</title>
 	<meta
 		name="description"
 		content="Professional portfolio showcasing my projects and expertise in software development"
 	/>
 	<!-- Open Graph / Social Media Meta Tags -->
-	<meta property="og:title" content="Szu-Han Chou aka Hank - Portfolio" />
+	<meta property="og:title" content="Hank aka Szu-Han Chou - Portfolio" />
 	<meta property="og:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://hankchou.me" />
@@ -918,7 +918,7 @@
 	
 	<!-- Twitter Card data -->
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Szu-Han Chou aka Hank - Portfolio" />
+	<meta name="twitter:title" content="Hank aka Szu-Han Chou - Portfolio" />
 	<meta name="twitter:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
 	<meta name="twitter:image" content="https://hankchou.me/images/hank-social.png" />
 </svelte:head>
