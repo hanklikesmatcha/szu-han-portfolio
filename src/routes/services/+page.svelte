@@ -477,7 +477,7 @@
 	<div class="container mx-auto px-4 text-center">
 		<h1 class="hero-element mb-6 text-4xl font-bold md:text-5xl">Services</h1>
 		<p class="hero-element mx-auto mb-6 max-w-3xl text-xl text-gray-300">
-			I provide secure, quality-focused development solutions.
+			I turn complex business ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of technical challenges.
 		</p>
 		<div class="hero-element flex justify-center gap-3">
 			<a

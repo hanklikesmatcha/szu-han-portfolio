@@ -1498,11 +1498,11 @@
 	<title>Hank - Portfolio</title>
 	<meta
 		name="description"
-		content="Professional portfolio showcasing my projects and expertise in software development"
+		content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches."
 	/>
 	<!-- Open Graph / Social Media Meta Tags -->
 	<meta property="og:title" content="Hank aka Szu-Han Chou - Portfolio" />
-	<meta property="og:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
+	<meta property="og:description" content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://hankchou.me" />
 	<meta property="og:image" content="https://hankchou.me/images/hank-social.png" />
@@ -1514,7 +1514,7 @@
 	<!-- Twitter Card data -->
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Hank aka Szu-Han Chou - Portfolio" />
-	<meta name="twitter:description" content="Full-stack developer transforming business challenges into competitive advantages with AI-Powered Software Engineering." />
+	<meta name="twitter:description" content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches." />
 	<meta name="twitter:image" content="https://hankchou.me/images/hank-social.png" />
 </svelte:head>
 
@@ -1542,9 +1542,7 @@
 				</h2>
 
 				<p class="hero-element animate-ready m-4 mt-2 rounded-lg bg-[#2D3748]/60 p-3 text-lg text-gray-100 shadow-inner">
-					I'm a passionate full-stack developer who loves turning business challenges into technical wins. 
-					When I'm not coding, you might find me exploring the outdoors or enjoying good food with friends.
-					Let's build something amazing together!
+					I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches.
 				</p>
 
 				<!-- Contact buttons under name -->
@@ -1637,8 +1635,9 @@
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Background</h3>
 					<p class="text-gray-200 mb-6">
 						Hey there! I'm a full-stack dev who loves building user-friendly software that actually solves problems. 
-						I grew up in Taipei (that's the beautiful city in the photo!), which sparked my love for connecting technology 
-						with vibrant communities. My technical toolkit includes <span
+						I'm originally from Taipei (that's the beautiful city in the photo!), but I've been living in New Zealand 
+						and working with multi-national startups for over 7 years now. My journey between these cultures has sparked 
+						my love for connecting technology with vibrant communities. My technical toolkit includes <span
 							class="font-bold transition-colors duration-300 hover:text-blue-300">Python</span> and
 						<span class="font-bold transition-colors duration-300 hover:text-blue-300">TypeScript</span>. 
 						I enjoy collaboration and believe in making tech accessible to everyone, so don't hesitate to reach out 
