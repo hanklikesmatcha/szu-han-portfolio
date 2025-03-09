@@ -48,18 +48,18 @@
 		if (name === 'hank') {
 			hankClickCount++;
 			const animation = hankClickCount % 4;
-			
+
 			const hankElement = document.querySelector('.hank-highlight');
 			if (!hankElement) return;
-			
+
 			// Remove any existing animation classes
 			hankElement.classList.remove('hank-pulse', 'hank-shake', 'hank-rotate', 'hank-bounce');
-			
+
 			// Force a reflow to restart animation
 			void (hankElement as HTMLElement).offsetWidth;
-			
+
 			// Apply a different animation based on click count
-			switch(animation) {
+			switch (animation) {
 				case 0:
 					hankElement.classList.add('hank-pulse');
 					break;
@@ -76,18 +76,23 @@
 		} else {
 			szuhanClickCount++;
 			const animation = szuhanClickCount % 4;
-			
+
 			const szuhanElement = document.querySelector('.szuhan-highlight');
 			if (!szuhanElement) return;
-			
+
 			// Remove any existing animation classes
-			szuhanElement.classList.remove('szuhan-pulse', 'szuhan-shake', 'szuhan-rotate', 'szuhan-bounce');
-			
+			szuhanElement.classList.remove(
+				'szuhan-pulse',
+				'szuhan-shake',
+				'szuhan-rotate',
+				'szuhan-bounce'
+			);
+
 			// Force a reflow to restart animation
 			void (szuhanElement as HTMLElement).offsetWidth;
-			
+
 			// Apply a different animation based on click count
-			switch(animation) {
+			switch (animation) {
 				case 0:
 					szuhanElement.classList.add('szuhan-pulse');
 					break;
@@ -116,7 +121,7 @@
 	let offscreenCanvas: HTMLCanvasElement | null = null; // For off-screen rendering
 	let offscreenCtx: CanvasRenderingContext2D | null = null;
 	let renderScale = 1.0; // Scale factor for off-screen rendering
-	
+
 	// Particle pool to reduce object creation/garbage collection
 	const particlePool: Particle[] = [];
 	const maxPoolSize = 300;
@@ -137,10 +142,34 @@
 	): Particle {
 		if (particlePool.length > 0) {
 			const particle = particlePool.pop()!;
-			particle.reset(x, y, vx, vy, size, color, lifespan, isStreamer, isSecondary, canSplit, gravity);
+			particle.reset(
+				x,
+				y,
+				vx,
+				vy,
+				size,
+				color,
+				lifespan,
+				isStreamer,
+				isSecondary,
+				canSplit,
+				gravity
+			);
 			return particle;
 		}
-		return new Particle(x, y, vx, vy, size, color, lifespan, isStreamer, isSecondary, canSplit, gravity);
+		return new Particle(
+			x,
+			y,
+			vx,
+			vy,
+			size,
+			color,
+			lifespan,
+			isStreamer,
+			isSecondary,
+			canSplit,
+			gravity
+		);
 	}
 
 	// Returns a particle to the pool
@@ -192,7 +221,7 @@
 			const types = ['circular', 'ring', 'starburst'];
 			this.explosionType = types[Math.floor(Math.random() * types.length)];
 		}
-		
+
 		getRandomFireworkColor() {
 			const colors = [
 				'#60a5fa',
@@ -222,7 +251,7 @@
 			if (particleFactor !== undefined) {
 				this.particleFactor = particleFactor;
 			}
-			
+
 			if (this.hasExploded) {
 				// Update all particles
 				for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -274,7 +303,8 @@
 			}
 
 			// Reduce chance of secondary explosions even more
-			if (Math.random() < 0.1) { // Reduced from 0.2
+			if (Math.random() < 0.1) {
+				// Reduced from 0.2
 				setTimeout(
 					() => {
 						this.createSecondaryExplosion();
@@ -317,7 +347,9 @@
 			// Apply particleFactor to control particle count
 			const baseCount = 15; // Reduced from 20
 			const randomCount = 10; // Reduced from 20
-			const particleCount = Math.floor((Math.random() * randomCount + baseCount) * this.particleFactor);
+			const particleCount = Math.floor(
+				(Math.random() * randomCount + baseCount) * this.particleFactor
+			);
 
 			for (let i = 0; i < particleCount; i++) {
 				// Random velocity in all directions
@@ -351,7 +383,9 @@
 			// Apply particleFactor to control particle count
 			const baseCount = 20; // Reduced from 25
 			const randomCount = 10; // Reduced from 15
-			const particleCount = Math.floor((Math.random() * randomCount + baseCount) * this.particleFactor);
+			const particleCount = Math.floor(
+				(Math.random() * randomCount + baseCount) * this.particleFactor
+			);
 			const ringThickness = Math.random() * 0.3 + 0.3; // Reduced from 0.5+0.5
 
 			for (let i = 0; i < particleCount; i++) {
@@ -388,7 +422,7 @@
 
 			for (let ray = 0; ray < rayCount; ray++) {
 				const rayAngle = (ray / rayCount) * Math.PI * 2;
-				
+
 				// Use particleFactor to determine how many particles per ray
 				const particlesPerRay = Math.max(2, Math.floor(maxParticlesPerRay));
 
@@ -426,7 +460,7 @@
 			if (this.hasExploded) {
 				// For desktop, we can skip drawing some particles for better performance
 				const skipFactor = isDesktopView ? 2 : 1; // Draw every 2nd particle on desktop
-				
+
 				// Draw all particles
 				for (let i = 0; i < this.particles.length; i += skipFactor) {
 					this.particles[i].draw(ctx, isDesktopView);
@@ -442,7 +476,7 @@
 				for (let i = 0; i < this.trail.length; i++) {
 					// Skip some points on desktop for better performance
 					if (isDesktopView && i % 2 === 1 && i > 0) continue;
-					
+
 					ctx.lineTo(this.trail[i].x, this.trail[i].y);
 					// Fade out the line as it gets farther from the head
 					ctx.globalAlpha = 1 - i / this.trail.length;
@@ -626,7 +660,7 @@
 				ctx.beginPath();
 				ctx.moveTo(0, 0);
 				ctx.lineTo(-this.size * 3, 0); // Shorter streamer
-				
+
 				// Skip additional shape complexity on desktop
 				if (!isDesktopView) {
 					ctx.lineTo(-this.size * 3, -this.size * 0.2);
@@ -650,7 +684,7 @@
 
 				ctx.fillStyle = this.color;
 				ctx.fill();
-				
+
 				// Always reset shadow blur for consistent rendering
 				if (ctx.shadowBlur) {
 					ctx.shadowBlur = 0;
@@ -660,12 +694,12 @@
 			// Reset global alpha
 			ctx.globalAlpha = 1;
 		}
-		
+
 		// Optimize the split method to create fewer particles
 		split() {
 			// Skip splitting entirely on desktop
 			if (isDesktopView) return;
-			
+
 			// Original split implementation with reduced particle count
 			if (!fireworksCtx) return;
 
@@ -682,7 +716,7 @@
 
 			// Add to the first active firework
 			const parentFirework = parentFireworks[0];
-			
+
 			// Additional safety check to ensure parentFirework is defined before using it
 			if (!parentFirework) return;
 
@@ -715,15 +749,15 @@
 		// Skip preloading if already done
 		if (preloaded) return;
 		preloaded = true;
-		
+
 		// Preload profile image for faster rendering
 		const profileImg = new Image();
 		profileImg.src = '/images/me.jpg';
-		
+
 		// Preload background image if any
 		const bgImg = new Image();
 		bgImg.src = '/images/hometown.jpg';
-		
+
 		// Use simpler animation on desktop or if device has low performance
 		if (window.innerWidth >= 1024) {
 			// Desktop devices often struggle with Canvas animations
@@ -732,22 +766,25 @@
 
 		// Check for battery level if possible
 		if ('getBattery' in navigator) {
-			(navigator as any).getBattery().then((battery: any) => {
-				// If battery level is below 20% or not charging, use low quality mode
-				if (battery && (battery.level < 0.2 && !battery.charging)) {
-					lowQualityMode = true;
-				}
-			}).catch(() => {
-				// If we can't get battery info, default to safer option
-				console.log('Could not access battery info');
-			});
+			(navigator as any)
+				.getBattery()
+				.then((battery: any) => {
+					// If battery level is below 20% or not charging, use low quality mode
+					if (battery && battery.level < 0.2 && !battery.charging) {
+						lowQualityMode = true;
+					}
+				})
+				.catch(() => {
+					// If we can't get battery info, default to safer option
+					console.log('Could not access battery info');
+				});
 		}
-		
+
 		// Check if user prefers reduced motion
 		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 			lowQualityMode = true;
 		}
-		
+
 		// Test for GPU performance
 		try {
 			// Create a test canvas for performance check
@@ -755,11 +792,11 @@
 			canvas.width = 100;
 			canvas.height = 100;
 			const ctx = canvas.getContext('2d');
-			
+
 			if (ctx) {
 				const startTime = performance.now();
 				let totalDraws = 0;
-				
+
 				// Draw multiple shapes to test performance
 				for (let i = 0; i < 1000; i++) {
 					ctx.beginPath();
@@ -767,7 +804,7 @@
 					ctx.fillStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.5)`;
 					ctx.fill();
 					totalDraws++;
-					
+
 					// If drawing is taking too long, exit early and use low quality mode
 					if (performance.now() - startTime > 50) {
 						lowQualityMode = true;
@@ -775,7 +812,7 @@
 						break;
 					}
 				}
-				
+
 				// Clean up
 				ctx.clearRect(0, 0, 100, 100);
 			}
@@ -786,12 +823,12 @@
 		}
 
 		console.log('Using low quality mode:', lowQualityMode);
-		
+
 		// Skip animation and show content directly if using low quality mode
 		if (lowQualityMode) {
 			useSimpleAnimation = true;
 		}
-		
+
 		// After preloading, initialize the animation
 		if (animationsReady && !animationStarted) {
 			initializeAnimation();
@@ -802,7 +839,7 @@
 	function initializeAnimation() {
 		if (animationStarted) return;
 		animationStarted = true;
-		
+
 		if (useSimpleAnimation) {
 			// Use simple gradient animation instead of fireworks
 			initGradientAnimation();
@@ -815,61 +852,65 @@
 	// Simple gradient animation for low-end devices
 	function initGradientAnimation() {
 		if (!gradientCanvas || !gradientCtx) return;
-		
+
 		// Set canvas to full size
 		gradientCanvas.width = gradientCanvas.offsetWidth;
 		gradientCanvas.height = gradientCanvas.offsetHeight;
-		
+
 		// Colors for gradient (simplified palette)
 		const colors = [
 			'#3b82f6', // Blue
 			'#8b5cf6', // Purple
 			'#ec4899', // Pink
-			'#f59e0b'  // Amber
+			'#f59e0b' // Amber
 		];
-		
+
 		let startTime = performance.now();
 		let animationDuration = 3000; // Animation lasts for 3 seconds
-		
+
 		function drawGradient(timestamp: number) {
 			const elapsed = timestamp - startTime;
 			const progress = Math.min(elapsed / animationDuration, 1);
-			
+
 			// Clear canvas
 			gradientCtx!.clearRect(0, 0, gradientCanvas.width, gradientCanvas.height);
-			
+
 			// Create gradient
 			const centerX = gradientCanvas.width / 2;
 			const centerY = gradientCanvas.height / 2 - 50; // Offset slightly upward
-			
+
 			// Radius grows with progress
 			const radius = (gradientCanvas.width / 2) * progress;
-			
+
 			// Create radial gradient
 			const gradient = gradientCtx!.createRadialGradient(
-				centerX, centerY, 0,
-				centerX, centerY, radius
+				centerX,
+				centerY,
+				0,
+				centerX,
+				centerY,
+				radius
 			);
-			
+
 			// Add color stops
 			gradient.addColorStop(0, colors[0]);
 			gradient.addColorStop(0.3, colors[1]);
 			gradient.addColorStop(0.6, colors[2]);
 			gradient.addColorStop(1, 'rgba(0,0,0,0)'); // Fade to transparent
-			
+
 			// Fill with gradient
 			gradientCtx!.fillStyle = gradient;
 			gradientCtx!.fillRect(0, 0, gradientCanvas.width, gradientCanvas.height);
-			
+
 			// Add some particles for visual interest
 			if (progress > 0.2) {
 				const particleCount = Math.floor(10 * progress);
-				
+
 				for (let i = 0; i < particleCount; i++) {
 					const x = centerX + (Math.random() - 0.5) * radius * 2;
 					const y = centerY + (Math.random() - 0.5) * radius * 2;
 					const size = Math.random() * 3 + 1;
-					
+
 					gradientCtx!.beginPath();
 					gradientCtx!.arc(x, y, size, 0, Math.PI * 2);
 					gradientCtx!.fillStyle = colors[Math.floor(Math.random() * colors.length)];
@@ -878,7 +919,7 @@
 					gradientCtx!.globalAlpha = 1;
 				}
 			}
-			
+
 			// Continue animation if not complete
 			if (progress < 1) {
 				requestAnimationFrame(drawGradient);
@@ -888,10 +929,10 @@
 				function fadeOut() {
 					opacity -= 0.05;
 					gradientCanvas.style.opacity = opacity.toString();
-					
+
 					if (opacity <= 0) {
 						gradientCanvas.style.display = 'none';
-						
+
 						// Show content
 						contentReady = true;
 						revealContent();
@@ -899,12 +940,12 @@
 						requestAnimationFrame(fadeOut);
 					}
 				}
-				
+
 				// Start fade out after a brief pause
 				setTimeout(fadeOut, 500);
 			}
 		}
-		
+
 		// Start animation
 		requestAnimationFrame(drawGradient);
 	}
@@ -926,16 +967,22 @@
 		// Try to detect performance level more accurately
 		const performanceLevel = detectPerformanceLevel();
 		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-		
+
 		// Set render scale based on performance level (lower = better performance but lower quality)
-		renderScale = isDesktopView 
-			? (performanceLevel === 'low' ? 0.4 : 0.6) // Even lower for desktop
-			: (performanceLevel === 'low' ? 0.5 : 0.8);
-			
+		renderScale = isDesktopView
+			? performanceLevel === 'low'
+				? 0.4
+				: 0.6 // Even lower for desktop
+			: performanceLevel === 'low'
+				? 0.5
+				: 0.8;
+
 		// Disable fireworks entirely on very low-end devices
-		if (performanceLevel === 'very-low' || 
-			(isSafari && performanceLevel === 'low') || 
-			(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+		if (
+			performanceLevel === 'very-low' ||
+			(isSafari && performanceLevel === 'low') ||
+			(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+		) {
 			skipFireworksAndShowContent();
 			return;
 		}
@@ -974,47 +1021,54 @@
 
 		// Add one more burst for high-performance devices
 		if (performanceLevel === 'high' && !isDesktopView) {
-			fireworksSequence.push({ time: 3000, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.25 });
+			fireworksSequence.push({
+				time: 3000,
+				startX: width * 0.5,
+				targetX: width * 0.5,
+				targetY: height * 0.25
+			});
 		}
 
 		let sequenceIndex = 0;
 		// Even more aggressive particle reduction
-		let adaptiveParticleFactor = isDesktopView ? 0.4 : (performanceLevel === 'low' ? 0.6 : 0.8);
-		
+		let adaptiveParticleFactor = isDesktopView ? 0.4 : performanceLevel === 'low' ? 0.6 : 0.8;
+
 		// Batch rendering variables with more aggressive batching
 		let lastBatchTime = 0;
-		const batchInterval = isDesktopView ? 3 : (performanceLevel === 'low' ? 2 : 1); // Render less frequently
-		
+		const batchInterval = isDesktopView ? 3 : performanceLevel === 'low' ? 2 : 1; // Render less frequently
+
 		// Use a faster animation overall
-		const animationSpeedFactor = isDesktopView ? 1.5 : (performanceLevel === 'low' ? 1.3 : 1.0);
+		const animationSpeedFactor = isDesktopView ? 1.5 : performanceLevel === 'low' ? 1.3 : 1.0;
 
 		// Animation loop with further optimizations
 		function animate(timestamp: number) {
 			// Calculate FPS and apply timeScale to speed up animation
 			const timeElapsed = timestamp - (lastFrameTime || timestamp);
 			const adjustedElapsed = timeElapsed * animationSpeedFactor;
-			
+
 			lastFrameTime = timestamp;
-			
+
 			// Use batch rendering - only render every X frames based on performance
 			const shouldRender = timestamp - lastBatchTime >= batchInterval;
-			
+
 			if (shouldRender) {
 				lastBatchTime = timestamp;
-				
+
 				// Use offscreen canvas if available
 				const ctx = offscreenCtx || fireworksCtx;
-				const targetWidth = offscreenCanvas ? offscreenCanvas.width : (fireworksCanvas?.width || 0);
-				const targetHeight = offscreenCanvas ? offscreenCanvas.height : (fireworksCanvas?.height || 0);
-				
+				const targetWidth = offscreenCanvas ? offscreenCanvas.width : fireworksCanvas?.width || 0;
+				const targetHeight = offscreenCanvas
+					? offscreenCanvas.height
+					: fireworksCanvas?.height || 0;
+
 				if (ctx) {
 					// Clear canvas with faster method
 					ctx.clearRect(0, 0, targetWidth, targetHeight);
-					
+
 					// Much lighter background
 					ctx.fillStyle = 'rgba(26, 32, 44, 0.03)';
 					ctx.fillRect(0, 0, targetWidth, targetHeight);
-					
+
 					// Set composite operation for better performance
 					ctx.globalCompositeOperation = 'lighter';
 				}
@@ -1029,9 +1083,14 @@
 				currentTime >= fireworksSequence[sequenceIndex].time
 			) {
 				const sequence = fireworksSequence[sequenceIndex];
-				
+
 				// Create firework with adaptiveParticleFactor to control explosion size
-				const fw = new Firework(sequence.startX, sequence.targetX, sequence.targetY, adaptiveParticleFactor);
+				const fw = new Firework(
+					sequence.startX,
+					sequence.targetX,
+					sequence.targetY,
+					adaptiveParticleFactor
+				);
 				fireworks.push(fw);
 				sequenceIndex++;
 			}
@@ -1040,7 +1099,7 @@
 			for (let i = fireworks.length - 1; i >= 0; i--) {
 				// Skip non-existent fireworks
 				if (!fireworks[i]) continue;
-				
+
 				// Only draw if we're rendering this frame
 				if (shouldRender) {
 					// Draw the firework with optimized drawing
@@ -1052,11 +1111,10 @@
 
 				// Remove finished fireworks
 				if (isDone) {
-					
 					fireworks.splice(i, 1);
 				}
 			}
-			
+
 			// Copy from offscreen canvas if used
 			if (shouldRender && offscreenCtx && fireworksCtx) {
 				fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
@@ -1064,10 +1122,16 @@
 				fireworksCtx.imageSmoothingEnabled = false;
 				fireworksCtx.drawImage(
 					offscreenCanvas!,
-					0, 0, offscreenCanvas!.width, offscreenCanvas!.height,
-					0, 0, fireworksCanvas.width, fireworksCanvas.height
+					0,
+					0,
+					offscreenCanvas!.width,
+					offscreenCanvas!.height,
+					0,
+					0,
+					fireworksCanvas.width,
+					fireworksCanvas.height
 				);
-				
+
 				// Reset composite operation
 				if (offscreenCtx) {
 					offscreenCtx.globalCompositeOperation = 'source-over';
@@ -1076,8 +1140,10 @@
 
 			// Show content much earlier
 			const revealTime = 2000; // Show content after 2 seconds in all cases
-			if ((sequenceIndex >= fireworksSequence.length && !contentReady) || 
-				currentTime > revealTime) {
+			if (
+				(sequenceIndex >= fireworksSequence.length && !contentReady) ||
+				currentTime > revealTime
+			) {
 				contentReady = true;
 				revealContent();
 			}
@@ -1090,11 +1156,11 @@
 				const fadeCanvas = () => {
 					let opacity = parseFloat(fireworksCanvas.style.opacity || '1');
 					opacity -= 0.1; // Faster fade out
-					
+
 					if (opacity <= 0) {
 						fireworksCanvas.style.opacity = '0';
 						fireworksCanvas.style.display = 'none';
-						
+
 						// Clean up resources
 						if (offscreenCanvas) {
 							offscreenCanvas.width = 1;
@@ -1122,6 +1188,9 @@
 	onMount(() => {
 		// Mark animations as ready
 		animationsReady = true;
+
+		// Setup copy email functionality
+		setupCopyEmailFunctionality();
 
 		// Create the observers here (only in browser environment)
 		const aboutObserver = createAboutObserver();
@@ -1159,7 +1228,7 @@
 
 		// Preload assets, then start animation with a slight delay
 		preloadAssets();
-		
+
 		// Set up observers for scroll animations after DOM elements are available
 		if (aboutSection) {
 			aboutObserver.observe(aboutSection);
@@ -1175,7 +1244,7 @@
 		// Ensure testimonials are visible after a delay regardless of scroll position
 		// This serves as a fallback for page navigation scenarios
 		setTimeout(ensureTestimonialsVisible, 2000);
-		
+
 		// Clean up on component unmount
 		return () => {
 			if (fireworksAnimationId) {
@@ -1184,7 +1253,7 @@
 			if (resizeCanvas) {
 				window.removeEventListener('resize', resizeCanvas);
 			}
-			
+
 			// Disconnect observers
 			aboutObserver.disconnect();
 			testimonialObserver.disconnect();
@@ -1196,36 +1265,42 @@
 		// Check for obvious low-end indicators
 		const memory = (navigator as any).deviceMemory;
 		const cores = navigator.hardwareConcurrency || 0;
-		const isLowPowerMode = 'getBattery' in navigator && (navigator as any).getBattery && (navigator as any).getBattery().then((b: any) => b.charging);
-		const isReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		
+		const isLowPowerMode =
+			'getBattery' in navigator &&
+			(navigator as any).getBattery &&
+			(navigator as any).getBattery().then((b: any) => b.charging);
+		const isReducedMotion =
+			window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 		// Basic heuristics for performance level
 		if (isReducedMotion) {
 			return 'very-low';
 		}
-		
+
 		if (memory && memory <= 2) {
 			return 'low';
 		}
-		
+
 		if (cores <= 2) {
 			return 'low';
 		}
-		
+
 		if (memory && memory <= 4 && cores <= 4) {
 			return 'medium';
 		}
-		
+
 		if (isLowPowerMode) {
 			return 'low';
 		}
-		
+
 		// Mobile detection
-		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+			navigator.userAgent
+		);
 		if (isMobile) {
 			return cores <= 4 ? 'low' : 'medium';
 		}
-		
+
 		// Default to high for modern desktops
 		return 'high';
 	}
@@ -1234,16 +1309,16 @@
 	function setupOffscreenCanvas() {
 		// Skip if already set up or disabled
 		if (offscreenCanvas || !fireworksCanvas) return;
-		
+
 		try {
 			offscreenCanvas = document.createElement('canvas');
-			
+
 			// Use smaller dimensions for better performance
 			offscreenCanvas.width = Math.floor(fireworksCanvas.width * renderScale);
 			offscreenCanvas.height = Math.floor(fireworksCanvas.height * renderScale);
-			
+
 			offscreenCtx = offscreenCanvas.getContext('2d', { alpha: true });
-			
+
 			// Optimize the context
 			if (offscreenCtx) {
 				// Disable image smoothing for better performance
@@ -1261,12 +1336,12 @@
 		if (fireworksCanvas) {
 			fireworksCanvas.style.display = 'none';
 		}
-		
+
 		if (fireworksAnimationId) {
 			cancelAnimationFrame(fireworksAnimationId);
 			fireworksAnimationId = 0;
 		}
-		
+
 		// Show content immediately
 		contentReady = true;
 		setTimeout(revealContent, 100);
@@ -1492,6 +1567,105 @@
 			{ threshold: 0.1, rootMargin: '-50px' }
 		);
 	}
+
+	// Function to setup copy email functionality
+	function setupCopyEmailFunctionality() {
+		document.querySelectorAll('.copy-email-btn').forEach((btn) => {
+			btn.addEventListener('click', (e) => {
+				e.preventDefault();
+				// Cast btn to HTMLElement at the beginning to fix all TypeScript errors
+				const htmlBtn = btn as HTMLElement;
+				const emailAddress = 'szuhan.eng@gmail.com';
+				navigator.clipboard
+					.writeText(emailAddress)
+					.then(() => {
+						// Show success message in tooltip
+						const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+						if (tooltip) {
+							tooltip.textContent = 'Email copied!';
+							tooltip.classList.add('tooltip-visible');
+
+							// Create and display success animation elements
+
+							// 1. Create ripple effect
+							const ripple = document.createElement('span');
+							ripple.className = 'copy-ripple';
+							htmlBtn.appendChild(ripple);
+
+							// 2. Create success checkmark icon
+							const checkmark = document.createElement('span');
+							checkmark.className = 'copy-checkmark';
+							checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+							htmlBtn.appendChild(checkmark);
+
+							// 3. Add animation class to button itself
+							htmlBtn.classList.add('copy-success-pulse');
+
+							// 4. Handle text content change for Contact Me buttons
+							const originalText = htmlBtn.textContent?.trim();
+							// Store button text (if it's a text button like "Contact Me")
+							if (originalText && originalText !== '') {
+								// Save original text
+								htmlBtn.dataset.originalText = originalText;
+								// Change button text to success message
+								htmlBtn.textContent = 'Email Copied!';
+							} else {
+								// For icon-only buttons, create and add a temporary success label
+								const successLabel = document.createElement('span');
+								successLabel.className = 'copy-success-label';
+								successLabel.textContent = 'Copied!';
+								htmlBtn.appendChild(successLabel);
+
+								// Make sure the original SVG icon stays visible
+								const svgIcon = htmlBtn.querySelector('svg');
+								if (svgIcon) svgIcon.style.opacity = '1';
+							}
+
+							// Clean up elements after animations complete
+							setTimeout(() => {
+								ripple.remove();
+								checkmark.remove();
+								htmlBtn.classList.remove('copy-success-pulse');
+
+								// Restore original button text if it was changed
+								if (htmlBtn.dataset.originalText) {
+									htmlBtn.textContent = htmlBtn.dataset.originalText;
+									delete htmlBtn.dataset.originalText;
+								}
+
+								// Remove success label if it was added
+								const successLabel = htmlBtn.querySelector('.copy-success-label');
+								if (successLabel) successLabel.remove();
+
+								tooltip.textContent = 'Copy email address';
+								tooltip.classList.remove('tooltip-visible');
+							}, 2000);
+						}
+					})
+					.catch((err) => {
+						console.error('Failed to copy email: ', err);
+					});
+			});
+
+			// Show tooltip on hover
+			btn.addEventListener('mouseenter', () => {
+				const htmlBtn = btn as HTMLElement;
+				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+				if (tooltip) {
+					tooltip.classList.add('tooltip-visible');
+				}
+			});
+
+			// Hide tooltip on mouse leave
+			btn.addEventListener('mouseleave', () => {
+				const htmlBtn = btn as HTMLElement;
+				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+				if (tooltip && tooltip.textContent !== 'Email copied!') {
+					tooltip.classList.remove('tooltip-visible');
+				}
+			});
+		});
+	}
 </script>
 
 <svelte:head>
@@ -1502,7 +1676,10 @@
 	/>
 	<!-- Open Graph / Social Media Meta Tags -->
 	<meta property="og:title" content="Hank aka Szu-Han Chou - Portfolio" />
-	<meta property="og:description" content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches." />
+	<meta
+		property="og:description"
+		content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches."
+	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://hankchou.me" />
 	<meta property="og:image" content="https://hankchou.me/images/hank-social.png" />
@@ -1510,39 +1687,61 @@
 	<meta property="og:image:height" content="630" />
 	<meta property="og:image:alt" content="Hank Chou - AI-Powered Software Engineering" />
 	<meta property="og:site_name" content="Hank Chou" />
-	
+
 	<!-- Twitter Card data -->
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Hank aka Szu-Han Chou - Portfolio" />
-	<meta name="twitter:description" content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches." />
+	<meta
+		name="twitter:description"
+		content="I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches."
+	/>
 	<meta name="twitter:image" content="https://hankchou.me/images/hank-social.png" />
 </svelte:head>
 
 <section class="perspective relative bg-[#1A202C] py-12 text-gray-100" bind:this={heroSection}>
 	<!-- Canvas for fireworks -->
 	<canvas class="fireworks-canvas" bind:this={fireworksCanvas}></canvas>
-	
+
 	<!-- Canvas for simple gradient animation -->
 	<canvas class="gradient-canvas" bind:this={gradientCanvas}></canvas>
-	
+
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col items-center">
 			<!-- Profile image added here -->
-			<div class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 shadow-lg shadow-blue-500/20 transition-transform duration-300 hover:scale-105">
-				<img src="/images/me.jpg" alt="Hank Chou" class="h-40 w-40 object-cover object-position-y-top" style="object-position: 20% 10%;" loading="eager" />
+			<div
+				class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 shadow-lg shadow-blue-500/20 transition-transform duration-300 hover:scale-105"
+			>
+				<img
+					src="/images/me.jpg"
+					alt="Hank Chou"
+					class="object-position-y-top h-40 w-40 object-cover"
+					style="object-position: 20% 10%;"
+					loading="eager"
+				/>
 			</div>
-			
+
 			<div class="w-full max-w-3xl text-center">
 				<h1 class="hero-element animate-ready mb-4 text-4xl font-bold md:text-5xl">
-					Hi, I'm <button class="hank-highlight" on:click={() => handleNameClick('hank')}>Hank</button> aka <button class="szuhan-highlight" on:click={() => handleNameClick('szuhan')}>Szu-Han</button>
+					Hi, I'm <button class="hank-highlight" on:click={() => handleNameClick('hank')}
+						>Hank</button
+					>
+					aka
+					<button class="szuhan-highlight" on:click={() => handleNameClick('szuhan')}
+						>Szu-Han</button
+					>
 				</h1>
 
-				<h2 class="hero-element animate-ready mb-6 text-2xl font-semibold text-blue-300 md:text-3xl">
+				<h2
+					class="hero-element animate-ready mb-6 text-2xl font-semibold text-blue-300 md:text-3xl"
+				>
 					AI-Powered Software Engineering
 				</h2>
 
-				<p class="hero-element animate-ready m-4 mt-2 rounded-lg bg-[#2D3748]/60 p-3 text-lg text-gray-100 shadow-inner">
-					I help businesses turn complex ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of tech headaches.
+				<p
+					class="hero-element animate-ready m-4 mt-2 rounded-lg bg-[#2D3748]/60 p-3 text-lg text-gray-100 shadow-inner"
+				>
+					I help businesses turn complex ideas into high-performing, user-friendly digital
+					solutions—so you can focus on growth instead of tech headaches.
 				</p>
 
 				<!-- Contact buttons under name -->
@@ -1565,13 +1764,14 @@
 							/>
 						</svg>
 					</a>
-					<a
-						href="mailto:szuhan.eng@gmail.com"
-						target="_blank"
-						rel="noopener noreferrer"
-						class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
-						aria-label="Email Me"
+					<button
+						class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+						aria-label="Copy Email Address"
 					>
+						<span
+							class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
+							>Copy email address</span
+						>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-7 w-7 transform transition-transform group-hover:-translate-y-1"
@@ -1586,7 +1786,7 @@
 								d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
 							/>
 						</svg>
-					</a>
+					</button>
 				</div>
 			</div>
 
@@ -1633,19 +1833,29 @@
 					class="about-element animate-ready transition-transform duration-300 hover:translate-y-[-2px]"
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Background</h3>
-					<p class="text-gray-200 mb-6">
-						Hey there! I'm a full-stack dev who loves building user-friendly software that actually solves problems. 
-						I'm originally from Taipei (that's the beautiful city in the photo!), but I've been living in New Zealand 
-						and working with multi-national startups for over 7 years now. My journey between these cultures has sparked 
-						my love for connecting technology with vibrant communities. My technical toolkit includes <span
-							class="font-bold transition-colors duration-300 hover:text-blue-300">Python</span> and
-						<span class="font-bold transition-colors duration-300 hover:text-blue-300">TypeScript</span>. 
-						I enjoy collaboration and believe in making tech accessible to everyone, so don't hesitate to reach out 
-						if you want to chat about a project or just talk tech!
+					<p class="mb-6 text-gray-200">
+						Hey there! I'm a full-stack dev who loves building user-friendly software that actually
+						solves problems. I'm originally from Taipei (that's the beautiful city in the photo!),
+						but I've been living in New Zealand and working with multi-national startups for over 7
+						years now. My journey between these cultures has sparked my love for connecting
+						technology with vibrant communities. My technical toolkit includes <span
+							class="font-bold transition-colors duration-300 hover:text-blue-300">Python</span
+						>
+						and
+						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
+							>TypeScript</span
+						>. I enjoy collaboration and believe in making tech accessible to everyone, so don't
+						hesitate to reach out if you want to chat about a project or just talk tech!
 					</p>
-					
-					<div class="mx-auto overflow-hidden rounded-lg border-2 border-gray-700 shadow-lg transition-transform duration-300 hover:scale-105 max-w-md">
-						<img src="/images/hometown.jpg" alt="Taipei City - My Hometown" class="w-full object-cover" />
+
+					<div
+						class="mx-auto max-w-md overflow-hidden rounded-lg border-2 border-gray-700 shadow-lg transition-transform duration-300 hover:scale-105"
+					>
+						<img
+							src="/images/hometown.jpg"
+							alt="Taipei City - My Hometown"
+							class="w-full object-cover"
+						/>
 						<div class="bg-[#1A202C]/80 p-2 text-center text-sm text-blue-300">
 							Taipei - Where I'm From
 						</div>
@@ -1657,8 +1867,10 @@
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">Education & Experience</h3>
 					<p class="text-gray-200">
-						I've been fortunate to study at Auckland University of Technology (Postgraduate Certificate in Computer & Information Sciences) 
-						and Wellington Technology Institute (Graduate Diploma in IT), along with my Bachelor of Engineering background. I've had a blast working with amazing teams at <a
+						I've been fortunate to study at Auckland University of Technology (Postgraduate
+						Certificate in Computer & Information Sciences) and Wellington Technology Institute
+						(Graduate Diploma in IT), along with my Bachelor of Engineering background. I've had a
+						blast working with amazing teams at <a
 							href="https://octopus.energy/"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -1685,7 +1897,8 @@
 							rel="noopener noreferrer"
 							class="font-medium text-pink-300 transition-colors duration-300 hover:text-pink-200 hover:underline"
 							>Taggun</a
-						>. One of my proudest achievements was helping <a
+						>. One of my proudest achievements was helping
+						<a
 							href="https://thegoodregistry.com/"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -1700,16 +1913,18 @@
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Approach</h3>
 					<p class="text-gray-200">
-						I'm all about creating tech that makes life better and easier for people. I get excited about <span
-							class="font-bold transition-colors duration-300 hover:text-blue-300"
+						I'm all about creating tech that makes life better and easier for people. I get excited
+						about <span class="font-bold transition-colors duration-300 hover:text-blue-300"
 							>AI-driven software solutions</span
-						>, crafting elegant <span class="font-bold transition-colors duration-300 hover:text-blue-300"
+						>, crafting elegant
+						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
 							>RESTful & GraphQL APIs</span
-						>, and integrating <span class="font-bold transition-colors duration-300 hover:text-blue-300"
+						>, and integrating
+						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
 							>machine learning models</span
-						> that actually solve real problems. I'm a firm believer in clean code that other developers will thank you for later! 
-						I love both teaching others what I know and continuously learning new technologies - the tech world never stands still, 
-						and neither do I!
+						> that actually solve real problems. I'm a firm believer in clean code that other developers
+						will thank you for later! I love both teaching others what I know and continuously learning
+						new technologies - the tech world never stands still, and neither do I!
 					</p>
 				</div>
 			</div>
@@ -1720,21 +1935,31 @@
 <!-- New Testimonials section added below the About Me section -->
 <section class="bg-[#1A202C] py-12 text-gray-100" bind:this={testimonialSection}>
 	<div class="container mx-auto px-4">
-		<h2 class="mb-8 text-center text-3xl font-bold text-blue-400">
-			What People Say
-		</h2>
+		<h2 class="mb-8 text-center text-3xl font-bold text-blue-400">What People Say</h2>
 
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			<div class="testimonial-card rounded-xl border border-gray-700 bg-[#1E2433] p-6 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl">
-				<p class="mb-4 text-gray-300 italic">"Hank is hard-working, enthusiastic and has grown into a proficient and dependable member of the Sharesies technical team. His determination, communication and drive to learn make him a capable developer who can confidently pick up and solve unfamiliar tasks."</p>
+			<div
+				class="testimonial-card rounded-xl border border-gray-700 bg-[#1E2433] p-6 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl"
+			>
+				<p class="mb-4 text-gray-300 italic">
+					"Hank is hard-working, enthusiastic and has grown into a proficient and dependable member
+					of the Sharesies technical team. His determination, communication and drive to learn make
+					him a capable developer who can confidently pick up and solve unfamiliar tasks."
+				</p>
 				<div>
 					<h3 class="font-bold text-blue-300">Richard Clark</h3>
 					<p class="text-gray-400">Technical Director, Sharesies</p>
 				</div>
 			</div>
-			
-			<div class="testimonial-card rounded-xl border border-gray-700 bg-[#1E2433] p-6 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl">
-				<p class="mb-4 text-gray-300 italic">"Hank volunteered to help our social giving platform, The Good Registry, to solve a problem we had with issuing gift cards in bulk from our e-commerce platform. He provided a perfect solution for us and did it with great professionalism, skill and passion."</p>
+
+			<div
+				class="testimonial-card rounded-xl border border-gray-700 bg-[#1E2433] p-6 shadow-lg transition-all duration-300 hover:border-blue-500 hover:shadow-xl"
+			>
+				<p class="mb-4 text-gray-300 italic">
+					"Hank volunteered to help our social giving platform, The Good Registry, to solve a
+					problem we had with issuing gift cards in bulk from our e-commerce platform. He provided a
+					perfect solution for us and did it with great professionalism, skill and passion."
+				</p>
 				<div>
 					<h3 class="font-bold text-blue-300">Christine Langdon</h3>
 					<p class="text-gray-400">Founder, The Good Registry</p>
@@ -1843,7 +2068,7 @@
 		z-index: 10;
 		pointer-events: none;
 	}
-	
+
 	/* Canvas for simple gradient animation */
 	.gradient-canvas {
 		position: absolute;
@@ -1927,9 +2152,9 @@
 	}
 
 	.szuhan-highlight:hover {
-		color: #3b82f6; /* Brighter blue on hover */
+		color: #93c5fd; /* Brighter blue on hover */
 		transform: translateY(-2px);
-		text-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+		text-shadow: 0 0 12px rgba(96, 165, 250, 0.8);
 	}
 
 	.szuhan-highlight:hover::after {
@@ -1940,32 +2165,218 @@
 	/* Click animations for both names */
 	/* Pulse animation */
 	@keyframes name-pulse {
-		0% { transform: scale(1); opacity: 1; }
-		50% { transform: scale(1.2); opacity: 0.8; }
-		100% { transform: scale(1); opacity: 1; }
+		0% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.2);
+			opacity: 0.8;
+		}
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
 	}
 
 	/* Shake animation */
 	@keyframes name-shake {
-		0% { transform: translateX(0); }
-		20% { transform: translateX(-5px) rotate(-3deg); }
-		40% { transform: translateX(5px) rotate(3deg); }
-		60% { transform: translateX(-5px) rotate(-3deg); }
-		80% { transform: translateX(5px) rotate(3deg); }
-		100% { transform: translateX(0); }
+		0% {
+			transform: translateX(0);
+		}
+		20% {
+			transform: translateX(-5px) rotate(-3deg);
+		}
+		40% {
+			transform: translateX(5px) rotate(3deg);
+		}
+		60% {
+			transform: translateX(-5px) rotate(-3deg);
+		}
+		80% {
+			transform: translateX(5px) rotate(3deg);
+		}
+		100% {
+			transform: translateX(0);
+		}
 	}
 
 	/* 3D Rotate animation */
 	@keyframes name-rotate {
-		0% { transform: rotateY(0); }
-		50% { transform: rotateY(180deg); }
-		100% { transform: rotateY(360deg); }
+		0% {
+			transform: rotateY(0);
+		}
+		50% {
+			transform: rotateY(180deg);
+		}
+		100% {
+			transform: rotateY(360deg);
+		}
 	}
 
 	/* Bounce animation */
 	@keyframes name-bounce {
-		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-		40% { transform: translateY(-20px); }
-		60% { transform: translateY(-10px); }
+		0%,
+		20%,
+		50%,
+		80%,
+		100% {
+			transform: translateY(0);
+		}
+		40% {
+			transform: translateY(-20px);
+		}
+		60% {
+			transform: translateY(-10px);
+		}
+	}
+
+	/* Email button tooltip styles */
+	.copy-email-btn {
+		position: relative;
+		cursor: pointer;
+		overflow: hidden; /* Ensure ripple doesn't overflow */
+	}
+
+	.copy-tooltip {
+		z-index: 10;
+		pointer-events: none;
+		white-space: nowrap;
+		/* Add a small triangle/arrow */
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+	}
+
+	.copy-tooltip:after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		margin-left: -6px;
+		border-width: 6px;
+		border-style: solid;
+		border-color: #1a202c transparent transparent transparent;
+	}
+
+	.copy-tooltip.tooltip-visible {
+		opacity: 1;
+	}
+
+	/* Copy success animation styles */
+	.copy-success-pulse {
+		animation: copy-pulse 0.5s ease-in-out;
+	}
+
+	@keyframes copy-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
+		}
+		70% {
+			box-shadow: 0 0 0 15px rgba(147, 51, 234, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
+		}
+	}
+
+	.copy-ripple {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 0;
+		height: 0;
+		border-radius: 50%;
+		background-color: rgba(255, 255, 255, 0.4);
+		animation: copy-ripple 0.6s linear;
+		z-index: 2;
+	}
+
+	@keyframes copy-ripple {
+		0% {
+			width: 0;
+			height: 0;
+			opacity: 0.6;
+		}
+		100% {
+			width: 200%;
+			height: 200%;
+			opacity: 0;
+		}
+	}
+
+	.copy-checkmark {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: white;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 3;
+		opacity: 0;
+		animation: copy-checkmark 0.8s ease-in-out forwards;
+	}
+
+	.copy-checkmark svg {
+		width: 70%;
+		height: 70%;
+		stroke: #ffffff;
+		filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
+	}
+
+	@keyframes copy-checkmark {
+		0% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(0.5);
+		}
+		60% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.2);
+		}
+		100% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(1);
+		}
+	}
+
+	/* Success text label that appears on icon buttons */
+	.copy-success-label {
+		position: absolute;
+		top: -5px;
+		right: -5px;
+		background-color: #22c55e; /* Green for success */
+		color: white;
+		font-size: 12px;
+		font-weight: bold;
+		padding: 2px 6px;
+		border-radius: 10px;
+		z-index: 10;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+		animation: fadeInOut 2s ease-in-out forwards;
+	}
+
+	@keyframes fadeInOut {
+		0% {
+			opacity: 0;
+			transform: scale(0.8) translateY(5px);
+		}
+		15% {
+			opacity: 1;
+			transform: scale(1.1) translateY(0);
+		}
+		25% {
+			transform: scale(1) translateY(0);
+		}
+		85% {
+			opacity: 1;
+			transform: scale(1) translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(0.8) translateY(-5px);
+		}
 	}
 </style>

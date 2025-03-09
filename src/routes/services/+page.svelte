@@ -51,11 +51,11 @@
 	let servicesSection: HTMLElement;
 	let expertiseSection: HTMLElement;
 	let ctaSection: HTMLElement;
-	
+
 	// Track scroll position and direction
 	let lastScrollTop = 0;
 	let scrollDirection = 'down';
-	
+
 	// Track element visibility states
 	let sectionStates = {
 		hero: { visible: false, animated: { down: false, up: false } },
@@ -65,10 +65,13 @@
 	};
 
 	onMount(() => {
+		// Setup copy email functionality
+		setupCopyEmailFunctionality();
+
 		// Initial hero section animation
 		animateHeroSection('down');
 		sectionStates.hero.animated.down = true;
-		
+
 		// Setup scroll direction detection
 		window.addEventListener('scroll', () => {
 			const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -94,7 +97,7 @@
 				const isVisible = entry.isIntersecting;
 				const wasVisible = sectionStates.hero.visible;
 				sectionStates.hero.visible = isVisible;
-				
+
 				// Element is entering viewport
 				if (isVisible && scrollDirection === 'up' && !sectionStates.hero.animated.up) {
 					animateHeroSection('up');
@@ -102,7 +105,7 @@
 				} else if (isVisible && scrollDirection === 'down' && !sectionStates.hero.animated.down) {
 					animateHeroSection('down');
 					sectionStates.hero.animated.down = true;
-				} 
+				}
 				// Element is leaving viewport
 				else if (wasVisible && !isVisible) {
 					if (scrollDirection === 'up') {
@@ -124,7 +127,7 @@
 				const isVisible = entry.isIntersecting;
 				const wasVisible = sectionStates.services.visible;
 				sectionStates.services.visible = isVisible;
-				
+
 				// Element is entering viewport
 				if (isVisible && scrollDirection === 'down' && !sectionStates.services.animated.down) {
 					animateServicesSection('down');
@@ -132,7 +135,7 @@
 				} else if (isVisible && scrollDirection === 'up' && !sectionStates.services.animated.up) {
 					animateServicesSection('up');
 					sectionStates.services.animated.up = true;
-				} 
+				}
 				// Element is leaving viewport
 				else if (wasVisible && !isVisible) {
 					if (scrollDirection === 'up') {
@@ -154,7 +157,7 @@
 				const isVisible = entry.isIntersecting;
 				const wasVisible = sectionStates.expertise.visible;
 				sectionStates.expertise.visible = isVisible;
-				
+
 				// Element is entering viewport
 				if (isVisible && scrollDirection === 'down' && !sectionStates.expertise.animated.down) {
 					animateExpertiseSection('down');
@@ -162,7 +165,7 @@
 				} else if (isVisible && scrollDirection === 'up' && !sectionStates.expertise.animated.up) {
 					animateExpertiseSection('up');
 					sectionStates.expertise.animated.up = true;
-				} 
+				}
 				// Element is leaving viewport
 				else if (wasVisible && !isVisible) {
 					if (scrollDirection === 'up') {
@@ -184,7 +187,7 @@
 				const isVisible = entry.isIntersecting;
 				const wasVisible = sectionStates.cta.visible;
 				sectionStates.cta.visible = isVisible;
-				
+
 				// Element is entering viewport
 				if (isVisible && scrollDirection === 'down' && !sectionStates.cta.animated.down) {
 					animateCTASection('down');
@@ -192,7 +195,7 @@
 				} else if (isVisible && scrollDirection === 'up' && !sectionStates.cta.animated.up) {
 					animateCTASection('up');
 					sectionStates.cta.animated.up = true;
-				} 
+				}
 				// Element is leaving viewport
 				else if (wasVisible && !isVisible) {
 					if (scrollDirection === 'up') {
@@ -313,9 +316,10 @@
 						{
 							opacity: [0, 1],
 							x: direction === 'down' ? ['-30px', '0px'] : ['30px', '0px'],
-							clipPath: direction === 'down' 
-								? ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Left to right
-								: ['inset(0 0 0 50%)', 'inset(0 0% 0 0)']  // Right to left
+							clipPath:
+								direction === 'down'
+									? ['inset(0 50% 0 0)', 'inset(0 0% 0 0)'] // Left to right
+									: ['inset(0 0 0 50%)', 'inset(0 0% 0 0)'] // Right to left
 						},
 						{
 							delay: stagger(0.25),
@@ -339,9 +343,10 @@
 						{
 							opacity: [1, 0],
 							x: direction === 'down' ? ['0px', '-30px'] : ['0px', '30px'],
-							clipPath: direction === 'down' 
-								? ['inset(0 0% 0 0)', 'inset(0 50% 0 0)'] // Right to left
-								: ['inset(0 0% 0 0)', 'inset(0 0 0 50%)']  // Left to right
+							clipPath:
+								direction === 'down'
+									? ['inset(0 0% 0 0)', 'inset(0 50% 0 0)'] // Right to left
+									: ['inset(0 0% 0 0)', 'inset(0 0 0 50%)'] // Left to right
 						},
 						{
 							delay: stagger(0.15, { from: 'last' }),
@@ -462,10 +467,109 @@
 			});
 		}
 	});
+
+	// Function to setup copy email functionality
+	function setupCopyEmailFunctionality() {
+		document.querySelectorAll('.copy-email-btn').forEach((btn) => {
+			btn.addEventListener('click', (e) => {
+				e.preventDefault();
+				// Cast btn to HTMLElement at the beginning to fix all TypeScript errors
+				const htmlBtn = btn as HTMLElement;
+				const emailAddress = 'szuhan.eng@gmail.com';
+				navigator.clipboard
+					.writeText(emailAddress)
+					.then(() => {
+						// Show success message in tooltip
+						const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+						if (tooltip) {
+							tooltip.textContent = 'Email copied!';
+							tooltip.classList.add('tooltip-visible');
+
+							// Create and display success animation elements
+
+							// 1. Create ripple effect
+							const ripple = document.createElement('span');
+							ripple.className = 'copy-ripple';
+							htmlBtn.appendChild(ripple);
+
+							// 2. Create success checkmark icon
+							const checkmark = document.createElement('span');
+							checkmark.className = 'copy-checkmark';
+							checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+							htmlBtn.appendChild(checkmark);
+
+							// 3. Add animation class to button itself
+							htmlBtn.classList.add('copy-success-pulse');
+
+							// 4. Handle text content change for Contact Me buttons
+							const originalText = htmlBtn.textContent?.trim();
+							// Store button text (if it's a text button like "Contact Me")
+							if (originalText && originalText !== '') {
+								// Save original text
+								htmlBtn.dataset.originalText = originalText;
+								// Change button text to success message
+								htmlBtn.textContent = 'Email Copied!';
+							} else {
+								// For icon-only buttons, create and add a temporary success label
+								const successLabel = document.createElement('span');
+								successLabel.className = 'copy-success-label';
+								successLabel.textContent = 'Copied!';
+								htmlBtn.appendChild(successLabel);
+
+								// Make sure the original SVG icon stays visible
+								const svgIcon = htmlBtn.querySelector('svg');
+								if (svgIcon) svgIcon.style.opacity = '1';
+							}
+
+							// Clean up elements after animations complete
+							setTimeout(() => {
+								ripple.remove();
+								checkmark.remove();
+								htmlBtn.classList.remove('copy-success-pulse');
+
+								// Restore original button text if it was changed
+								if (htmlBtn.dataset.originalText) {
+									htmlBtn.textContent = htmlBtn.dataset.originalText;
+									delete htmlBtn.dataset.originalText;
+								}
+
+								// Remove success label if it was added
+								const successLabel = htmlBtn.querySelector('.copy-success-label');
+								if (successLabel) successLabel.remove();
+
+								tooltip.textContent = 'Copy email address';
+								tooltip.classList.remove('tooltip-visible');
+							}, 2000);
+						}
+					})
+					.catch((err) => {
+						console.error('Failed to copy email: ', err);
+					});
+			});
+
+			// Show tooltip on hover
+			btn.addEventListener('mouseenter', () => {
+				const htmlBtn = btn as HTMLElement;
+				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+				if (tooltip) {
+					tooltip.classList.add('tooltip-visible');
+				}
+			});
+
+			// Hide tooltip on mouse leave
+			btn.addEventListener('mouseleave', () => {
+				const htmlBtn = btn as HTMLElement;
+				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+				if (tooltip && tooltip.textContent !== 'Email copied!') {
+					tooltip.classList.remove('tooltip-visible');
+				}
+			});
+		});
+	}
 </script>
 
 <svelte:head>
-	<title>Skills | Hank aka Szu-Han Chou </title>
+	<title>Skills | Hank aka Szu-Han Chou</title>
 	<meta
 		name="description"
 		content="My technical expertise in software development, security, and mentoring"
@@ -477,7 +581,8 @@
 	<div class="container mx-auto px-4 text-center">
 		<h1 class="hero-element mb-6 text-4xl font-bold md:text-5xl">Services</h1>
 		<p class="hero-element mx-auto mb-6 max-w-3xl text-xl text-gray-300">
-			I turn complex business ideas into high-performing, user-friendly digital solutions—so you can focus on growth instead of technical challenges.
+			I turn complex business ideas into high-performing, user-friendly digital solutions—so you can
+			focus on growth instead of technical challenges.
 		</p>
 		<div class="hero-element flex justify-center gap-3">
 			<a
@@ -498,13 +603,14 @@
 					/>
 				</svg>
 			</a>
-			<a
-				href="mailto:szuhan.eng@gmail.com"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
-				aria-label="Email Me"
+			<button
+				class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+				aria-label="Copy Email Address"
 			>
+				<span
+					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
+					>Copy email address</span
+				>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-7 w-7 transform transition-transform group-hover:-translate-y-1"
@@ -519,7 +625,7 @@
 						d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
 					/>
 				</svg>
-			</a>
+			</button>
 		</div>
 	</div>
 </section>
@@ -595,14 +701,15 @@
 	<div class="container mx-auto px-4 text-center">
 		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">Ready to start your project?</h2>
 		<div class="flex justify-center gap-4">
-			<a
-				href="mailto:szuhan.eng@gmail.com"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="cta-element rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+			<button
+				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
 			>
+				<span
+					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
+					>Copy email address</span
+				>
 				Contact Me
-			</a>
+			</button>
 			<a
 				href="/portfolio"
 				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
@@ -650,5 +757,93 @@
 
 	.cta-element:hover {
 		transform: translateY(-2px);
+	}
+
+	/* Email button tooltip styles */
+	.copy-email-btn {
+		position: relative;
+		cursor: pointer;
+		overflow: hidden; /* Ensure ripple doesn't overflow */
+	}
+
+	.copy-tooltip {
+		z-index: 10;
+		pointer-events: none;
+		white-space: nowrap;
+		/* Add a small triangle/arrow */
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+	}
+
+	.copy-tooltip:after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		margin-left: -6px;
+		border-width: 6px;
+		border-style: solid;
+		border-color: #1a202c transparent transparent transparent;
+	}
+
+	@keyframes copy-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
+		}
+		70% {
+			box-shadow: 0 0 0 15px rgba(147, 51, 234, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
+		}
+	}
+
+	@keyframes copy-ripple {
+		0% {
+			width: 0;
+			height: 0;
+			opacity: 0.6;
+		}
+		100% {
+			width: 200%;
+			height: 200%;
+			opacity: 0;
+		}
+	}
+
+	@keyframes copy-checkmark {
+		0% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(0.5);
+		}
+		60% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.2);
+		}
+		100% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(1);
+		}
+	}
+
+	@keyframes fadeInOut {
+		0% {
+			opacity: 0;
+			transform: scale(0.8) translateY(5px);
+		}
+		15% {
+			opacity: 1;
+			transform: scale(1.1) translateY(0);
+		}
+		25% {
+			transform: scale(1) translateY(0);
+		}
+		85% {
+			opacity: 1;
+			transform: scale(1) translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(0.8) translateY(-5px);
+		}
 	}
 </style>

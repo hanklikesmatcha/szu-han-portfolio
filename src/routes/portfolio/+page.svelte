@@ -105,9 +105,111 @@
 		});
 	}
 
+	// Function to setup copy email functionality
+	function setupCopyEmailFunctionality() {
+		document.querySelectorAll('.copy-email-btn').forEach((btn) => {
+			btn.addEventListener('click', (e) => {
+				e.preventDefault();
+				// Cast btn to HTMLElement at the beginning to fix all TypeScript errors
+				const htmlBtn = btn as HTMLElement;
+				const emailAddress = 'szuhan.eng@gmail.com';
+				navigator.clipboard
+					.writeText(emailAddress)
+					.then(() => {
+						// Show success message in tooltip
+						const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+						if (tooltip) {
+							tooltip.textContent = 'Email copied!';
+							tooltip.classList.add('tooltip-visible');
+
+							// Create and display success animation elements
+
+							// 1. Create ripple effect
+							const ripple = document.createElement('span');
+							ripple.className = 'copy-ripple';
+							htmlBtn.appendChild(ripple);
+
+							// 2. Create success checkmark icon
+							const checkmark = document.createElement('span');
+							checkmark.className = 'copy-checkmark';
+							checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+							htmlBtn.appendChild(checkmark);
+
+							// 3. Add animation class to button itself
+							htmlBtn.classList.add('copy-success-pulse');
+
+							// 4. Handle text content change for Contact Me buttons
+							const originalText = htmlBtn.textContent?.trim();
+							// Store button text (if it's a text button like "Contact Me")
+							if (originalText && originalText !== '') {
+								// Save original text
+								htmlBtn.dataset.originalText = originalText;
+								// Change button text to success message
+								htmlBtn.textContent = 'Email Copied!';
+							} else {
+								// For icon-only buttons, create and add a temporary success label
+								const successLabel = document.createElement('span');
+								successLabel.className = 'copy-success-label';
+								successLabel.textContent = 'Copied!';
+								htmlBtn.appendChild(successLabel);
+
+								// Make sure the original SVG icon stays visible
+								const svgIcon = htmlBtn.querySelector('svg');
+								if (svgIcon) svgIcon.style.opacity = '1';
+							}
+
+							// Clean up elements after animations complete
+							setTimeout(() => {
+								ripple.remove();
+								checkmark.remove();
+								htmlBtn.classList.remove('copy-success-pulse');
+
+								// Restore original button text if it was changed
+								if (htmlBtn.dataset.originalText) {
+									htmlBtn.textContent = htmlBtn.dataset.originalText;
+									delete htmlBtn.dataset.originalText;
+								}
+
+								// Remove success label if it was added
+								const successLabel = htmlBtn.querySelector('.copy-success-label');
+								if (successLabel) successLabel.remove();
+
+								tooltip.textContent = 'Copy email address';
+								tooltip.classList.remove('tooltip-visible');
+							}, 2000);
+						}
+					})
+					.catch((err) => {
+						console.error('Failed to copy email: ', err);
+					});
+			});
+
+			// Show tooltip on hover
+			btn.addEventListener('mouseenter', () => {
+				const htmlBtn = btn as HTMLElement;
+				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+				if (tooltip) {
+					tooltip.classList.add('tooltip-visible');
+				}
+			});
+
+			// Hide tooltip on mouse leave
+			btn.addEventListener('mouseleave', () => {
+				const htmlBtn = btn as HTMLElement;
+				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
+				if (tooltip && tooltip.textContent !== 'Email copied!') {
+					tooltip.classList.remove('tooltip-visible');
+				}
+			});
+		});
+	}
+
 	onMount(() => {
 		// Ensure hero elements are visible immediately to prevent flashing
 		ensureHeroElementsVisible();
+
+		// Setup copy email functionality
+		setupCopyEmailFunctionality();
 
 		// Hero section animation - more dramatic entrance with staggered reveal
 		try {
@@ -367,7 +469,7 @@
 </script>
 
 <svelte:head>
-	<title>Portfolio | Hank aka Szu-Han Chou </title>
+	<title>Portfolio | Hank aka Szu-Han Chou</title>
 	<meta name="description" content="Showcase of my development projects and work" />
 </svelte:head>
 
@@ -398,13 +500,14 @@
 					/>
 				</svg>
 			</a>
-			<a
-				href="mailto:szuhan.eng@gmail.com"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="group flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
-				aria-label="Email Me"
+			<button
+				class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+				aria-label="Copy Email Address"
 			>
+				<span
+					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
+					>Copy email address</span
+				>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					class="h-7 w-7 transform transition-transform group-hover:-translate-y-1"
@@ -419,7 +522,7 @@
 						d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
 					/>
 				</svg>
-			</a>
+			</button>
 		</div>
 	</div>
 </section>
@@ -430,21 +533,35 @@
 		<div class="flex flex-wrap gap-2">
 			{#each filters as filterOption}
 				<button
-					class="filter-btn relative flex items-center border px-4 py-1.5 text-sm transition-all {filter === filterOption
+					class="filter-btn relative flex items-center border px-4 py-1.5 text-sm transition-all {filter ===
+					filterOption
 						? 'border-blue-400 bg-blue-900/40 text-white shadow-inner shadow-blue-500/30'
 						: 'border-gray-700 bg-[#2D3748]/70 text-gray-300 hover:border-blue-400/50 hover:bg-[#2D3748]'}"
 					on:click={() => changeFilter(filterOption)}
 				>
 					{#if filter === filterOption}
 						<span class="mr-2 flex items-center text-blue-300">
-							<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+							<svg
+								class="h-3 w-3"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+								></path>
 							</svg>
 						</span>
 					{/if}
 					{filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
 					{#if filter === filterOption}
-						<span class="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-500 to-purple-500"></span>
+						<span
+							class="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-blue-500 to-purple-500"
+						></span>
 					{/if}
 				</button>
 			{/each}
@@ -458,7 +575,11 @@
 			>
 				<div class="project-image relative h-48 overflow-hidden">
 					{#if project.image}
-						<img src={project.image} alt={project.title} class="h-full w-full object-cover object-top" />
+						<img
+							src={project.image}
+							alt={project.title}
+							class="h-full w-full object-cover object-top"
+						/>
 					{:else}
 						<div class="flex h-full w-full items-center justify-center">
 							<span class="text-gray-400">No image</span>
@@ -509,19 +630,22 @@
 <!-- CTA Section -->
 <section class="bg-gray-900 py-12" bind:this={ctaSection}>
 	<div class="container mx-auto px-4 text-center">
-		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">Interested in working together?</h2>
+		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">
+			Interested in working together?
+		</h2>
 		<div class="flex justify-center gap-4">
-			<a
-				href="mailto:szuhan.eng@gmail.com"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="cta-element rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:bg-blue-700 hover:transform hover:scale-105"
+			<button
+				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:scale-105 hover:transform hover:bg-blue-700"
 			>
+				<span
+					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
+					>Copy email address</span
+				>
 				Contact Me
-			</a>
+			</button>
 			<a
 				href="/services"
-				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:bg-gray-800 hover:transform hover:scale-105"
+				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:scale-105 hover:transform hover:bg-gray-800"
 			>
 				View My Services
 			</a>
@@ -724,6 +848,94 @@
 			opacity: 1 !important;
 			transform: none !important;
 			filter: none !important;
+		}
+	}
+
+	/* Email button tooltip styles */
+	.copy-email-btn {
+		position: relative;
+		cursor: pointer;
+		overflow: hidden; /* Ensure ripple doesn't overflow */
+	}
+
+	.copy-tooltip {
+		z-index: 10;
+		pointer-events: none;
+		white-space: nowrap;
+		/* Add a small triangle/arrow */
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+	}
+
+	.copy-tooltip:after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		margin-left: -6px;
+		border-width: 6px;
+		border-style: solid;
+		border-color: #1a202c transparent transparent transparent;
+	}
+
+	@keyframes copy-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
+		}
+		70% {
+			box-shadow: 0 0 0 15px rgba(147, 51, 234, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
+		}
+	}
+
+	@keyframes copy-ripple {
+		0% {
+			width: 0;
+			height: 0;
+			opacity: 0.6;
+		}
+		100% {
+			width: 200%;
+			height: 200%;
+			opacity: 0;
+		}
+	}
+
+	@keyframes copy-checkmark {
+		0% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(0.5);
+		}
+		60% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.2);
+		}
+		100% {
+			opacity: 0;
+			transform: translate(-50%, -50%) scale(1);
+		}
+	}
+
+	@keyframes fadeInOut {
+		0% {
+			opacity: 0;
+			transform: scale(0.8) translateY(5px);
+		}
+		15% {
+			opacity: 1;
+			transform: scale(1.1) translateY(0);
+		}
+		25% {
+			transform: scale(1) translateY(0);
+		}
+		85% {
+			opacity: 1;
+			transform: scale(1) translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(0.8) translateY(-5px);
 		}
 	}
 </style>

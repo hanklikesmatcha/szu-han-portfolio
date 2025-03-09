@@ -174,7 +174,13 @@
 		</a>
 
 		<!-- Email Icon -->
-		<a href="mailto:szuhan.eng@gmail.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Email">
+		<a
+			href="mailto:szuhan.eng@gmail.com"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="social-link"
+			aria-label="Email"
+		>
 			<svg
 				class="social-icon"
 				width="28"
