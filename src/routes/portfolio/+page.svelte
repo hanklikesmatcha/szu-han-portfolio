@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { animate, stagger, spring } from 'motion';
 
-	// Project data based on user's actual projects
+	// Project data including both personal and professional projects
 	const projects = [
 		{
 			id: 'running4life',
@@ -13,7 +13,8 @@
 			githubUrl: 'https://github.com/hanklikesmatcha/running4life',
 			liveUrl: 'https://running4.life',
 			image: '/images/running4life.jpg',
-			featured: true
+			featured: true,
+			type: 'personal'
 		},
 		{
 			id: 'cnc-cost-analysis',
@@ -23,21 +24,228 @@
 			technologies: ['Python/FastAPI', 'TypeScript/React', 'Data Analysis', 'Docker', 'ML'],
 			githubUrl: 'https://github.com/hanklikesmatcha/cnc-cost-analysis',
 			liveUrl: 'https://cnc-cost-analysis-production.up.railway.app/',
-			image: '/images/cnc-cost-analysis.jpg'
+			image: '/images/cnc-cost-analysis.jpg',
+			type: 'personal'
+		},
+		// Professional projects from work experience
+		{
+			id: 'sharesies-platform',
+			title: 'Investment Trading Platform (Sharesies)',
+			description:
+				'Contributed to a complex investment platform serving hundreds of thousands of users. Led development of several key features, improved system reliability, and enhanced user experience. Utilized microservices architecture to ensure scalability and reliability, working collaboratively in a cross-functional Agile team environment.',
+			accomplishments: [
+				'Built critical features for order management system',
+				'Implemented scheduled tasks for Anti-Money Laundering checks and internal audits',
+				'Collaborated in agile environment with cross-functional teams',
+				'Implemented microservices architecture for scalability'
+			],
+			technologies: ['TypeScript', 'React', 'Node.js', 'AWS', 'Microservices', 'GraphQL'],
+			companyName: 'Sharesies',
+			companyUrl: 'https://sharesies.com.au/',
+			image: '/images/sharesies.png',
+			type: 'professional'
+		},
+		{
+			id: 'good-registry',
+			title: 'Charity Gift Card Generator (The Good Registry)',
+			description:
+				'Developed a specialized application to generate and manage gift cards for bulk orders, streamlining the workflow for corporate customers. This solution significantly improved operational efficiency by automating a previously manual process, reducing processing time from hours to minutes, and eliminating human error in gift card creation and delivery.',
+			accomplishments: [
+				'Developed app to automate gift card generation for bulk orders',
+				'Integrated with Shopify e-commerce platform',
+				'Reduced processing time from hours to minutes',
+				'Eliminated manual errors in gift card creation'
+			],
+			technologies: ['JavaScript', 'Node.js', 'Shopify API', 'E-commerce', 'Automation'],
+			companyName: 'The Good Registry',
+			companyUrl: 'https://thegoodregistry.com',
+			image: '/images/the-good-registry.png',
+			type: 'professional'
+		},
+		{
+			id: 'eighty20-ai',
+			title: 'Data Analytics & ML Platform (Eighty20.AI)',
+			description:
+				'Designed and built sophisticated AI solutions for business intelligence and predictive analytics. Developed custom machine learning models that process large datasets to extract actionable insights, implemented data pipelines for efficient processing, and created visualization dashboards that translate complex data into clear business recommendations for clients.',
+			accomplishments: [
+				'Built data processing pipelines for large-scale analytics',
+				'Developed machine learning models for predictive insights',
+				'Created interactive data visualization dashboards',
+				'Flutter mobile app for data collection and analysis',
+				'Utilized AI agents to automate boring tasks'
+			],
+			technologies: [
+				'Python',
+				'Machine Learning',
+				'Data Science',
+				'Cloud Computing',
+				'Data Visualization'
+			],
+			companyName: 'Eighty20.AI',
+			companyUrl: 'https://eighty20.ai',
+			image: '/images/eighty20-ai.png',
+			type: 'professional'
+		},
+		{
+			id: 'octopus-energy',
+			title: 'Smart Energy Consumption Platform (Octopus)',
+			description:
+				'Contributed to the development of an innovative energy management system that helps customers monitor and optimize their energy usage. Built with Django backend and Next.js frontend, enabling seamless customer onboarding and integration with local electricity markets. Implemented real-time data visualization features, integrated with smart home devices, and developed scalable solutions for energy data processing.',
+			accomplishments: [
+				'Contributed to migration of legacy systems to modern Django/Next.js stack',
+				'Built customer onboarding workflows and integration with local electricity markets',
+				'Developed real-time energy consumption monitoring with Django REST/GraphQL APIs',
+				'Created responsive data visualization dashboards using Next.js and React',
+				'Optimized database performance for handling large volumes of energy consumption data'
+			],
+			technologies: [
+				'Django',
+				'Next.js',
+				'React',
+				'TypeScript',
+				'IoT Integration',
+				'Data Visualization',
+				'API Development'
+			],
+			companyName: 'Octopus Energy',
+			companyUrl: 'https://octopusenergy.com',
+			image: '/images/octopus-energy.png',
+			type: 'professional'
+		},
+		{
+			id: 'taggun',
+			title: 'AI-Powered Receipt OCR System (Taggun)',
+			description:
+				'Worked on an intelligent receipt processing system utilizing computer vision and machine learning for automated data extraction. Enhanced OCR capabilities for improved accuracy in reading diverse receipt formats, implemented classification algorithms to categorize expenses, and built APIs for seamless integration with accounting software platforms.',
+			accomplishments: [
+				'Enhanced OCR accuracy for receipt data extraction',
+				'Implemented ML algorithms for expense categorization',
+				'Designed APIs for integration with accounting software',
+				'Optimized image processing for mobile device photos'
+			],
+			technologies: ['Computer Vision', 'Machine Learning', 'OCR', 'Python', 'API Design'],
+			companyName: 'Taggun',
+			companyUrl: 'https://www.taggun.io',
+			image: '/images/taggun.jpeg',
+			type: 'professional'
+		},
+		{
+			id: 'generate-zero',
+			title: 'Carbon Footprint Tracking Solution (Generate Zero)',
+			description:
+				'Currently developing a sustainability platform that helps businesses track, analyze, and reduce their carbon footprint. Creating interactive dashboards for emissions monitoring, implementing data collection workflows that simplify sustainability reporting, and building recommendation systems to suggest actionable emission reduction strategies based on company-specific data patterns.',
+			accomplishments: [
+				'Building interactive emissions tracking dashboards using React and Django',
+				'Developing automated sustainability reporting workflows and client migration processes',
+				'Creating recommendation engines for carbon reduction strategies',
+				'Integrating with external emissions data sources and local electricity markets',
+				'Implementing full stack solutions with Next.js frontend and Node.js backend'
+			],
+			technologies: [
+				'Django',
+				'Next.js',
+				'React',
+				'Data Analytics',
+				'Python',
+				'TypeScript',
+				'Sustainability'
+			],
+			companyName: 'Generate Zero',
+			companyUrl: 'https://generatezero.com',
+			image: '/images/logo-placeholder.jpg',
+			type: 'professional'
 		}
 	];
 
 	let filter = 'all';
+	let categoryFilter = 'all'; // New filter for project type (personal/professional/all)
 	let projectsGrid: HTMLElement;
 	let filtersContainer: HTMLElement;
 	let heroSection: HTMLElement;
 	let ctaSection: HTMLElement;
 	let animationsApplied = false;
 
-	$: filteredProjects =
-		filter === 'all' ? projects : projects.filter((p) => p.technologies.includes(filter));
+	// Replace the dynamic filters with a static array of outcome-focused filters
+	const filters = [
+		'all',
+		'Web Development',
+		'Data Analytics',
+		'AI & Machine Learning',
+		'Cloud Solutions',
+		'API Development',
+		'Automation',
+		'Full-Stack'
+	];
 
-	const filters = ['all', ...new Set(projects.flatMap((p) => p.technologies))];
+	// Updated filtering logic to handle broader categories
+	$: filteredProjects = projects
+		.filter((p) => categoryFilter === 'all' || p.type === categoryFilter)
+		.filter((p) => {
+			if (filter === 'all') return true;
+
+			// Map technologies to outcome categories
+			const techToOutcome = {
+				// Web Development
+				'Next.js': 'Web Development',
+				React: 'Web Development',
+				'Tailwind CSS': 'Web Development',
+				TypeScript: 'Web Development',
+				'TypeScript/React': 'Web Development',
+				Animation: 'Web Development',
+
+				// Data Analytics
+				'Data Analytics': 'Data Analytics',
+				'Data Analysis': 'Data Analytics',
+				'Data Visualization': 'Data Analytics',
+				'Data Science': 'Data Analytics',
+				Sustainability: 'Data Analytics',
+
+				// AI & Machine Learning
+				ML: 'AI & Machine Learning',
+				'Machine Learning': 'AI & Machine Learning',
+				'Computer Vision': 'AI & Machine Learning',
+				OCR: 'AI & Machine Learning',
+
+				// Cloud Solutions
+				AWS: 'Cloud Solutions',
+				'Cloud Computing': 'Cloud Solutions',
+				Microservices: 'Cloud Solutions',
+				Docker: 'Cloud Solutions',
+
+				// API Development
+				'API Development': 'API Development',
+				'API Design': 'API Development',
+				GraphQL: 'API Development',
+				'Shopify API': 'API Development',
+
+				// Automation
+				Automation: 'Automation',
+				'IoT Integration': 'Automation',
+				'E-commerce': 'Automation',
+
+				// Full-Stack
+				'Full-Stack': 'Full-Stack',
+				'Full-Stack Development': 'Full-Stack',
+				'Node.js': 'Full-Stack',
+				Django: 'Full-Stack',
+				'Python/FastAPI': 'Full-Stack',
+				Python: 'Full-Stack',
+				JavaScript: 'Full-Stack',
+				Database: 'Full-Stack'
+			};
+
+			// Check if any of the project's technologies map to the selected outcome category
+			return p.technologies.some(
+				(tech) => techToOutcome[tech as keyof typeof techToOutcome] === filter
+			);
+		});
+
+	// Array of category options
+	const categories = [
+		{ id: 'all', label: 'All Projects' },
+		{ id: 'personal', label: 'Personal Projects' },
+		{ id: 'professional', label: 'Professional Work' }
+	];
 
 	// Function to handle filter changes with animation
 	function changeFilter(newFilter: string) {
@@ -87,6 +295,60 @@
 				);
 
 				// Ensure text content is fully visible
+				animate(
+					'.project-card h3, .project-card p, .project-card span, .project-card a',
+					{ opacity: 1 },
+					{ duration: 0.1 }
+				);
+			}, 50);
+		});
+	}
+
+	// Function to handle category filter changes
+	function changeCategory(newCategory: string) {
+		if (categoryFilter === newCategory) return;
+
+		// Similar animation to technology filter changes
+		animate(
+			'.project-card',
+			{
+				opacity: [1, 0.85],
+				scale: [1, 0.9],
+				y: [0, 20],
+				rotateY: [0, -10]
+			},
+			{
+				duration: 0.3,
+				easing: 'ease-in'
+			}
+		).finished.then(() => {
+			// Update category filter
+			categoryFilter = newCategory;
+
+			// After DOM updates, animate cards back in
+			setTimeout(() => {
+				animate(
+					'.project-card',
+					{
+						opacity: [0.85, 1],
+						scale: [0.9, 1],
+						y: [20, 0],
+						rotateY: [10, 0]
+					},
+					{
+						delay: stagger(0.1),
+						duration: 0.4,
+						easing: (x) => {
+							try {
+								return spring({ stiffness: 100, damping: 12 })(x) || x;
+							} catch (error) {
+								console.error('Spring animation error:', error);
+								return 0.34 * (1 - Math.cos(Math.PI * x));
+							}
+						}
+					}
+				);
+
 				animate(
 					'.project-card h3, .project-card p, .project-card span, .project-card a',
 					{ opacity: 1 },
@@ -529,7 +791,47 @@
 
 <div class="perspective mx-auto max-w-6xl bg-[#1A202C] px-4 py-12">
 	<div bind:this={filtersContainer} class="mb-8">
-		<h2 class="mb-4 text-xl font-semibold text-blue-300">Filter:</h2>
+		<!-- Category filter buttons -->
+		<h2 class="mb-4 text-xl font-semibold text-blue-300">Project Type:</h2>
+		<div class="mb-6 flex flex-wrap gap-2">
+			{#each categories as category}
+				<button
+					class="filter-btn relative flex items-center border px-4 py-1.5 text-sm transition-all {categoryFilter ===
+					category.id
+						? 'border-purple-400 bg-purple-900/40 text-white shadow-inner shadow-purple-500/30'
+						: 'border-gray-700 bg-[#2D3748]/70 text-gray-300 hover:border-purple-400/50 hover:bg-[#2D3748]'}"
+					on:click={() => changeCategory(category.id)}
+				>
+					{#if categoryFilter === category.id}
+						<span class="mr-2 flex items-center text-purple-300">
+							<svg
+								class="h-3 w-3"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+								></path>
+							</svg>
+						</span>
+					{/if}
+					{category.label}
+					{#if categoryFilter === category.id}
+						<span
+							class="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-purple-500 to-blue-500"
+						></span>
+					{/if}
+				</button>
+			{/each}
+		</div>
+
+		<!-- Technologies filter (existing) -->
+		<h2 class="mb-4 text-xl font-semibold text-blue-300">Technology:</h2>
 		<div class="flex flex-wrap gap-2">
 			{#each filters as filterOption}
 				<button
@@ -571,7 +873,10 @@
 	<div bind:this={projectsGrid} class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
 		{#each filteredProjects as project}
 			<div
-				class="project-card relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-600"
+				class="project-card relative flex h-full flex-col overflow-hidden rounded-xl border border-gray-600 {project.type ===
+				'professional'
+					? 'border-purple-600/50'
+					: ''}"
 			>
 				<div class="project-image relative h-48 overflow-hidden">
 					{#if project.image}
@@ -585,15 +890,45 @@
 							<span class="text-gray-400">No image</span>
 						</div>
 					{/if}
+
+					<!-- Badge for professional projects -->
+					{#if project.type === 'professional'}
+						<div
+							class="absolute top-2 right-2 rounded-lg bg-purple-700 px-2 py-1 text-xs font-semibold text-white shadow-lg"
+						>
+							Professional Work
+						</div>
+					{/if}
 				</div>
 
 				<div class="flex flex-grow flex-col p-6">
 					<div class="flex-grow">
 						<h3 class="mb-2 text-xl font-bold text-blue-300">{project.title}</h3>
-						<p class="mb-4 text-gray-300">{project.description.substring(0, 120)}...</p>
+
+						<!-- Show company name for professional projects without role titles -->
+						{#if project.type === 'professional' && project.companyName}
+							<div class="mb-2 text-sm text-purple-300">
+								<span class="font-semibold">{project.companyName}</span>
+							</div>
+						{/if}
+
+						<!-- Show complete description instead of truncated version -->
+						<p class="mb-4 text-gray-300">{project.description}</p>
+
+						<!-- For professional projects, show accomplishments as bullet points -->
+						{#if project.type === 'professional' && project.accomplishments && project.accomplishments.length > 0}
+							<div class="mb-4">
+								<h4 class="mb-2 text-sm font-semibold text-blue-400">Key Contributions:</h4>
+								<ul class="list-disc space-y-1 pl-5 text-sm text-gray-300">
+									{#each project.accomplishments as accomplishment}
+										<li>{accomplishment}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
 
 						<div class="mb-4 flex flex-wrap gap-2">
-							{#each project.technologies.slice(0, 3) as tech}
+							{#each project.technologies.slice(0, 4) as tech}
 								<span class="rounded-md bg-[#2D3748] px-2 py-1 text-xs text-blue-300">{tech}</span>
 							{/each}
 						</div>
@@ -620,6 +955,21 @@
 								Live Demo
 							</a>
 						{/if}
+						{#if project.type === 'professional' && !project.githubUrl && !project.liveUrl && project.companyUrl}
+							<a
+								href={project.companyUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="project-link flex-1 rounded bg-purple-700 px-4 py-2 text-center text-sm text-white hover:bg-purple-600"
+							>
+								Visit Company
+							</a>
+						{/if}
+						{#if project.type === 'professional' && !project.githubUrl && !project.liveUrl && !project.companyUrl}
+							<div class="flex-1 rounded bg-gray-700 px-4 py-2 text-center text-sm text-gray-300">
+								Professional Work
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -634,6 +984,12 @@
 			Interested in working together?
 		</h2>
 		<div class="flex justify-center gap-4">
+			<a
+				href="/services"
+				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:scale-105 hover:transform hover:bg-gray-800"
+			>
+				View My Services
+			</a>
 			<button
 				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:scale-105 hover:transform hover:bg-blue-700"
 			>
@@ -643,12 +999,6 @@
 				>
 				Contact Me
 			</button>
-			<a
-				href="/services"
-				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:scale-105 hover:transform hover:bg-gray-800"
-			>
-				View My Services
-			</a>
 		</div>
 	</div>
 </section>

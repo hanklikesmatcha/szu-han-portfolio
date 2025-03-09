@@ -2257,15 +2257,6 @@
 		border-color: #1a202c transparent transparent transparent;
 	}
 
-	.copy-tooltip.tooltip-visible {
-		opacity: 1;
-	}
-
-	/* Copy success animation styles */
-	.copy-success-pulse {
-		animation: copy-pulse 0.5s ease-in-out;
-	}
-
 	@keyframes copy-pulse {
 		0% {
 			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
@@ -2276,19 +2267,6 @@
 		100% {
 			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
 		}
-	}
-
-	.copy-ripple {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 0;
-		height: 0;
-		border-radius: 50%;
-		background-color: rgba(255, 255, 255, 0.4);
-		animation: copy-ripple 0.6s linear;
-		z-index: 2;
 	}
 
 	@keyframes copy-ripple {
@@ -2302,29 +2280,6 @@
 			height: 200%;
 			opacity: 0;
 		}
-	}
-
-	.copy-checkmark {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		color: white;
-		width: 100%;
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 3;
-		opacity: 0;
-		animation: copy-checkmark 0.8s ease-in-out forwards;
-	}
-
-	.copy-checkmark svg {
-		width: 70%;
-		height: 70%;
-		stroke: #ffffff;
-		filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
 	}
 
 	@keyframes copy-checkmark {
@@ -2341,23 +2296,6 @@
 			transform: translate(-50%, -50%) scale(1);
 		}
 	}
-
-	/* Success text label that appears on icon buttons */
-	.copy-success-label {
-		position: absolute;
-		top: -5px;
-		right: -5px;
-		background-color: #22c55e; /* Green for success */
-		color: white;
-		font-size: 12px;
-		font-weight: bold;
-		padding: 2px 6px;
-		border-radius: 10px;
-		z-index: 10;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-		animation: fadeInOut 2s ease-in-out forwards;
-	}
-
 	@keyframes fadeInOut {
 		0% {
 			opacity: 0;

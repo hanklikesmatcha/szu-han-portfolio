@@ -701,6 +701,12 @@
 	<div class="container mx-auto px-4 text-center">
 		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">Ready to start your project?</h2>
 		<div class="flex justify-center gap-4">
+			<a
+				href="/portfolio"
+				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
+			>
+				View My Work
+			</a>
 			<button
 				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
 			>
@@ -710,12 +716,6 @@
 				>
 				Contact Me
 			</button>
-			<a
-				href="/portfolio"
-				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
-			>
-				View My Work
-			</a>
 		</div>
 	</div>
 </section>
