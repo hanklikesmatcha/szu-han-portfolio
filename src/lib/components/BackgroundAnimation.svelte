@@ -178,9 +178,9 @@
     const coreMaterial = galaxyCore.material as THREE.PointsMaterial;
     const flowMaterial = flowParticles.material as THREE.PointsMaterial;
     
-    particleMaterial.opacity = 0.2;
-    coreMaterial.opacity = 0.1;
-    flowMaterial.opacity = 0.2;
+    particleMaterial.opacity = 0.8;
+    coreMaterial.opacity = 0.7;
+    flowMaterial.opacity = 0.8;
     
     // Handle resize
     window.addEventListener('resize', onWindowResize);
@@ -331,8 +331,8 @@
       
       // Vary saturation and lightness based on distance from center
       const saturation = 0.7 + Math.random() * 0.3;
-      // Brighter in center, dimmer at edges
-      const lightness = 0.3 + Math.random() * 0.3 + (1 - distanceNorm) * 0.2;
+      // Brighter in center, dimmer at edges - but overall much brighter
+      const lightness = 0.7 + Math.random() * 0.3 + (1 - distanceNorm) * 0.2; // Increased from 0.5 to 0.7
       
       color.setHSL(hue, saturation, lightness);
       
@@ -354,10 +354,10 @@
     
     // Use a custom shader material for more dramatic particle rendering
     const material = new THREE.PointsMaterial({
-      size: 4,
+      size: 6,
       vertexColors: true,
       transparent: true,
-      opacity: 0.8,
+      opacity: 1.0,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -399,13 +399,13 @@
         // Bright white-yellow center (60% of inner particles, down from 70%)
         hue = 0.14; // Slight yellow tint
         saturation = 0.4 * distFromCenter; // Higher saturation for more visible color
-        lightness = 0.65 - 0.3 * distFromCenter; // Slightly less bright
+        lightness = 0.8 - 0.3 * distFromCenter; // Increased from 0.65 to 0.8 for brighter core
       } else {
         // More colored particles matching arms
         const colorIndex = Math.floor(Math.random() * getColorPalette().length);
         hue = getColorPalette()[colorIndex].hue;
         saturation = 0.7;
-        lightness = 0.5;
+        lightness = 0.65; // Increased from 0.5 for brighter colored particles
       }
       
       color.setHSL(hue, saturation, lightness);
@@ -428,10 +428,10 @@
     
     // Less intense core material with lower opacity
     const coreMaterial = new THREE.PointsMaterial({
-      size: 5,
+      size: 7,
       vertexColors: true,
       transparent: true,
-      opacity: 0.8, // Reduced opacity from 0.9
+      opacity: 1.0,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -483,7 +483,7 @@
       // More varied star colors - from blue to gold to red
       const hue = Math.random(); // Full spectrum for stars
       const saturation = 0.2 + Math.random() * 0.5;
-      const lightness = 0.4 + Math.random() * 0.4;
+      const lightness = 0.6 + Math.random() * 0.4; // Increased from 0.4 to 0.6
       
       starColor.setHSL(hue, saturation, lightness);
       
@@ -503,10 +503,10 @@
     const circleTexture = createCircleTexture();
     
     const starMaterial = new THREE.PointsMaterial({
-      size: 1.5,
+      size: 2.5,
       vertexColors: true,
       transparent: true,
-      opacity: 0.7,
+      opacity: 1.0,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -586,7 +586,7 @@
       size: 3,
       vertexColors: true,
       transparent: true,
-      opacity: 0.6,
+      opacity: 1.0, // Increased from 0.6 to 1.0
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -741,9 +741,9 @@
       const coreMaterial = galaxyCore.material as THREE.PointsMaterial;
       const flowMaterial = flowParticles.material as THREE.PointsMaterial;
       
-      particleMaterial.opacity = 0.3 + brightnessFactor * 0.5; // Fade in the galaxy
-      coreMaterial.opacity = 0.2 + brightnessFactor * 0.6; // Fade in the core
-      flowMaterial.opacity = 0.2 + brightnessFactor * 0.6; // Fade in flow particles
+      particleMaterial.opacity = 0.8 + brightnessFactor * 0.4; // Increased from 0.5 to 0.8
+      coreMaterial.opacity = 0.7 + brightnessFactor * 0.5; // Increased from 0.4 to 0.7
+      flowMaterial.opacity = 0.7 + brightnessFactor * 0.5; // Increased from 0.4 to 0.7
     }
     
     // Increase perceived speed during entry (trail effect)
