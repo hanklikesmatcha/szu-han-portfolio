@@ -105,7 +105,8 @@
 				'TypeScript',
 				'IoT Integration',
 				'Data Visualization',
-				'API Development'
+				'API Development',
+				'GraphQL',
 			],
 			companyName: 'Octopus Energy',
 			companyUrl: 'https://octopusenergy.com',
@@ -123,7 +124,7 @@
 				'Designed APIs for integration with accounting software',
 				'Optimized image processing for mobile device photos'
 			],
-			technologies: ['Computer Vision', 'Machine Learning', 'OCR', 'Python', 'API Design'],
+			technologies: ['Computer Vision', 'Machine Learning', 'OCR', 'Python', 'API Design', 'Node.js'],
 			companyName: 'Taggun',
 			companyUrl: 'https://www.taggun.io',
 			image: '/images/taggun.jpeg',
@@ -142,12 +143,12 @@
 				'Implementing full stack solutions with Next.js frontend and Node.js backend'
 			],
 			technologies: [
-				'Django',
+				'Node.js',
 				'Next.js',
 				'React',
 				'Data Analytics',
+				'Azure',
 				'Python',
-				'TypeScript',
 				'Sustainability'
 			],
 			companyName: 'Generate Zero',
@@ -391,23 +392,36 @@
 							ripple.className = 'copy-ripple';
 							htmlBtn.appendChild(ripple);
 
-							// 2. Create success checkmark icon
-							const checkmark = document.createElement('span');
-							checkmark.className = 'copy-checkmark';
-							checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-							htmlBtn.appendChild(checkmark);
-
-							// 3. Add animation class to button itself
+							// 2. Add animation class to button
 							htmlBtn.classList.add('copy-success-pulse');
 
-							// 4. Handle text content change for Contact Me buttons
-							const originalText = htmlBtn.textContent?.trim();
-							// Store button text (if it's a text button like "Contact Me")
-							if (originalText && originalText !== '') {
-								// Save original text
-								htmlBtn.dataset.originalText = originalText;
-								// Change button text to success message
-								htmlBtn.textContent = 'Email Copied!';
+							// 3. Handle text content change for Contact Me buttons
+							const hasButtonText = htmlBtn.childNodes.length > 0 && 
+								Array.from(htmlBtn.childNodes).some(node => 
+									node.nodeType === Node.TEXT_NODE && node.textContent?.trim() !== '');
+							
+							if (hasButtonText) {
+								// Save original text by looking for direct text nodes
+								const textNodes = Array.from(htmlBtn.childNodes)
+									.filter(node => node.nodeType === Node.TEXT_NODE);
+								
+								if (textNodes.length > 0) {
+									const originalText = textNodes[0].textContent?.trim() || '';
+									htmlBtn.dataset.originalText = originalText;
+									
+									// Create a wrapper with checkmark and text that won't change button dimensions
+									const successContent = document.createElement('div');
+									successContent.className = 'copy-success-content';
+									// Simplified to just show text without the checkmark icon
+									successContent.innerHTML = `<span class="success-text">Email Copied!</span>`;
+									
+									// Clear text nodes and add our wrapper
+									textNodes.forEach(node => node.textContent = '');
+									// Append the success content to the first text node's parent
+									if (textNodes[0].parentNode) {
+										textNodes[0].parentNode.insertBefore(successContent, textNodes[0]);
+									}
+								}
 							} else {
 								// For icon-only buttons, create and add a temporary success label
 								const successLabel = document.createElement('span');
@@ -423,12 +437,26 @@
 							// Clean up elements after animations complete
 							setTimeout(() => {
 								ripple.remove();
-								checkmark.remove();
 								htmlBtn.classList.remove('copy-success-pulse');
 
-								// Restore original button text if it was changed
+								// Remove success content and restore original text
 								if (htmlBtn.dataset.originalText) {
-									htmlBtn.textContent = htmlBtn.dataset.originalText;
+									const successContent = htmlBtn.querySelector('.copy-success-content');
+									if (successContent) {
+										successContent.remove();
+									}
+								
+									// Restore the original text in the first text node
+									const textNodes = Array.from(htmlBtn.childNodes)
+										.filter(node => node.nodeType === Node.TEXT_NODE);
+									
+									if (textNodes.length > 0) {
+										textNodes[0].textContent = htmlBtn.dataset.originalText || '';
+									} else {
+										// If there are no text nodes, create one
+										htmlBtn.appendChild(document.createTextNode(htmlBtn.dataset.originalText || ''));
+									}
+									
 									delete htmlBtn.dataset.originalText;
 								}
 
@@ -986,12 +1014,12 @@
 		<div class="flex justify-center gap-4">
 			<a
 				href="/services"
-				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:scale-105 hover:transform hover:bg-gray-800"
+				class="cta-element cta-button-fixed rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
 			>
 				View My Services
 			</a>
 			<button
-				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:scale-105 hover:transform hover:bg-blue-700"
+				class="copy-email-btn cta-element cta-button-fixed relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
 			>
 				<span
 					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
@@ -1190,6 +1218,24 @@
 		transition: all 0.3s ease;
 	}
 
+	/* Fixed-size CTA buttons that don't scale */
+	.cta-button-fixed {
+		transform: none !important; /* Prevent any transform */
+		transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; /* Only transition colors */
+		will-change: background-color, color, border-color; /* Only watch for color changes */
+		min-width: 160px; /* Ensure consistent width */
+		height: 40px; /* Fixed height instead of min-height */
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box; /* Include padding in dimensions */
+		overflow: hidden; /* Prevent content from affecting dimensions */
+		white-space: nowrap; /* Keep text on one line */
+		line-height: 1; /* Standardize line height */
+		padding: 0 1.5rem; /* Standardize padding */
+		font-size: 1rem; /* Standardize font size */
+	}
+
 	/* Ensure content is visible if JS fails */
 	@media (prefers-reduced-motion: reduce) {
 		.project-card,
@@ -1249,21 +1295,6 @@
 			width: 200%;
 			height: 200%;
 			opacity: 0;
-		}
-	}
-
-	@keyframes copy-checkmark {
-		0% {
-			opacity: 0;
-			transform: translate(-50%, -50%) scale(0.5);
-		}
-		60% {
-			opacity: 1;
-			transform: translate(-50%, -50%) scale(1.2);
-		}
-		100% {
-			opacity: 0;
-			transform: translate(-50%, -50%) scale(1);
 		}
 	}
 

@@ -1189,7 +1189,7 @@
 	onMount(() => {
 		// Mark animations as ready
 		animationsReady = true;
-
+		
 		// Setup copy email functionality
 		setupCopyEmailFunctionality();
 
@@ -1229,7 +1229,7 @@
 
 		// Preload assets, then start animation with a slight delay
 		preloadAssets();
-
+		
 		// Set up observers for scroll animations after DOM elements are available
 		if (aboutSection) {
 			aboutObserver.observe(aboutSection);
@@ -1282,7 +1282,7 @@
 		// Ensure testimonials are visible after a delay regardless of scroll position
 		// This serves as a fallback for page navigation scenarios
 		setTimeout(ensureTestimonialsVisible, 2000);
-
+		
 		// Clean up on component unmount
 		return () => {
 			if (fireworksAnimationId) {
@@ -1630,23 +1630,36 @@
 							ripple.className = 'copy-ripple';
 							htmlBtn.appendChild(ripple);
 
-							// 2. Create success checkmark icon
-							const checkmark = document.createElement('span');
-							checkmark.className = 'copy-checkmark';
-							checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-							htmlBtn.appendChild(checkmark);
-
-							// 3. Add animation class to button itself
+							// 2. Add animation class to button
 							htmlBtn.classList.add('copy-success-pulse');
 
-							// 4. Handle text content change for Contact Me buttons
-							const originalText = htmlBtn.textContent?.trim();
-							// Store button text (if it's a text button like "Contact Me")
-							if (originalText && originalText !== '') {
-								// Save original text
-								htmlBtn.dataset.originalText = originalText;
-								// Change button text to success message
-								htmlBtn.textContent = 'Email Copied!';
+							// 3. Handle text content change for Contact Me buttons
+							const hasButtonText = htmlBtn.childNodes.length > 0 && 
+								Array.from(htmlBtn.childNodes).some(node => 
+									node.nodeType === Node.TEXT_NODE && node.textContent?.trim() !== '');
+							
+							if (hasButtonText) {
+								// Save original text by looking for direct text nodes
+								const textNodes = Array.from(htmlBtn.childNodes)
+									.filter(node => node.nodeType === Node.TEXT_NODE);
+								
+								if (textNodes.length > 0) {
+									const originalText = textNodes[0].textContent?.trim() || '';
+									htmlBtn.dataset.originalText = originalText;
+									
+									// Create a wrapper with just text that won't change button dimensions
+									const successContent = document.createElement('div');
+									successContent.className = 'copy-success-content';
+									// Simplified to just show text without the checkmark icon
+									successContent.innerHTML = `<span class="success-text">Email Copied!</span>`;
+									
+									// Clear text nodes and add our wrapper
+									textNodes.forEach(node => node.textContent = '');
+									// Append the success content to the first text node's parent
+									if (textNodes[0].parentNode) {
+										textNodes[0].parentNode.insertBefore(successContent, textNodes[0]);
+									}
+								}
 							} else {
 								// For icon-only buttons, create and add a temporary success label
 								const successLabel = document.createElement('span');
@@ -1662,12 +1675,26 @@
 							// Clean up elements after animations complete
 							setTimeout(() => {
 								ripple.remove();
-								checkmark.remove();
 								htmlBtn.classList.remove('copy-success-pulse');
 
-								// Restore original button text if it was changed
+								// Remove success content and restore original text
 								if (htmlBtn.dataset.originalText) {
-									htmlBtn.textContent = htmlBtn.dataset.originalText;
+									const successContent = htmlBtn.querySelector('.copy-success-content');
+									if (successContent) {
+										successContent.remove();
+									}
+								
+									// Restore the original text in the first text node
+									const textNodes = Array.from(htmlBtn.childNodes)
+										.filter(node => node.nodeType === Node.TEXT_NODE);
+									
+									if (textNodes.length > 0) {
+										textNodes[0].textContent = htmlBtn.dataset.originalText || '';
+									} else {
+										// If there are no text nodes, create one
+										htmlBtn.appendChild(document.createTextNode(htmlBtn.dataset.originalText || ''));
+									}
+									
 									delete htmlBtn.dataset.originalText;
 								}
 
@@ -2016,12 +2043,12 @@
 		<div class="flex justify-center gap-4">
 			<a
 				href="/services"
-				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-all hover:scale-105 hover:transform hover:bg-gray-800"
+				class="cta-element cta-button-fixed rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
 			>
 				View My Services
 			</a>
 			<button
-				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-all hover:scale-105 hover:transform hover:bg-blue-700"
+				class="copy-email-btn cta-element cta-button-fixed relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
 			>
 				<span
 					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
@@ -2320,6 +2347,33 @@
 		border-style: solid;
 		border-color: #1a202c transparent transparent transparent;
 	}
+	
+	/* Fixed-size CTA buttons that don't scale */
+	.cta-element {
+		opacity: 1; /* Start visible by default */
+		transform-style: preserve-3d;
+		backface-visibility: hidden;
+		will-change: transform, opacity;
+		transition: all 0.3s ease;
+	}
+	
+	/* Fixed-size CTA buttons that don't scale */
+	.cta-button-fixed {
+		transform: none !important; /* Prevent any transform */
+		transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; /* Only transition colors */
+		will-change: background-color, color, border-color; /* Only watch for color changes */
+		min-width: 160px; /* Ensure consistent width */
+		height: 40px; /* Fixed height instead of min-height */
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box; /* Include padding in dimensions */
+		overflow: hidden; /* Prevent content from affecting dimensions */
+		white-space: nowrap; /* Keep text on one line */
+		line-height: 1; /* Standardize line height */
+		padding: 0 1.5rem; /* Standardize padding */
+		font-size: 1rem; /* Standardize font size */
+	}
 
 	@keyframes copy-pulse {
 		0% {
@@ -2380,15 +2434,5 @@
 			opacity: 0;
 			transform: scale(0.8) translateY(-5px);
 		}
-	}
-
-	/* CTA element styling */
-	.cta-element {
-		opacity: 0; /* Start invisible for animation */
-		transform-style: preserve-3d;
-		backface-visibility: hidden;
-		will-change: transform, opacity;
-		transition: all 0.3s ease;
-		animation: show-content 0s 5000ms forwards; /* Fallback animation to ensure visibility */
 	}
 </style>
