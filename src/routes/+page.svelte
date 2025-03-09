@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { animate, stagger, spring } from 'motion';
+	import BackgroundAnimation from '$lib/components/BackgroundAnimation.svelte';
 
+	// Add state variable for the 3D animation
+	let showAnimation = false;
+	let animationComponent: BackgroundAnimation | null = null;
+	
 	// Skills based on LinkedIn profile
 	const skills = [
 		'Full-Stack Development',
@@ -759,95 +764,37 @@
 		const bgImg = new Image();
 		bgImg.src = '/images/hometown.jpg';
 
-		// Use simpler animation on desktop or if device has low performance
-		if (window.innerWidth >= 1024) {
-			// Desktop devices often struggle with Canvas animations
-			lowQualityMode = true;
+		// Skip all animations and show content immediately
+		useSimpleAnimation = true;
+		lowQualityMode = true;
+		
+		// Skip animation completely and show content directly
+		if (fireworksCanvas) {
+			fireworksCanvas.style.display = 'none';
 		}
-
-		// Check for battery level if possible
-		if ('getBattery' in navigator) {
-			(navigator as any)
-				.getBattery()
-				.then((battery: any) => {
-					// If battery level is below 20% or not charging, use low quality mode
-					if (battery && battery.level < 0.2 && !battery.charging) {
-						lowQualityMode = true;
-					}
-				})
-				.catch(() => {
-					// If we can't get battery info, default to safer option
-					console.log('Could not access battery info');
-				});
+		
+		if (gradientCanvas) {
+			gradientCanvas.style.display = 'none';
 		}
+		
+		// Show content immediately without animation
+		contentReady = true;
+		
+		// Call revealContent immediately to show the page content
+		setTimeout(revealContent, 0);
 
-		// Check if user prefers reduced motion
-		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			lowQualityMode = true;
-		}
-
-		// Test for GPU performance
-		try {
-			// Create a test canvas for performance check
-			const canvas = document.createElement('canvas');
-			canvas.width = 100;
-			canvas.height = 100;
-			const ctx = canvas.getContext('2d');
-
-			if (ctx) {
-				const startTime = performance.now();
-				let totalDraws = 0;
-
-				// Draw multiple shapes to test performance
-				for (let i = 0; i < 1000; i++) {
-					ctx.beginPath();
-					ctx.arc(50, 50, 30, 0, Math.PI * 2);
-					ctx.fillStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.5)`;
-					ctx.fill();
-					totalDraws++;
-
-					// If drawing is taking too long, exit early and use low quality mode
-					if (performance.now() - startTime > 50) {
-						lowQualityMode = true;
-						console.log('Low GPU performance detected, using low quality mode');
-						break;
-					}
-				}
-
-				// Clean up
-				ctx.clearRect(0, 0, 100, 100);
-			}
-		} catch (error) {
-			console.error('Performance test error:', error);
-			// Default to low quality on error
-			lowQualityMode = true;
-		}
-
-		console.log('Using low quality mode:', lowQualityMode);
-
-		// Skip animation and show content directly if using low quality mode
-		if (lowQualityMode) {
-			useSimpleAnimation = true;
-		}
-
-		// After preloading, initialize the animation
-		if (animationsReady && !animationStarted) {
-			initializeAnimation();
-		}
+		// After preloading, we don't need to initialize the animation
+		// since we're skipping it entirely
 	}
 
 	// Initialize animation based on device capability
 	function initializeAnimation() {
 		if (animationStarted) return;
 		animationStarted = true;
-
-		if (useSimpleAnimation) {
-			// Use simple gradient animation instead of fireworks
-			initGradientAnimation();
-		} else {
-			// Use optimized fireworks for capable devices
-			startFireworksSequence();
-		}
+		
+		// Skip all animations and show content directly
+		contentReady = true;
+		revealContent();
 	}
 
 	// Simple gradient animation for low-end devices
@@ -1187,8 +1134,32 @@
 
 	// Setup canvas and start animation when component is mounted
 	onMount(() => {
+		// Start loading any necessary resources
+		contentReady = false;
+		
+		// Check if we should use simplified animation for performance
+		checkPerformance();
+		
+		// Start the animation if device is capable (not in low-quality mode)
+		if (!lowQualityMode && animationComponent) {
+			// Delay animation start to ensure smooth loading
+			setTimeout(() => {
+				showAnimation = true;
+				if (animationComponent) {
+					animationComponent.start(); // Start the 3D animation
+				}
+			}, 500);
+		}
+		
+		// Once content is ready, reveal it
+		setTimeout(() => {
+			contentReady = true;
+			preloaded = true;
+		}, 500);
+		
 		// Mark animations as ready
 		animationsReady = true;
+		contentReady = true; // Ensure content is immediately visible
 		
 		// Setup copy email functionality
 		setupCopyEmailFunctionality();
@@ -1196,6 +1167,20 @@
 		// Create the observers here (only in browser environment)
 		const aboutObserver = createAboutObserver();
 		const testimonialObserver = createTestimonialObserver();
+
+		// Hide animation canvases
+		if (gradientCanvas) {
+			gradientCanvas.style.display = 'none';
+			gradientCanvas.style.opacity = '0';
+		}
+		
+		if (fireworksCanvas) {
+			fireworksCanvas.style.display = 'none';
+			fireworksCanvas.style.opacity = '0';
+		}
+		
+		// Immediately reveal content
+		revealContent();
 
 		// Setup gradientCanvas for simple animation
 		if (gradientCanvas) {
@@ -1771,6 +1756,22 @@
 			});
 		});
 	}
+
+	// Function to check device performance
+	function checkPerformance() {
+		// Simple check for mobile devices which might struggle with 3D
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+			navigator.userAgent
+		);
+		
+		// If on a mobile device, use low quality mode
+		lowQualityMode = isMobile;
+		
+		// Additional check - if device has less than 4 logical processors, use low quality mode
+		if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
+			lowQualityMode = true;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -1803,7 +1804,16 @@
 	<meta name="twitter:image" content="https://hankchou.me/images/hank-social.png" />
 </svelte:head>
 
-<section class="perspective relative bg-[#1A202C] py-12 text-gray-100" bind:this={heroSection}>
+<!-- 3D Background Animation (outside of any container to be full viewport) -->
+<BackgroundAnimation 
+	bind:this={animationComponent} 
+	speed={0.5} 
+	autoStart={false} 
+	highPerformance={!lowQualityMode} 
+/>
+
+<!-- Hero section -->
+<section id="hero" class="hero perspective relative bg-[#1A202C] py-12 text-gray-100" bind:this={heroSection}>
 	<!-- Canvas for fireworks -->
 	<canvas class="fireworks-canvas" bind:this={fireworksCanvas}></canvas>
 
@@ -2521,5 +2531,34 @@
 		position: relative;
 		z-index: inherit;
 		padding-bottom: 4px; /* Extra padding to prevent cut-off */
+	}
+
+	/* Canvas positioning */
+	.fireworks-canvas, .gradient-canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1;
+		display: none; /* Hide by default */
+		opacity: 0;
+		pointer-events: none;
+	}
+	
+	/* Hide all animations by default */
+	@keyframes none {
+		from { opacity: 0; }
+		to { opacity: 0; }
+	}
+
+	/* 3D Animation visibility */
+	:global(.background-animation) {
+		opacity: 0;
+		transition: opacity 1.5s ease-in-out;
+	}
+
+	:global(.background-animation.visible) {
+		opacity: 1;
 	}
 </style>
