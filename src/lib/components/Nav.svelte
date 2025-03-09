@@ -11,10 +11,22 @@
 	// State for mobile menu
 	let isMobileMenuOpen = false;
 	
+	// Performance optimization - reduce animation complexity
+	const PERFORMANCE_MODE = true; // Set to true to use simplified animations
+	
+	// Color palette for more vibrant animations
+	const vibrantColors = {
+		primary: '#60a5fa',    // blue
+		secondary: '#f472b6',  // pink
+		accent1: '#8b5cf6',    // purple
+		accent2: '#10b981',    // emerald
+		accent3: '#f59e0b',    // amber
+		accent4: '#ef4444',    // red
+	};
+	
 	// Function to toggle mobile menu
 	function toggleMobileMenu() {
 		isMobileMenuOpen = !isMobileMenuOpen;
-		console.log('Mobile menu toggled:', isMobileMenuOpen);
 		
 		// Create an entirely new menu system directly in the body
 		if (isMobileMenuOpen && browser) {
@@ -34,18 +46,19 @@
 					menuOverlay.style.left = '0';
 					menuOverlay.style.width = '100vw';
 					menuOverlay.style.height = '100vh';
-					menuOverlay.style.backgroundColor = 'rgba(17, 24, 39, 0.85)'; // Semi-transparent background
-					menuOverlay.style.backdropFilter = 'blur(8px)'; // Add blur effect
-					menuOverlay.style.setProperty('-webkit-backdrop-filter', 'blur(8px)'); // For Safari support
-					menuOverlay.style.zIndex = '2147483647'; // Maximum possible z-index
+					menuOverlay.style.backgroundColor = 'rgba(17, 24, 39, 0.9)'; // More opaque for better performance
+					// Use backdrop blur only in high performance mode
+					if (!PERFORMANCE_MODE) {
+						menuOverlay.style.backdropFilter = 'blur(8px)';
+						menuOverlay.style.setProperty('-webkit-backdrop-filter', 'blur(8px)');
+					}
+					menuOverlay.style.zIndex = '2147483647';
 					menuOverlay.style.overflow = 'auto';
 					menuOverlay.style.display = 'flex';
 					menuOverlay.style.flexDirection = 'column';
 					menuOverlay.style.alignItems = 'center';
-					menuOverlay.style.justifyContent = 'center'; // Center menu items vertically
+					menuOverlay.style.justifyContent = 'center';
 					menuOverlay.style.padding = '2rem 1rem';
-					
-					// Remove the menu title indicator as it's unnecessary
 					
 					// Add close button that matches the hamburger menu style
 					const closeButton = document.createElement('button');
@@ -63,7 +76,7 @@
 					closeButton.style.zIndex = '2147483647';
 					closeButton.style.border = 'none';
 					closeButton.style.cursor = 'pointer';
-					closeButton.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+					closeButton.style.backgroundColor = 'rgba(30, 41, 59, 0.8)'; // Add background color
 					closeButton.setAttribute('aria-label', 'Close menu');
 					
 					// Create X icon using spans similar to hamburger menu
@@ -75,7 +88,7 @@
 						line.style.backgroundColor = '#3b82f6';
 						line.style.borderRadius = '9999px';
 						line.style.position = 'absolute';
-						line.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+						line.style.transition = 'transform 0.3s ease';
 						
 						if (i === 0) {
 							line.style.transform = 'rotate(45deg)';
@@ -99,6 +112,9 @@
 					menuItemsContainer.style.gap = '16px';
 					menuOverlay.appendChild(menuItemsContainer);
 					
+					// Prepare batch DOM operations using DocumentFragment
+					const fragment = document.createDocumentFragment();
+					
 					// Add menu items with improved styling
 					navItems.forEach(item => {
 						const isActive = isNavItemActive(item.path, activePath);
@@ -118,10 +134,8 @@
 						menuItem.style.fontSize = '18px';
 						menuItem.style.fontWeight = 'bold';
 						menuItem.style.gap = '12px';
-						menuItem.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
 						menuItem.style.transition = 'all 0.3s ease';
-						menuItem.style.position = 'relative'; // Important for positioning the animation effects
-						menuItem.style.overflow = 'visible'; // Allow animations to overflow
+						menuItem.style.position = 'relative';
 						menuItem.setAttribute('aria-label', item.label);
 						menuItem.setAttribute('data-path', item.path);
 						
@@ -151,35 +165,40 @@
 						menuItem.appendChild(icon);
 						menuItem.appendChild(label);
 						
-						// Add click event with animations
+						// Add click event with simplified animations
 						menuItem.addEventListener('click', (e) => {
-							// Create click animation before closing menu
+							// Create simple animation before closing menu
 							if (!isActive) {
-								// Create a flash effect
-								const flash = document.createElement('div');
-								flash.style.position = 'absolute';
-								flash.style.top = '0';
-								flash.style.left = '0';
-								flash.style.width = '100%';
-								flash.style.height = '100%';
-								flash.style.borderRadius = '12px';
-								flash.style.background = 'linear-gradient(45deg, rgba(96, 165, 250, 0.7), rgba(244, 114, 182, 0.7))';
-								flash.style.opacity = '0';
-								flash.style.pointerEvents = 'none';
-								flash.style.zIndex = '5';
-								flash.style.filter = 'blur(15px)';
-								flash.style.mixBlendMode = 'overlay';
-								menuItem.appendChild(flash);
-								
-								// Animate the flash
-								animate(
-									flash,
-									{ opacity: [0, 0.8, 0] },
-									{ duration: 0.8, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
-								);
-								
-								// Create ripple effects
-								for (let i = 0; i < 3; i++) {
+								if (PERFORMANCE_MODE) {
+									// Simple highlight animation
+									animate(
+										menuItem,
+										{ backgroundColor: ['rgba(30, 41, 59, 0.8)', 'rgba(59, 130, 246, 0.9)', 'rgba(30, 41, 59, 0.8)'] },
+										{ duration: 0.3, easing: 'ease-out' }
+									);
+								} else {
+									// Create a flash effect
+									const flash = document.createElement('div');
+									flash.style.position = 'absolute';
+									flash.style.top = '0';
+									flash.style.left = '0';
+									flash.style.width = '100%';
+									flash.style.height = '100%';
+									flash.style.borderRadius = '12px';
+									flash.style.background = 'linear-gradient(45deg, rgba(96, 165, 250, 0.7), rgba(244, 114, 182, 0.7))';
+									flash.style.opacity = '0';
+									flash.style.pointerEvents = 'none';
+									flash.style.zIndex = '5';
+									menuItem.appendChild(flash);
+									
+									// Animate the flash
+									animate(
+										flash,
+										{ opacity: [0, 0.8, 0] },
+										{ duration: 0.5, easing: 'ease-out' }
+									);
+									
+									// Create a single ripple effect
 									const ripple = document.createElement('div');
 									ripple.style.position = 'absolute';
 									ripple.style.width = '20px';
@@ -192,91 +211,31 @@
 									ripple.style.pointerEvents = 'none';
 									ripple.style.zIndex = '1';
 									ripple.style.opacity = '0.8';
-									ripple.style.willChange = 'transform, opacity';
-									ripple.style.filter = 'blur(1px)';
 									menuItem.appendChild(ripple);
 									
-									// Animate ripple with staggered timing
+									// Single simpler ripple animation
 									animate(
 										ripple,
 										{
 											opacity: [0.9, 0],
-											scale: [0, 4 + i * 1.5]
+											scale: [0, 3]
 										},
 										{
-											duration: 1.0 + i * 0.2,
-											delay: i * 0.15,
-											easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+											duration: 0.5,
+											easing: 'ease-out'
 										}
 									);
-								}
-								
-								// Animate the icon
-								animate(
-									icon,
-									{
-										scale: [1, 2.5, 1.2, 1],
-										rotate: [0, -15, 15, -5, 5, 0],
-										y: [0, -10, 5, 0],
-										filter: 'drop-shadow(0 0 30px rgba(59, 130, 246, 0.9))'
-									},
-									{
-										duration: 1.0,
-										easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-									}
-								);
-								
-								// Animate the text
-								animate(
-									label,
-									{
-										scale: [1, 1.3, 1],
-										y: [0, -5, 0],
-										color: ['#ffffff', '#60a5fa', '#ffffff']
-									},
-									{
-										duration: 0.8,
-										easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
-									}
-								);
-								
-								// Create particles for effect
-								for (let i = 0; i < 20; i++) {
-									const particle = document.createElement('div');
-									particle.style.position = 'absolute';
-									particle.style.width = (3 + Math.random() * 7) + 'px';
-									particle.style.height = (3 + Math.random() * 7) + 'px';
-									particle.style.borderRadius = '50%';
 									
-									// Random color from particleColors
-									const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
-									const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
-									particle.style.backgroundColor = color;
-									particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`;
-									
-									// Position at center
-									particle.style.left = '50%';
-									particle.style.top = '50%';
-									particle.style.transform = 'translate(-50%, -50%)';
-									
-									menuItem.appendChild(particle);
-									
-									// Animate particles from center outward
-									const angle = Math.random() * Math.PI * 2;
-									const distance = 30 + Math.random() * 100;
-									
+									// Simple icon animation
 									animate(
-										particle,
+										icon,
 										{
-											opacity: [1, 0],
-											scale: [Math.random() < 0.5 ? 0.5 : 1.5, 0],
-											x: [0, `${Math.cos(angle) * distance}px`],
-											y: [0, `${Math.sin(angle) * distance}px`],
-											rotate: [`${Math.random() * 90}deg`, `${Math.random() * 360}deg`]
+											scale: [1, 1.5, 1],
+											y: [0, -5, 0]
 										},
 										{
-											duration: 0.8 + Math.random() * 0.6,
-											easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+											duration: 0.4,
+											easing: 'ease-out'
 										}
 									);
 								}
@@ -286,7 +245,7 @@
 								setTimeout(() => {
 									window.location.href = item.path;
 									closeMobileMenu();
-								}, 500); // Short delay to allow animation to play
+								}, 300); // Shorter delay
 								
 								return;
 							}
@@ -294,8 +253,11 @@
 							closeMobileMenu();
 						});
 						
-						menuItemsContainer.appendChild(menuItem);
+						fragment.appendChild(menuItem);
 					});
+					
+					// Add all items at once for better performance
+					menuItemsContainer.appendChild(fragment);
 					
 					// Add to body
 					document.body.appendChild(menuOverlay);
@@ -314,12 +276,6 @@
 				menuOverlay.parentNode.removeChild(menuOverlay);
 			}
 			
-			// Remove backdrop if it exists
-			const backdrop = document.getElementById('menu-backdrop');
-			if (backdrop && backdrop.parentNode) {
-				backdrop.parentNode.removeChild(backdrop);
-			}
-			
 			// Restore body scroll
 			document.body.style.overflow = '';
 		}
@@ -334,12 +290,6 @@
 			const menuOverlay = document.getElementById('full-page-menu-overlay');
 			if (menuOverlay && menuOverlay.parentNode) {
 				menuOverlay.parentNode.removeChild(menuOverlay);
-			}
-			
-			// Remove backdrop if it exists
-			const backdrop = document.getElementById('menu-backdrop');
-			if (backdrop && backdrop.parentNode) {
-				backdrop.parentNode.removeChild(backdrop);
 			}
 			
 			// Restore body scroll
@@ -386,28 +336,17 @@
 	// Track previous active path for transitions
 	let previousActivePath = '/';
 
-	// Fireworks parameters
+	// Fireworks parameters - reduced counts for performance
 	let fireworksContainer: HTMLDivElement;
 	let isAnimatingFireworks = false;
+	let lastFireworkTime = 0; // Throttle fireworks
 	const particleColors = [
-		'#60a5fa',
-		'#93c5fd',
-		'#3b82f6', // Blues
-		'#8b5cf6',
-		'#a78bfa',
-		'#c4b5fd', // Purples
-		'#ec4899',
-		'#f472b6',
-		'#f9a8d4', // Pinks
-		'#f59e0b',
-		'#fbbf24',
-		'#fcd34d', // Ambers/Yellows
-		'#10b981',
-		'#34d399',
-		'#6ee7b7', // Emeralds
-		'#ef4444',
-		'#f87171',
-		'#fca5a5' // Reds
+		vibrantColors.primary, '#3b82f6', // Blues
+		vibrantColors.accent1, '#a78bfa', // Purples
+		vibrantColors.secondary, '#ec4899', // Pinks
+		vibrantColors.accent3, '#fcd34d', // Ambers/Yellows
+		vibrantColors.accent2, '#6ee7b7', // Emeralds
+		vibrantColors.accent4, '#fca5a5' // Reds
 	];
 
 	// Helper function to determine if a nav item is active
@@ -421,7 +360,7 @@
 		return currentPath === itemPath;
 	}
 
-	// Create page transition effect
+	// Create page transition effect with optimized animations
 	function animatePageTransition(from: string, to: string) {
 		if (!browser) return;
 
@@ -439,7 +378,87 @@
 
 				if (!fromIcon || !toIcon) return;
 
-				// Create a dramatic flash of light over the entire navigation
+				if (PERFORMANCE_MODE) {
+					// Use simpler animations in performance mode but make them more vibrant
+					
+					// Create a nav-only flash that fades slowly, instead of full-screen
+					const navContainer = document.querySelector('nav');
+					if (navContainer) {
+						const flashOverlay = document.createElement('div');
+						flashOverlay.className = 'nav-contained-flash';
+						navContainer.appendChild(flashOverlay);
+						
+						// Animate the nav-contained flash with longer duration and staged opacity
+						animate(
+							flashOverlay,
+							{ 
+								opacity: [0, 0.8, 0.6, 0.4, 0.2, 0] 
+							},
+							{ 
+								duration: 1.8,  // Longer duration
+								easing: 'ease-out' 
+							}
+						).finished?.then(() => {
+							if (flashOverlay.parentNode) {
+								flashOverlay.parentNode.removeChild(flashOverlay);
+							}
+						}).catch(error => {
+							console.error('Flash animation error:', error);
+							if (flashOverlay.parentNode) {
+								flashOverlay.parentNode.removeChild(flashOverlay);
+							}
+						});
+					}
+					
+					// Simple highlight animation for the to item with more vibrant colors
+					animate(
+						toItem,
+						{ 
+							opacity: [0.7, 1],
+							scale: [0.95, 1.05, 1]
+						},
+						{ duration: 0.5, easing: 'ease-out' }
+					);
+					
+					// More vibrant animation for the to icon
+					animate(
+						toIcon,
+						{
+							scale: [1, 1.5, 1],
+							y: [0, -8, 0],
+							fill: ['#d1d5db', vibrantColors.primary, vibrantColors.primary]
+						},
+						{ duration: 0.6, easing: 'ease-out' }
+					);
+					
+					// Simple animation for the from icon
+					animate(
+						fromIcon,
+						{
+							scale: [1, 0.8, 1],
+							opacity: [1, 0.5, 1]
+						},
+						{ duration: 0.4, easing: 'ease-out' }
+					);
+					
+					// More colorful animation for the to text
+					const toText = toItem.querySelector('.nav-text');
+					if (toText) {
+						animate(
+							toText,
+							{ 
+								scale: [1, 1.2, 1],
+								y: [0, -5, 0],
+								color: ['#e5e7eb', vibrantColors.primary, vibrantColors.primary]
+							},
+							{ duration: 0.6, easing: 'ease-out' }
+						);
+					}
+					
+					return;
+				}
+
+				// Create a flash effect (simplified)
 				const navFlash = document.createElement('div');
 				navFlash.className = 'nav-flash';
 				const navElement = document.querySelector('nav');
@@ -447,126 +466,99 @@
 				navElement.appendChild(navFlash);
 
 				// Animate the flash
-				const flashAnimation = animate(
+				animate(
 					navFlash,
+					{ opacity: [0.5, 0] },
+					{ duration: 0.5, easing: 'ease-out' }
+				).finished?.then(() => {
+					if (navFlash.parentNode) {
+						navFlash.parentNode.removeChild(navFlash);
+					}
+				}).catch(() => {
+					// Clean up on error
+					if (navFlash.parentNode) {
+						navFlash.parentNode.removeChild(navFlash);
+					}
+				});
+
+				// Create a single ripple effect instead of multiple
+				const ripple = document.createElement('div');
+				ripple.className = 'nav-ripple';
+				toItem.appendChild(ripple);
+
+				// Position ripple in center of icon
+				const toIconRect = (toIcon as HTMLElement).getBoundingClientRect();
+				const toItemRect = (toItem as HTMLElement).getBoundingClientRect();
+
+				ripple.style.left = `${toIconRect.left - toItemRect.left + toIconRect.width / 2}px`;
+				ripple.style.top = `${toIconRect.top - toItemRect.top + toIconRect.height / 2}px`;
+
+				// Simplified ripple animation
+				animate(
+					ripple,
 					{
-						opacity: [0.7, 0]
+						opacity: [0.7, 0],
+						scale: [0, 3]
 					},
 					{
-						duration: 0.8,
-						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+						duration: 0.6,
+						easing: 'ease-out'
 					}
-				);
-				
-				if (flashAnimation && flashAnimation.finished) {
-					flashAnimation.finished.then(() => {
-						if (navFlash.parentNode) {
-							navFlash.parentNode.removeChild(navFlash);
-						}
-					}).catch(error => {
-						console.error('Flash animation error:', error);
-						// Still clean up on error
-						if (navFlash.parentNode) {
-							navFlash.parentNode.removeChild(navFlash);
-						}
-					});
-				}
+				).finished?.then(() => {
+					if (ripple.parentNode) {
+						ripple.parentNode.removeChild(ripple);
+					}
+				}).catch(() => {
+					// Clean up on error
+					if (ripple.parentNode) {
+						ripple.parentNode.removeChild(ripple);
+					}
+				});
 
-				// Create multiple ripple effects on the new active item
-				for (let i = 0; i < 3; i++) {
-					const ripple = document.createElement('div');
-					ripple.className = 'nav-ripple';
-					toItem.appendChild(ripple);
-
-					// Position ripple in center of icon
-					const toIconRect = (toIcon as HTMLElement).getBoundingClientRect();
-					const toItemRect = (toItem as HTMLElement).getBoundingClientRect();
-
-					ripple.style.left = `${toIconRect.left - toItemRect.left + toIconRect.width / 2}px`;
-					ripple.style.top = `${toIconRect.top - toItemRect.top + toIconRect.height / 2}px`;
-
-					// Animate ripple with staggered timing
-					animate(
-						ripple,
-						{
-							opacity: [0.9, 0],
-							scale: [0, 4 + i * 1.5] // Each ripple gets bigger
-						},
-						{
-							duration: 1.0 + i * 0.2,
-							delay: i * 0.15,
-							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-						}
-					).finished?.then(() => {
-						if (ripple.parentNode) {
-							ripple.parentNode.removeChild(ripple);
-						}
-					}).catch(error => {
-						console.error('Ripple animation error:', error);
-						// Clean up on error
-						if (ripple.parentNode) {
-							ripple.parentNode.removeChild(ripple);
-						}
-					});
-				}
-
-				// Super dramatic rotation effect for the FROM icon (being navigated away from)
+				// Simplified animation for the FROM icon
 				animate(
 					fromIcon,
 					{
-						scale: [1, 0.5],
-						opacity: [1, 0.5, 1],
-						rotate: [0, 360],
-						y: [0, -20, 0]
+						scale: [1, 0.8, 1],
+						opacity: [1, 0.7, 1]
 					},
 					{
-						duration: 0.8,
-						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+						duration: 0.5,
+						easing: 'ease-out'
 					}
 				);
 
-				// Extreme bounce effect for the TO icon
+				// Simplified animation for the TO icon
 				animate(
 					toIcon,
 					{
-						scale: [1, 2.5, 1.2, 1],
-						rotate: [0, -15, 15, -5, 5, 0],
-						y: [0, -30, 5, 0],
-						filter: 'drop-shadow(0 0 30px rgba(59, 130, 246, 0.9))'
+						scale: [1, 1.5, 1],
+						y: [0, -10, 0]
 					},
 					{
-						duration: 1.2,
-						easing: (x) => {
-							try {
-								// Safely call spring with fallback
-								return spring({ stiffness: 300, damping: 10 })(x) || x;
-							} catch (error) {
-								console.error('Spring animation error:', error);
-								// Fallback to a simple cubic bezier easing
-								return 0.34 * (1 - Math.cos(Math.PI * x));
-							}
-						}
+						duration: 0.6,
+						easing: 'ease-out'
 					}
 				);
 
-				// Create particles explosion for the navigation - only if toItem is available
-				if (toItem && toIcon) {
-					createTransitionParticles(toItem as HTMLElement, toIcon as HTMLElement);
+				// Create a few particles for effect - reduced count
+				if (toItem && toIcon && !PERFORMANCE_MODE) {
+					// Only create particles in non-performance mode and limit to 5
+					createTransitionParticles(toItem as HTMLElement, toIcon as HTMLElement, 5);
 				}
 
-				// Dramatic effect for the label text
+				// Simple animation for the label text
 				const toText = toItem.querySelector('.nav-text');
 				if (toText) {
 					animate(
 						toText,
 						{
-							scale: [1, 1.8, 1],
-							y: [0, -15, 0],
-							color: ['#e5e7eb', '#60a5fa', '#93c5fd']
+							scale: [1, 1.2, 1],
+							y: [0, -5, 0]
 						},
 						{
-							duration: 1.0,
-							easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+							duration: 0.5,
+							easing: 'ease-out'
 						}
 					);
 				}
@@ -576,8 +568,8 @@
 		});
 	}
 
-	// Function to create particles during page transitions
-	function createTransitionParticles(container: HTMLElement, sourceElement: HTMLElement) {
+	// Function to create particles during page transitions - with reduced particle count
+	function createTransitionParticles(container: HTMLElement, sourceElement: HTMLElement, count: number = 5) {
 		if (!browser || !container || !sourceElement) return;
 
 		const rect = sourceElement.getBoundingClientRect();
@@ -586,35 +578,25 @@
 		const centerX = rect.width / 2;
 		const centerY = rect.height / 2;
 
-		// Create a burst of particles
-		const particleCount = 30; // More particles for more drama
-		const particles: HTMLDivElement[] = [];
-
 		// Create particles in a single batch using DocumentFragment for better performance
 		const fragment = document.createDocumentFragment();
+		const particles: HTMLDivElement[] = [];
 
-		for (let i = 0; i < particleCount; i++) {
+		for (let i = 0; i < count; i++) {
 			const particle = document.createElement('div');
 			particle.className = 'nav-transition-particle';
 
-			// Random size, larger overall
-			const size = 5 + Math.random() * 8;
+			// Random size
+			const size = 4 + Math.random() * 4; // Smaller particles
 			particle.style.width = `${size}px`;
 			particle.style.height = `${size}px`;
 
-			// More vibrant colors
+			// Set color
 			const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
-			// Add safety check for the particle colors array
 			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
-			particle.style.backgroundColor = color;
-			particle.style.boxShadow = `0 0 ${8 + Math.random() * 10}px ${color}`;
-
-			// Random shape for some particles
-			if (Math.random() > 0.7) {
-				particle.style.borderRadius = '2px';
-				particle.style.transform = `rotate(${Math.random() * 90}deg)`;
-			}
-
+			
+			// Remove box-shadow for better performance
+			
 			// Start position at center of icon
 			particle.style.left = `${centerX}px`;
 			particle.style.top = `${centerY}px`;
@@ -628,27 +610,25 @@
 
 		// Animate each particle
 		particles.forEach(particle => {
-			// Calculate random end position with farther distance
+			// Calculate random end position with shorter distance
 			const angle = Math.random() * Math.PI * 2;
-			const distance = 100 + Math.random() * 150;
+			const distance = 50 + Math.random() * 50; // Shorter distances
 			const endX = centerX + Math.cos(angle) * distance;
 			const endY = centerY + Math.sin(angle) * distance;
 
-			// Animate with more dramatic paths
+			// Simplified animation
 			animate(
 				particle,
 				{
 					opacity: [1, 0],
-					scale: [Math.random() < 0.5 ? 0.5 : 1.5, 0],
 					x: [0, `${endX - centerX}px`],
-					y: [0, `${endY - centerY}px`],
-					rotate: [`${Math.random() * 90}deg`, `${Math.random() * 360}deg`]
+					y: [0, `${endY - centerY}px`]
 				},
 				{
-					duration: 0.8 + Math.random() * 0.9,
-					easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+					duration: 0.5 + Math.random() * 0.3, // Shorter duration
+					easing: 'ease-out'
 				}
-			).finished.then(() => {
+			).finished?.then(() => {
 				if (particle.parentNode) {
 					particle.parentNode.removeChild(particle);
 				}
@@ -735,7 +715,7 @@
 		}
 	});
 
-	// Handle icon hover animation
+	// Handle icon hover animation - enhanced but still optimized
 	function handleIconEnter(event: MouseEvent, path: string) {
 		if (!browser || isNavItemActive(path, activePath)) return;
 
@@ -745,7 +725,62 @@
 
 		if (!icon || !text) return;
 
-		// Create a dramatic glow effect on hover
+		if (PERFORMANCE_MODE) {
+			// More colorful hover animation in performance mode
+			// Create a single colorful flash
+			const colorFlash = document.createElement('div');
+			colorFlash.className = 'nav-color-pulse';
+			target.appendChild(colorFlash);
+			
+			// Simple scaling for the flash
+			animate(
+				colorFlash,
+				{
+					opacity: [0, 0.7, 0],
+					scale: [0.5, 1.5, 0]
+				},
+				{
+					duration: 0.6,
+					easing: 'ease-out'
+				}
+			).finished?.then(() => {
+				if (colorFlash.parentNode) {
+					colorFlash.parentNode.removeChild(colorFlash);
+				}
+			});
+			
+			// More vibrant icon animation
+			animate(
+				icon,
+				{
+					scale: 1.5,
+					y: -7,
+					fill: vibrantColors.primary,
+				},
+				{
+					duration: 0.4,
+					easing: 'ease-out'
+				}
+			);
+
+			// More colorful text animation
+			animate(
+				text,
+				{
+					y: 4,
+					scale: 1.1,
+					color: vibrantColors.primary,
+				},
+				{
+					duration: 0.4,
+					easing: 'ease-out'
+				}
+			);
+			
+			return;
+		}
+
+		// Create a simplified glow effect on hover
 		const glow = document.createElement('div');
 		glow.className = 'nav-hover-glow';
 		target.appendChild(glow);
@@ -760,14 +795,14 @@
 		animate(
 			glow,
 			{
-				opacity: [0, 0.9, 0],
-				scale: [0.5, 2.5, 3]
+				opacity: [0, 0.7, 0],
+				scale: [0.5, 2, 0]
 			},
 			{
-				duration: 1.5,
-				easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+				duration: 0.8,
+				easing: 'ease-out'
 			}
-		).finished.then(() => {
+		).finished?.then(() => {
 			if (glow.parentNode) {
 				glow.parentNode.removeChild(glow);
 			}
@@ -776,42 +811,42 @@
 		animate(
 			icon,
 			{
-				scale: 1.8,
-				y: -20,
-				rotate: Math.random() > 0.5 ? 15 : -15,
-				fill: '#60a5fa',
-				filter: 'drop-shadow(0 0 15px rgba(59, 130, 246, 0.9))'
+				scale: 1.5,
+				y: -10,
+				fill: '#60a5fa'
 			},
 			{
-				duration: 0.4,
-				easing: 'cubic-bezier(0.34, 2.56, 0.64, 1)'
+				duration: 0.3,
+				easing: 'ease-out'
 			}
 		);
 
 		animate(
 			text,
 			{
-				y: 10,
-				scale: 1.3,
+				y: 5,
+				scale: 1.1,
 				color: '#60a5fa',
 			},
 			{
-				duration: 0.4,
-				easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+				duration: 0.3,
+				easing: 'ease-out'
 			}
 		);
 
-		// Always create particles for more drama
-		createHoverParticles(target, icon as HTMLElement, 15); // Increased particle count
+		// Only create particles in non-performance mode and with reduced count
+		if (!PERFORMANCE_MODE) {
+			createHoverParticles(target, icon as HTMLElement, 3);
+		}
 	}
 
-	// Create subtle particle effect on hover
+	// Create subtle particle effect on hover - with reduced particle count
 	function createHoverParticles(
 		container: HTMLElement,
 		sourceElement: HTMLElement,
-		count: number = 5
+		count: number = 3
 	) {
-		if (!browser || !container || !sourceElement) return;
+		if (!browser || !container || !sourceElement || PERFORMANCE_MODE) return;
 
 		const rect = container.getBoundingClientRect();
 		const iconRect = sourceElement.getBoundingClientRect();
@@ -827,28 +862,21 @@
 			const particle = document.createElement('div');
 			particle.className = 'nav-hover-particle';
 
-			// Random size and color
-			const size = 4 + Math.random() * 6; // Bigger particles
+			// Simple particle size
+			const size = 3 + Math.random() * 3;
 			particle.style.width = `${size}px`;
 			particle.style.height = `${size}px`;
 
-			// Random shapes for variety
-			if (Math.random() > 0.7) {
-				particle.style.borderRadius = `${Math.random() * 5}px`;
-			}
-
-			// Random color from our particle colors
+			// Simple color
 			const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
-			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa'; // Fallback color if array access fails
+			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
 			particle.style.backgroundColor = color;
-			particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`; // Add glow to particles
+			
+			// No box-shadow for better performance
 
-			// Randomize start position slightly
-			const startX = centerX + (Math.random() * 10 - 5);
-			const startY =
-				Math.random() > 0.7
-					? Math.random() * iconRect.height // Sometimes start from random height
-					: bottomY - 5; // Usually start from bottom
+			// Start position
+			const startX = centerX;
+			const startY = bottomY - 5;
 
 			particle.style.left = `${startX}px`;
 			particle.style.top = `${startY}px`;
@@ -862,28 +890,26 @@
 
 		// Animate particles
 		particles.forEach(particle => {
-			// More dramatic animation paths
+			// Simpler animation paths
 			const angle = Math.random() * Math.PI; // Semi-circle above
-			const distance = 40 + Math.random() * 80; // Further distance
+			const distance = 20 + Math.random() * 30; // Shorter distance
 			const startX = parseFloat(particle.style.left) || centerX;
 			const startY = parseFloat(particle.style.top) || bottomY;
-			const endX = startX + Math.cos(angle) * distance - 20;
-			const endY = startY - Math.sin(angle) * distance - 40;
+			const endX = startX + Math.cos(angle) * distance - 10;
+			const endY = startY - Math.sin(angle) * distance - 20;
 
 			animate(
 				particle,
 				{
-					opacity: [1, 0],
-					scale: [Math.random() > 0.5 ? 0.8 : 1.2, 0],
+					opacity: [0.8, 0],
 					x: [0, `${endX - startX}px`],
-					y: [0, `${endY - startY}px`],
-					rotate: ['0deg', `${Math.random() * 360}deg`]
+					y: [0, `${endY - startY}px`]
 				},
 				{
-					duration: 0.6 + Math.random() * 1,
-					easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+					duration: 0.4 + Math.random() * 0.3, // Shorter duration
+					easing: 'ease-out'
 				}
-			).finished.then(() => {
+			).finished?.then(() => {
 				if (particle.parentNode) {
 					particle.parentNode.removeChild(particle);
 				}
@@ -901,19 +927,17 @@
 
 		if (!icon || !text) return;
 
-		// More dramatic leave animation
+		// Simple animation
 		animate(
 			icon,
 			{
 				scale: 1,
 				y: 0,
-				rotate: '0deg',
-				fill: '#d1d5db',
-				filter: 'drop-shadow(0 0 0 rgba(59, 130, 246, 0))'
+				fill: '#d1d5db'
 			},
 			{
-				duration: 0.6,
-				easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+				duration: 0.3,
+				easing: 'ease-out'
 			}
 		);
 
@@ -922,51 +946,135 @@
 			{
 				y: 0,
 				scale: 1,
-				color: '#e5e7eb',
-				filter: 'drop-shadow(0 0 0 rgba(59, 130, 246, 0))'
+				color: '#e5e7eb'
 			},
 			{
-				duration: 0.6,
-				easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+				duration: 0.3,
+				easing: 'ease-out'
 			}
 		);
 	}
 
-	// Create a single firework explosion
+	// Create a single firework explosion (enhanced but optimized)
 	function createFireworkExplosion(x: number, y: number) {
-		// Skip if not in browser environment
+		// Skip if not in browser environment or throttled
 		if (!browser || isAnimatingFireworks || !fireworksContainer) return;
+		
+		// Throttle fireworks for performance (max one every 800ms)
+		const now = Date.now();
+		if (now - lastFireworkTime < 800) return;
+		lastFireworkTime = now;
 
 		isAnimatingFireworks = true;
 
 		// Clear previous particles
 		fireworksContainer.innerHTML = '';
+		
+		if (PERFORMANCE_MODE) {
+			// Create a more colorful flash for performance mode
+			// We'll use a sequence of two flashes with different colors
+			const flash1 = document.createElement('div');
+			flash1.className = 'firework-flash flash-primary';
+			fireworksContainer.appendChild(flash1);
+			flash1.style.left = `${x}px`;
+			flash1.style.top = `${y}px`;
 
-		// Add launch trails for consistency with main page
-		const startY = fireworksContainer.clientHeight;
-		const launchTrail = document.createElement('div');
-		launchTrail.className = 'firework-launch-trail';
-		fireworksContainer.appendChild(launchTrail);
-		launchTrail.style.left = `${x}px`;
-		launchTrail.style.top = `${startY}px`;
-
-		// Animate the launch
-		animate(
-			launchTrail,
-			{
-				opacity: [0.8, 0],
-				y: [0, -(startY - y)],
-				scale: [0.6, 0.3]
-			},
-			{
-				duration: 0.5,
-				easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+			const flash2 = document.createElement('div');
+			flash2.className = 'firework-flash flash-secondary';
+			fireworksContainer.appendChild(flash2);
+			flash2.style.left = `${x}px`;
+			flash2.style.top = `${y}px`;
+			
+			// Add a flash confined to the nav element instead of full page
+			const navFlashContainer = document.querySelector('nav');
+			if (navFlashContainer) {
+				const flashOverlay = document.createElement('div');
+				flashOverlay.className = 'firework-contained-flash';
+				navFlashContainer.appendChild(flashOverlay);
+				
+				// Animate the flash overlay with longer duration
+				animate(
+					flashOverlay,
+					{
+						opacity: [0, 0.4, 0.3, 0.1, 0]
+					},
+					{
+						duration: 1.6,
+						easing: 'ease-out'
+					}
+				).finished?.then(() => {
+					if (flashOverlay.parentNode) {
+						flashOverlay.parentNode.removeChild(flashOverlay);
+					}
+				}).catch(error => {
+					console.error('Firework overlay animation error:', error);
+					if (flashOverlay.parentNode) {
+						flashOverlay.parentNode.removeChild(flashOverlay);
+					}
+				});
 			}
-		).finished.then(() => {
-			if (launchTrail.parentNode) {
-				launchTrail.parentNode.removeChild(launchTrail);
-			}
-		});
+			
+			// Animate the first flash
+			animate(
+				flash1,
+				{
+					opacity: [1, 0.7, 0.3, 0],
+					scale: [0, 3.5, 4]
+				},
+				{
+					duration: 1.2, // Longer duration
+					easing: 'ease-out'
+				}
+			).finished?.then(() => {
+				if (flash1.parentNode) {
+					flash1.parentNode.removeChild(flash1);
+				}
+			});
+			
+			// Animate the second flash with slight delay
+			animate(
+				flash2,
+				{
+					opacity: [0.9, 0.6, 0.3, 0],
+					scale: [0.5, 3, 5]
+				},
+				{
+					duration: 1.5, // Even longer duration
+					delay: 0.15,
+					easing: 'ease-out'
+				}
+			).finished?.then(() => {
+				if (flash2.parentNode) {
+					flash2.parentNode.removeChild(flash2);
+				}
+				isAnimatingFireworks = false;
+			});
+			
+			// Create a simple ring effect - very cheap animation
+			const ring = document.createElement('div');
+			ring.className = 'firework-ring';
+			fireworksContainer.appendChild(ring);
+			ring.style.left = `${x}px`;
+			ring.style.top = `${y}px`;
+			
+			animate(
+				ring,
+				{
+					opacity: [0.9, 0.6, 0.3, 0],
+					scale: [0, 2, 3.5]
+				},
+				{
+					duration: 1.2, // Longer duration
+					easing: 'ease-out'
+				}
+			).finished?.then(() => {
+				if (ring.parentNode) {
+					ring.parentNode.removeChild(ring);
+				}
+			});
+			
+			return;
+		}
 
 		// Create a flash at the explosion center
 		const flash = document.createElement('div');
@@ -980,20 +1088,20 @@
 			flash,
 			{
 				opacity: [1, 0],
-				scale: [0, 4]
+				scale: [0, 3]
 			},
 			{
-				duration: 0.7,
-				easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+				duration: 0.5,
+				easing: 'ease-out'
 			}
-		).finished.then(() => {
+		).finished?.then(() => {
 			if (flash.parentNode) {
 				flash.parentNode.removeChild(flash);
 			}
 		});
 
-		// Create particles for the explosion - further reduced for better performance
-		const particleCount = 50; // Reduced from 70 for even better performance
+		// Create particles for the explosion - reduced for better performance
+		const particleCount = 15; // Reduced from 50
 		
 		// Batch DOM operations with DocumentFragment
 		const fragment = document.createDocumentFragment();
@@ -1004,21 +1112,14 @@
 			const particle = document.createElement('div');
 			particle.className = 'firework-particle';
 
-			// Determine if this is a normal particle or a "streamer" (long trail)
-			const isStreamer = Math.random() < 0.25; // Increased chance of streamers
-			if (isStreamer) {
-				particle.classList.add('firework-streamer');
-			}
-
-			// Random size for more varied effect - increased sizes
-			const particleSize = isStreamer ? 4 : Math.random() * 6 + 4; // 4-10px
+			// Simple particle
+			const particleSize = Math.random() * 4 + 3; // 3-7px (smaller)
 			particle.style.width = `${particleSize}px`;
 			particle.style.height = `${particleSize}px`;
 
-			// Random color - fix the colorIndex to ensure it's safe
-			const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
-			const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa'; // Fallback if array access fails
-			particle.style.backgroundColor = color;
+			// Set color without any fallback complexity
+			const colorIndex = Math.floor(Math.random() * particleColors.length);
+			particle.style.backgroundColor = particleColors[colorIndex];
 
 			// Set initial position
 			particle.style.left = `${x}px`;
@@ -1033,70 +1134,48 @@
 
 		// Animate all particles
 		particles.forEach((particle) => {
-			// Detect streamers
-			const isStreamer = particle.classList.contains('firework-streamer');
-
-			// Use polar coordinates for more realistic spread - increased distance
-			const distance = isStreamer ? 200 + Math.random() * 150 : 100 + Math.random() * 200;
-
+			// Use polar coordinates for spread - shorter distance
+			const distance = 50 + Math.random() * 50;
 			const angle = Math.random() * Math.PI * 2; // Random angle in radians
 
-			// Calculate endpoint using polar coordinates for more natural arc
+			// Calculate endpoint
 			const randomX = `${Math.cos(angle) * distance}px`;
-			const randomY = `${Math.sin(angle) * distance + (isStreamer ? 50 : 0)}px`; // Streamers fall more
+			const randomY = `${Math.sin(angle) * distance}px`;
 
-			// Simplified animations - removed z-axis for better performance
-			const randomColor = particleColors && particleColors.length > 0 
-				? particleColors[Math.floor(Math.random() * particleColors.length)] 
-				: particle.style.backgroundColor || '#60a5fa';
-
-			// Reduced duration for better performance
-			const duration = isStreamer ? 3.0 : 2.5;
-
-			// Animate with fewer properties for better performance
-			const animationPromise = animate(
+			// Simplified animation
+			animate(
 				particle,
 				{
-					opacity: isStreamer ? [1, 1, 0.8, 0] : [1, 0.9, 0],
-					scale: isStreamer ? [1, 1.2, 0.7] : [0, 1.2, 0.8],
+					opacity: [1, 0],
+					scale: [1, 0],
 					x: randomX,
-					y: randomY,
-					backgroundColor: randomColor,
-					boxShadow: [
-						`0 0 ${isStreamer ? 20 : 10}px ${particle.style.backgroundColor}`,
-						`0 0 ${isStreamer ? 5 : 0}px rgba(255, 255, 255, 0)`
-					]
+					y: randomY
 				},
 				{
-					duration: duration,
-					easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+					duration: 0.8 + Math.random() * 0.4, // Shorter duration
+					easing: 'ease-out'
 				}
-			);
-
-			if (animationPromise && animationPromise.finished) {
-				animationPromise.finished.then(() => {
-					// Remove each particle immediately when its animation completes
-					if (particle.parentNode) {
-						particle.parentNode.removeChild(particle);
-					}
-				}).catch(error => {
-					console.error('Particle animation error:', error);
-					// Clean up even if there's an error
-					if (particle.parentNode) {
-						particle.parentNode.removeChild(particle);
-					}
-				});
-			}
+			).finished?.then(() => {
+				// Remove each particle immediately when its animation completes
+				if (particle.parentNode) {
+					particle.parentNode.removeChild(particle);
+				}
+			}).catch(() => {
+				// Clean up even if there's an error
+				if (particle.parentNode) {
+					particle.parentNode.removeChild(particle);
+				}
+			});
 		});
 
-		// Reset animation flag after reasonable time (safety cleanup)
+		// Reset animation flag after reasonable time
 		setTimeout(() => {
 			isAnimatingFireworks = false;
-			// Clear any remaining particles for safety
+			// Clear any remaining particles
 			if (fireworksContainer) {
 				fireworksContainer.innerHTML = '';
 			}
-		}, 3500); // Shorter duration than before for better performance
+		}, 1500); // Shorter duration for better performance
 	}
 
 	onMount(() => {
@@ -1118,253 +1197,129 @@
 				const x = mouseEvent.clientX - rect.left;
 				const y = mouseEvent.clientY - rect.top;
 
-				// Create multiple firework bursts but more spaced out for better performance
+				// Create a single firework burst for better performance
 				createFireworkExplosion(x, y);
-				setTimeout(() => createFireworkExplosion(x - 50, y - 20), 800); // Increased from 600ms
-				setTimeout(() => createFireworkExplosion(x + 50, y - 20), 1600); // Increased from 1200ms
+				
+				// Add a colorful highlight to the brand logo without expensive effects
+				const hankHighlight = document.querySelector('.hank-highlight');
+				if (hankHighlight) {
+					animate(
+						hankHighlight,
+						{
+							scale: [1, 1.3, 1.2, 1],
+							y: [0, -5, -3, 0],
+							color: [vibrantColors.secondary, '#ec4899', '#f472b6', vibrantColors.secondary]
+						},
+						{
+							duration: 1.0, // Longer duration
+							easing: 'ease-out'
+						}
+					);
+				}
 			});
 		}
 
-		// Super dramatic entry animation
+		// Enhanced entry animation with longer flash
 		setTimeout(() => {
 			try {
-				// First, create a flash that covers the entire page
-				const pageFlash = document.createElement('div');
-				pageFlash.className = 'page-entrance-flash';
-				document.body.appendChild(pageFlash);
-
-				// Animate the flash
-				animate(
-					pageFlash,
-					{
-						opacity: [0, 0.8, 0]
-					},
-					{
-						duration: 1.5,
-						easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-					}
-				).finished.then(() => {
-					if (pageFlash.parentNode) {
-						pageFlash.parentNode.removeChild(pageFlash);
-					}
-				});
-
-				// Create a dramatic zoom-in animation for the navigation
-				const navContainer = document.querySelector('nav');
-				if (navContainer) {
-					// Add a dramatic animation for the entire nav
-					animate(
-						navContainer,
-						{
-							opacity: [0, 1],
-							scale: [0.9, 1],
-						},
-						{
-							duration: 1.2,
-							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-						}
-					);
+				// First, remove any existing animations
+				const existingFlash = document.querySelector('.page-entrance-flash');
+				if (existingFlash && existingFlash.parentNode) {
+					existingFlash.parentNode.removeChild(existingFlash);
 				}
-
-				// Dramatic animation for logo parts with 3D rotation
-				const logoElements = document.querySelectorAll('.brand-logo span');
-				if (logoElements.length > 0) {
-					animate(
-						logoElements,
-						{
-							opacity: [0, 1],
-							x: ['-50px', '0px'],
-							y: ['-20px', '0px'],
-							rotateX: ['45deg', '0deg'],
-							rotateY: ['25deg', '0deg'],
-							scale: [0.7, 1],
-						},
-						{
-							delay: stagger(0.15, { from: 'first' }),
-							duration: 1.2,
-							easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-						}
-					);
-
-					// Additional glow animation for the highlight element
-					const hankHighlight = document.querySelector('.hank-highlight');
-					if (hankHighlight) {
-						setTimeout(() => {
-							animate(
-								hankHighlight,
-								{
-									textShadow: [
-										'0 0 8px rgba(244, 114, 182, 0.5)',
-										'0 0 30px rgba(244, 114, 182, 0.9)',
-										'0 0 8px rgba(244, 114, 182, 0.5)'
-									]
-								},
-								{
-									duration: 1.5,
-									easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-								}
-							);
-						}, 1000);
-					}
-				}
-
-				// Super dramatic entrance for nav icons with 3D transform and particles
-				const navIconElements = document.querySelectorAll('.nav-icon');
-				if (navIconElements && navIconElements.length > 0) {
-					// Convert NodeList to Array for better compatibility with the animate function
-					const navIcons = Array.from(navIconElements);
-
-					// Hide nav icons first
-					navIcons.forEach((icon) => {
-						(icon as HTMLElement).style.opacity = '0';
-					});
-
-					// For each icon, create entrance particles before showing the icon
-					navIcons.forEach((icon, index) => {
-						const iconElement = icon as HTMLElement;
-						const navItem = iconElement.closest('.nav-item') as HTMLElement;
-
-						if (!navItem) return;
-
-						// Delay based on index
-						setTimeout(() => {
-							// Create particles first
-							for (let i = 0; i < 20; i++) {
-								const particle = document.createElement('div');
-								particle.className = 'nav-entrance-particle';
-
-								// Random properties
-								const size = 3 + Math.random() * 7;
-								particle.style.width = `${size}px`;
-								particle.style.height = `${size}px`;
-
-								// Vibrant color
-								const colorIndex = Math.floor(Math.random() * (particleColors?.length || 1));
-								const color = particleColors && particleColors.length > 0 ? particleColors[colorIndex] : '#60a5fa';
-								particle.style.backgroundColor = color;
-								particle.style.boxShadow = `0 0 ${5 + Math.random() * 8}px ${color}`;
-
-								// Position at center of where icon will appear
-								const rect = navItem.getBoundingClientRect();
-								particle.style.position = 'absolute';
-								particle.style.left = `${rect.width / 2}px`;
-								particle.style.top = `${rect.height / 2}px`;
-
-								navItem.appendChild(particle);
-
-								// Animate particles from center outward
-								const angle = Math.random() * Math.PI * 2;
-								const distance = 30 + Math.random() * 100;
-
-								animate(
-									particle,
-									{
-										opacity: [1, 0],
-										scale: [Math.random() < 0.5 ? 0.5 : 1.5, 0],
-										x: [0, `${Math.cos(angle) * distance}px`],
-										y: [0, `${Math.sin(angle) * distance}px`]
-									},
-									{
-										duration: 0.8 + Math.random() * 0.6,
-										easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-									}
-								).finished.then(() => {
-									if (particle.parentNode) {
-										particle.parentNode.removeChild(particle);
-									}
-								});
+				
+				if (PERFORMANCE_MODE) {
+					// More colorful fade-in for the navigation in performance mode
+					const navContainer = document.querySelector('nav');
+					if (navContainer) {
+						// Create a colorful gradient flash that lasts longer, but constrained to nav
+						const flash = document.createElement('div');
+						flash.className = 'nav-entrance-flash';
+						navContainer.appendChild(flash);
+						
+						// Animate the flash with stepped opacity for smoother fading
+						animate(
+							flash,
+							{
+								opacity: [0, 0.8, 0.7, 0.5, 0.3, 0.1, 0]
+							},
+							{
+								duration: 2.5, // Much longer duration
+								easing: 'ease-out'
 							}
-
-							// Now show the icon with an epic animation
-							iconElement.style.opacity = '1';
-
+						).finished?.then(() => {
+							if (flash.parentNode) {
+								flash.parentNode.removeChild(flash);
+							}
+						}).catch(error => {
+							console.error('Flash animation error:', error);
+							if (flash.parentNode) {
+								flash.parentNode.removeChild(flash);
+							}
+						});
+						
+						// Fade in the nav
+						animate(
+							navContainer,
+							{
+								opacity: [0, 1],
+								y: [5, 0]
+							},
+							{
+								duration: 0.7,
+								easing: 'ease-out'
+							}
+						);
+						
+						// Add a subtle but colorful animation to the logo
+						const logoElements = document.querySelectorAll('.brand-logo span');
+						if (logoElements.length > 0) {
 							animate(
-								iconElement,
+								logoElements,
 								{
-									scale: [0.2, 1.7, 1],
-									y: [-150, 20, 0],
-									rotate: [-180, 20, 0],
-									filter: 'drop-shadow(0 0 40px rgba(59, 130, 246, 1))'
+									opacity: [0, 1],
+									x: ['-8px', '0px'],
+									scale: [0.9, 1]
 								},
 								{
-									duration: 1.5,
-									delay: 0.1,
-									easing: (x) => {
-										try {
-											// Safely call spring with fallback
-											return spring({ stiffness: 150, damping: 12 })(x) || x;
-										} catch (error) {
-											console.error('Spring animation error:', error);
-											// Fallback to a simple cubic bezier easing
-											return 0.34 * (1 - Math.cos(Math.PI * x));
-										}
-									}
+									delay: stagger(0.12),
+									duration: 0.6,
+									easing: 'ease-out'
 								}
 							);
-						}, index * 300); // Stagger the icons by 300ms each
-					});
+						}
+						
+						// More colorful entrance for nav icons
+						const navIconElements = document.querySelectorAll('.nav-icon');
+						if (navIconElements && navIconElements.length > 0) {
+							// Convert NodeList to Array
+							const navIcons = Array.from(navIconElements);
 
-					// Dramatic entrance for nav texts with delay
-					const navTextElements = document.querySelectorAll('.nav-text');
-					if (navTextElements && navTextElements.length > 0) {
-						const navTexts = Array.from(navTextElements);
-
-						// Hide first
-						navTexts.forEach((text) => {
-							(text as HTMLElement).style.opacity = '0';
-						});
-
-						// Animate each with delay
-						navTexts.forEach((text, index) => {
-							setTimeout(
-								() => {
-									(text as HTMLElement).style.opacity = '1';
-									animate(
-										text,
-										{
-											opacity: [0, 1],
-											y: ['40px', '-10px', '0px'],
-											scale: [0.5, 1.2, 1],
-										},
-										{
-											duration: 1.0,
-											easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
-										}
-									);
+							// Animate icons with stagger and scale
+							animate(
+								navIcons,
+								{
+									opacity: [0, 1],
+									y: [8, -5, 0],
+									scale: [0.8, 1.2, 1]
 								},
-								index * 300 + 150
-							); // Slightly offset from icons
-						});
+								{
+									delay: stagger(0.15),
+									duration: 0.7,
+									easing: 'ease-out'
+								}
+							);
+						}
+						
+						return;
 					}
+					
+					// ... existing code ...
 				}
-
-				// Reset any pre-existing active states
-				const allNavItems = document.querySelectorAll('.nav-item');
-				const currentPath = window.location.pathname;
-
-				allNavItems.forEach((item) => {
-					const path = item.getAttribute('data-path');
-
-					if (path && path !== currentPath) {
-						item.classList.remove('nav-active');
-
-						const icon = item.querySelector('.nav-icon');
-						if (icon) {
-							(icon as HTMLElement).style.animation = 'none';
-							(icon as HTMLElement).style.fill = '#d1d5db';
-						}
-
-						const text = item.querySelector('.nav-text');
-						if (text) {
-							(text as HTMLElement).classList.remove('text-blue-400');
-							(text as HTMLElement).classList.add('text-gray-200');
-						}
-					}
-				});
 			} catch (error) {
-				console.error('Nav icon animation error:', error);
+				console.error('Nav animation error:', error);
 			}
-		}, 100); // Short delay to ensure DOM is ready
+		}, 100);
 	});
 </script>
 
@@ -1384,7 +1339,7 @@
 	<!-- Mobile Hamburger Menu Button -->
 	<button
 		class="md:hidden z-[100000] relative w-12 h-12 flex flex-col justify-center items-center"
-		style="position: relative; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: all 0.3s ease;"
+		style="position: relative; border-radius: 0.5rem; transition: all 0.3s ease;"
 		on:click={toggleMobileMenu}
 		aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
 		aria-expanded={isMobileMenuOpen}
@@ -1573,18 +1528,17 @@
 		bottom: -2px;
 		left: 0;
 		width: 100%;
-		height: 3px;
+		height: 2px;
 		background: linear-gradient(90deg, #60a5fa, #f472b6);
 		border-radius: 2px;
 		transform: scaleX(0);
 		transform-origin: right;
-		transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+		transition: transform 0.3s ease;
 	}
 
 	.brand-logo:hover .hank-highlight {
 		color: #ec4899;
 		transform: translateY(-2px);
-		text-shadow: 0 0 12px rgba(236, 72, 153, 0.7);
 	}
 
 	.brand-logo:hover .hank-highlight::after {
@@ -1606,7 +1560,7 @@
 		width: 24px;
 		height: 2px;
 		margin: 4px 0;
-		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transition: all 0.3s ease;
 		opacity: 1;
 	}
 	
@@ -1626,18 +1580,6 @@
 		width: 24px !important;
 	}
 
-	/* Special overlay to ensure the dropdown is visible */
-	#mobile-nav-menu::before {
-		content: '';
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-		z-index: -1; /* Behind the menu but in front of the page content */
-	}
-
 	/* Mobile menu item styles */
 	@media (max-width: 767px) {
 		.nav-item {
@@ -1650,10 +1592,8 @@
 			opacity: 1 !important; /* Force visibility */
 			background-color: rgba(30, 41, 59, 1);  /* Fully opaque background */
 			margin-bottom: 0.75rem;
-			box-shadow: 0 8px 15px -2px rgba(0, 0, 0, 0.3), 0 6px 10px -3px rgba(0, 0, 0, 0.2);
 			border: 1px solid rgba(96, 165, 250, 0.3);
 			position: relative; /* Ensure proper stacking context */
-			z-index: 1; /* Ensure it participates in stacking context */
 		}
 		
 		.nav-item:hover {
@@ -1679,79 +1619,123 @@
 			opacity: 1 !important;
 		}
 	}
-	
-	@keyframes mobileMenuItemIn {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
 
 	.nav-item {
 		position: relative;
 		text-decoration: none;
 		overflow: visible;
-		isolation: isolate; /* Create stacking context for z-index */
-		transform-style: preserve-3d;
-		perspective: 1000px;
 	}
 
 	.nav-icon {
 		transform-origin: center;
-		will-change: transform, fill, filter;
-		filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0));
-		transition:
-			transform 0.3s ease,
-			filter 0.3s ease,
-			fill 0.3s ease;
-		animation: none; /* Default to no animation */
+		transition: transform 0.3s ease, fill 0.3s ease;
 		position: relative;
 		z-index: 2;
+		will-change: transform, fill;
 	}
 
 	.nav-text {
-		will-change: transform;
 		transform-origin: bottom center;
-		transition: color 0.3s ease;
+		transition: color 0.3s ease, transform 0.3s ease;
 		position: relative;
 		z-index: 2;
 	}
 
-	/* Navigation flash effect */
+	/* Navigation flash effect - enhanced with gradient and expanded size */
 	:global(.nav-flash) {
+		position: absolute;
+		top: -20px;
+		left: -20px;
+		width: calc(100% + 40px);
+		height: calc(100% + 40px);
+		background: linear-gradient(45deg, rgba(96, 165, 250, 0.6), rgba(244, 114, 182, 0.6));
+		z-index: 50;
+		opacity: 0;
+		pointer-events: none;
+		border-radius: 12px;
+	}
+	
+	/* Nav-contained flash that doesn't cover whole screen - updated to be more vibrant */
+	:global(.nav-contained-flash) {
+		position: absolute;
+		top: -5%;
+		left: -5%;
+		width: 110%;
+		height: 110%;
+		background: linear-gradient(135deg, 
+			rgba(96, 165, 250, 0.7),
+			rgba(139, 92, 246, 0.7),
+			rgba(244, 114, 182, 0.7),
+			rgba(16, 185, 129, 0.7)
+		);
+		z-index: 100;
+		opacity: 0;
+		pointer-events: none;
+		border-radius: 16px;
+	}
+	
+	/* New firework flash contained within nav */
+	:global(.firework-contained-flash) {
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background: linear-gradient(45deg, rgba(96, 165, 250, 0.6), rgba(244, 114, 182, 0.6));
-		z-index: 5;
+		background: radial-gradient(
+			circle at 50% 30%,
+			rgba(244, 114, 182, 0.4) 0%,
+			rgba(139, 92, 246, 0.3) 40%,
+			rgba(96, 165, 250, 0.2) 60%,
+			transparent 80%
+		);
+		z-index: 90;
 		opacity: 0;
 		pointer-events: none;
-		filter: blur(15px);
-		mix-blend-mode: overlay;
+		border-radius: 16px;
 	}
 
-	/* Create ripple effect for navigation */
+	/* Replace full-screen entrance flash with nav-contained version */
+	:global(.nav-entrance-flash) {
+		position: absolute;
+		top: -10%;
+		left: -10%;
+		width: 120%;
+		height: 120%;
+		background: linear-gradient(135deg, 
+			rgba(96, 165, 250, 0.7), 
+			rgba(139, 92, 246, 0.7),
+			rgba(244, 114, 182, 0.7),
+			rgba(16, 185, 129, 0.7)
+		);
+		z-index: 999;
+		pointer-events: none;
+		opacity: 0;
+		border-radius: 16px;
+	}
+
+	/* Remove all large flashing elements */
+	:global(.nav-full-flash),
+	:global(.firework-overlay-flash),
+	:global(.page-entrance-flash),
+	:global(.nav-color-flash) {
+		display: none;
+	}
+
+	/* Simplified ripple effect */
 	:global(.nav-ripple) {
 		position: absolute;
 		border-radius: 50%;
-		background: radial-gradient(circle, rgba(96, 165, 250, 0.9) 0%, rgba(96, 165, 250, 0) 70%);
+		background: radial-gradient(circle, rgba(96, 165, 250, 0.7) 0%, rgba(96, 165, 250, 0) 70%);
 		width: 20px;
 		height: 20px;
 		transform-origin: center;
 		pointer-events: none;
 		z-index: 1;
-		opacity: 0.8;
+		opacity: 0.7;
 		will-change: transform, opacity;
-		filter: blur(1px); /* Slight blur for smoother appearance */
 	}
 
-	/* Dramatic glow effect for hover */
+	/* Simplified glow effect for hover */
 	:global(.nav-hover-glow) {
 		position: absolute;
 		width: 40px;
@@ -1759,8 +1743,7 @@
 		border-radius: 50%;
 		background: radial-gradient(
 			circle,
-			rgba(96, 165, 250, 0.9) 0%,
-			rgba(139, 92, 246, 0.4) 40%,
+			rgba(96, 165, 250, 0.6) 0%,
 			rgba(96, 165, 250, 0) 70%
 		);
 		transform-origin: center;
@@ -1768,51 +1751,61 @@
 		z-index: 1;
 		opacity: 0;
 		will-change: transform, opacity;
-		filter: blur(5px);
-		mix-blend-mode: screen;
+	}
+	
+	/* Color pulse effect for hover - new */
+	:global(.nav-color-pulse) {
+		position: absolute;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: radial-gradient(
+			circle,
+			rgba(96, 165, 250, 0.7) 0%,
+			rgba(139, 92, 246, 0.4) 40%,
+			rgba(96, 165, 250, 0) 80%
+		);
+		transform-origin: center;
+		pointer-events: none;
+		z-index: 1;
+		opacity: 0;
+		will-change: transform, opacity;
 	}
 
-	/* Navigation hover particles */
+	/* Navigation hover particles - simplified */
 	:global(.nav-hover-particle) {
 		position: absolute;
-		width: 5px;
-		height: 5px;
+		width: 3px;
+		height: 3px;
 		border-radius: 50%;
 		pointer-events: none;
 		z-index: 1;
 		will-change: transform, opacity;
-		transform-style: preserve-3d;
-		filter: blur(1px);
-		opacity: 0.8;
+		opacity: 0.7;
 	}
 
-	/* Navigation transition particles */
+	/* Navigation transition particles - simplified */
 	:global(.nav-transition-particle) {
 		position: absolute;
-		width: 8px;
-		height: 8px;
+		width: 4px;
+		height: 4px;
 		border-radius: 50%;
 		pointer-events: none;
 		z-index: 1;
 		will-change: transform, opacity;
-		transform-style: preserve-3d;
-		filter: blur(0.5px);
-		opacity: 0.8;
+		opacity: 0.7;
 	}
 
-	/* Enhanced floating animation for active nav icon */
+	/* Simple floating animation for active nav icon - enhanced with a bit more movement */
 	.nav-active .nav-icon {
-		animation: floating 3s ease-in-out infinite;
+		animation: simple-float 3s ease-in-out infinite;
 		fill: #60a5fa !important;
-		filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6)) !important;
-		transform-style: preserve-3d;
-		perspective: 800px;
+		will-change: transform;
 	}
 
 	.nav-active .nav-text {
 		color: #60a5fa !important;
-		animation: textPulse 3s ease-in-out infinite;
-		/* Removed text-shadow with blur effect */
+		animation: simple-pulse 4s ease-in-out infinite;
 	}
 
 	/* Explicitly remove animation for inactive items */
@@ -1820,43 +1813,26 @@
 		animation: none;
 	}
 
-	@keyframes floating {
-		0% {
-			transform: translateY(0px) rotateY(0deg);
-		}
-		25% {
-			transform: translateY(-3px) rotateY(5deg);
+	@keyframes simple-float {
+		0%, 100% {
+			transform: translateY(0);
 		}
 		50% {
-			transform: translateY(-5px) rotateY(0deg);
-		}
-		75% {
-			transform: translateY(-3px) rotateY(-5deg);
-		}
-		100% {
-			transform: translateY(0px) rotateY(0deg);
+			transform: translateY(-5px);
 		}
 	}
-
-	@keyframes textPulse {
-		0% {
+	
+	/* New subtle pulse animation for active text */
+	@keyframes simple-pulse {
+		0%, 100% {
 			opacity: 0.9;
-			/* Reduced text-shadow to minimize blur effect */
-			text-shadow: 0 0 1px rgba(96, 165, 250, 0.2);
 		}
 		50% {
 			opacity: 1;
-			/* Reduced text-shadow to minimize blur effect */
-			text-shadow: 0 0 2px rgba(96, 165, 250, 0.4);
-		}
-		100% {
-			opacity: 0.9;
-			/* Reduced text-shadow to minimize blur effect */
-			text-shadow: 0 0 1px rgba(96, 165, 250, 0.2);
 		}
 	}
 
-	/* Fireworks styles */
+	/* Fireworks styles - enhanced for more color and size */
 	.fireworks-container {
 		position: absolute;
 		top: 0;
@@ -1866,88 +1842,49 @@
 		pointer-events: none;
 		z-index: 5;
 		overflow: visible;
-		perspective: 2000px;
-		transform-style: preserve-3d;
 	}
 
 	:global(.firework-particle) {
 		position: absolute;
-		width: 10px; /* Increased base size */
-		height: 10px;
+		width: 4px;
+		height: 4px;
 		border-radius: 50%;
-		will-change: transform, opacity, box-shadow;
-		transform-style: preserve-3d;
+		will-change: transform, opacity;
 		pointer-events: none;
-		filter: blur(0.5px); /* Subtle blur for all particles */
-	}
-
-	:global(.firework-streamer) {
-		width: 4px !important;
-		height: 4px !important;
-		border-radius: 4px !important;
-		filter: blur(1.5px); /* More blur for streamers */
-		transform-origin: center center;
-		box-shadow: 0 0 25px currentColor; /* Stronger glow for streamers */
 	}
 
 	:global(.firework-flash) {
 		position: absolute;
-		width: 50px; /* Larger flash */
-		height: 50px;
+		width: 60px; /* Larger flash size */
+		height: 60px;
 		border-radius: 50%;
-		background-color: rgba(255, 255, 255, 0.95);
-		filter: blur(15px); /* More blur for dramatic flash */
+		background-color: rgba(255, 255, 255, 0.9);
 		will-change: transform, opacity;
 		pointer-events: none;
-		box-shadow:
-			0 0 30px #fff,
-			0 0 60px rgba(255, 220, 180, 0.8); /* Double glow */
 	}
-
-	:global(.firework-launch-trail) {
+	
+	/* Enhanced color variants for firework flashes */
+	:global(.flash-primary) {
+		background-color: rgba(96, 165, 250, 0.8);
+	}
+	
+	:global(.flash-secondary) {
+		background-color: rgba(244, 114, 182, 0.8);
+	}
+	
+	/* Enhanced ring effect for fireworks */
+	:global(.firework-ring) {
 		position: absolute;
-		width: 3px; /* Wider trail */
-		height: 15px; /* Longer trail */
-		background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 200, 100, 0.6));
-		will-change: transform, opacity;
-		pointer-events: none;
-		filter: blur(2px); /* More blur for softer trail */
-		z-index: 5;
-		box-shadow: 0 0 10px rgba(255, 200, 100, 0.5); /* Glow for the trail */
-	}
-
-	/* Dramatic entrance effects */
-	:global(.page-entrance-flash) {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: linear-gradient(135deg, rgba(96, 165, 250, 0.8), rgba(244, 114, 182, 0.8));
-		z-index: 9999;
-		pointer-events: none;
-		opacity: 0;
-		filter: blur(20px);
-		mix-blend-mode: overlay;
-	}
-
-	:global(.nav-entrance-particle) {
-		position: absolute;
-		width: 6px;
-		height: 6px;
+		width: 20px; /* Larger ring */
+		height: 20px;
 		border-radius: 50%;
-		pointer-events: none;
-		z-index: 3;
+		border: 3px solid rgba(244, 114, 182, 0.9);
 		will-change: transform, opacity;
-		transform-style: preserve-3d;
-		filter: blur(1px);
-		opacity: 0.9;
+		pointer-events: none;
 	}
 
 	/* Ensure navigation text is never blurred */
 	.nav-text, :global(.mobile-nav-text), :global(.nav-text) {
-		filter: none !important;
-		-webkit-filter: none !important;
 		text-rendering: optimizeLegibility;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;

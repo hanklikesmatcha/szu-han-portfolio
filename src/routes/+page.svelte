@@ -1123,6 +1123,10 @@
 		// Mark animations as ready
 		animationsReady = true;
 
+		// Create the observers here (only in browser environment)
+		const aboutObserver = createAboutObserver();
+		const testimonialObserver = createTestimonialObserver();
+
 		// Setup gradientCanvas for simple animation
 		if (gradientCanvas) {
 			gradientCtx = gradientCanvas.getContext('2d');
@@ -1360,131 +1364,134 @@
 		testimonialAnimated = true;
 	}
 
-	// About section entrance animation when scrolled to
-	const aboutObserver = new IntersectionObserver(
-		(entries) => {
-			entries.forEach((entry) => {
-				if (entry.isIntersecting && !isAnimated && aboutSection) {
-					isAnimated = true;
+	// Create observer factories to use in onMount
+	function createAboutObserver() {
+		return new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting && !isAnimated && aboutSection) {
+						isAnimated = true;
 
-					try {
-						// More dynamic animation for section elements
-						animate(
-							'.about-element',
-							{
-								opacity: [0, 1],
-								x: [-40, 0],
-								scale: [0.95, 1]
-							},
-							{
-								delay: stagger(0.2, { start: 0.1 }),
-								duration: 0.8,
-								easing: (x) => {
-									try {
-										// Safely call spring with fallback
-										return spring({ stiffness: 100, damping: 15 })(x) || x;
-									} catch (error) {
-										console.error('Spring animation error:', error);
-										// Fallback to a simple cubic bezier easing
-										return 0.34 * (1 - Math.cos(Math.PI * x));
-									}
-								}
-							}
-						);
-
-						// Add animation for the card too
-						animate(
-							'.about-section-card',
-							{
-								opacity: [0.7, 1],
-								scale: [0.98, 1],
-								y: [20, 0]
-							},
-							{
-								duration: 0.9,
-								easing: (x) => {
-									try {
-										// Safely call spring with fallback
-										return spring({ stiffness: 50, damping: 15 })(x) || x;
-									} catch (error) {
-										console.error('Spring animation error:', error);
-										// Fallback to a simple cubic bezier easing
-										return 0.34 * (1 - Math.cos(Math.PI * x));
-									}
-								}
-							}
-						);
-					} catch (error) {
-						console.error('About section animation error:', error);
-						document.querySelectorAll('.about-element, .about-section-card').forEach((el) => {
-							(el as HTMLElement).style.opacity = '1';
-						});
-					}
-				}
-			});
-		},
-		{ threshold: 0.1, rootMargin: '-50px' }
-	);
-
-	// Testimonial section animation when scrolled to
-	const testimonialObserver = new IntersectionObserver(
-		(entries) => {
-			entries.forEach((entry) => {
-				if (entry.isIntersecting && !testimonialAnimated && testimonialSection) {
-					testimonialAnimated = true;
-					try {
-						animate(
-							'.testimonial-card',
-							{
-								opacity: [0, 1],
-								y: [60, 0],
-								scale: [0.9, 1]
-							},
-							{
-								delay: stagger(0.25),
-								duration: 0.8,
-								easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-							}
-						);
-
-						// Add gentle pulse after appearing
-						setTimeout(() => {
-							const cards = document.querySelectorAll('.testimonial-card');
-							if (cards && cards.length > 0) {
-								cards.forEach((card, i) => {
-									animate(
-										card,
-										{
-											scale: [1, 1.02, 1],
-											boxShadow: [
-												'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-												'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
-												'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-											]
-										},
-										{
-											duration: 4 + i,
-											delay: i * 1.5,
-											repeat: Infinity,
-											easing: 'ease-in-out'
+						try {
+							// More dynamic animation for section elements
+							animate(
+								'.about-element',
+								{
+									opacity: [0, 1],
+									x: [-40, 0],
+									scale: [0.95, 1]
+								},
+								{
+									delay: stagger(0.2, { start: 0.1 }),
+									duration: 0.8,
+									easing: (x) => {
+										try {
+											// Safely call spring with fallback
+											return spring({ stiffness: 100, damping: 15 })(x) || x;
+										} catch (error) {
+											console.error('Spring animation error:', error);
+											// Fallback to a simple cubic bezier easing
+											return 0.34 * (1 - Math.cos(Math.PI * x));
 										}
-									);
-								});
-							}
-						}, 1500);
-					} catch (error) {
-						console.error('Testimonial animation error:', error);
+									}
+								}
+							);
+
+							// Add animation for the card too
+							animate(
+								'.about-section-card',
+								{
+									opacity: [0.7, 1],
+									scale: [0.98, 1],
+									y: [20, 0]
+								},
+								{
+									duration: 0.9,
+									easing: (x) => {
+										try {
+											// Safely call spring with fallback
+											return spring({ stiffness: 50, damping: 15 })(x) || x;
+										} catch (error) {
+											console.error('Spring animation error:', error);
+											// Fallback to a simple cubic bezier easing
+											return 0.34 * (1 - Math.cos(Math.PI * x));
+										}
+									}
+								}
+							);
+						} catch (error) {
+							console.error('About section animation error:', error);
+							document.querySelectorAll('.about-element, .about-section-card').forEach((el) => {
+								(el as HTMLElement).style.opacity = '1';
+							});
+						}
+					}
+				});
+			},
+			{ threshold: 0.1, rootMargin: '-50px' }
+		);
+	}
+
+	function createTestimonialObserver() {
+		return new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting && !testimonialAnimated && testimonialSection) {
+						testimonialAnimated = true;
+						try {
+							animate(
+								'.testimonial-card',
+								{
+									opacity: [0, 1],
+									y: [60, 0],
+									scale: [0.9, 1]
+								},
+								{
+									delay: stagger(0.25),
+									duration: 0.8,
+									easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+								}
+							);
+
+							// Add gentle pulse after appearing
+							setTimeout(() => {
+								const cards = document.querySelectorAll('.testimonial-card');
+								if (cards && cards.length > 0) {
+									cards.forEach((card, i) => {
+										animate(
+											card,
+											{
+												scale: [1, 1.02, 1],
+												boxShadow: [
+													'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+													'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
+													'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+												]
+											},
+											{
+												duration: 4 + i,
+												delay: i * 1.5,
+												repeat: Infinity,
+												easing: 'ease-in-out'
+											}
+										);
+									});
+								}
+							}, 1500);
+						} catch (error) {
+							console.error('Testimonial animation error:', error);
+							ensureTestimonialsVisible();
+						}
+					} else if (!testimonialAnimated) {
+						// If not intersecting but not yet animated, make sure they're visible anyway
+						// This helps when navigating back to the page
 						ensureTestimonialsVisible();
 					}
-				} else if (!testimonialAnimated) {
-					// If not intersecting but not yet animated, make sure they're visible anyway
-					// This helps when navigating back to the page
-					ensureTestimonialsVisible();
-				}
-			});
-		},
-		{ threshold: 0.1, rootMargin: '-50px' }
-	);
+				});
+			},
+			{ threshold: 0.1, rootMargin: '-50px' }
+		);
+	}
 </script>
 
 <svelte:head>
