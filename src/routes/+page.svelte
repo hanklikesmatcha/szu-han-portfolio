@@ -1230,6 +1230,20 @@
 		// Preload assets, then start animation with a slight delay
 		preloadAssets();
 		
+		// Add window resize handler to fix any stuck skill tag animations
+		const resetSkillTagsOnResize = () => {
+			const skillTags = document.querySelectorAll('.skill-tag');
+			skillTags.forEach(tag => {
+				const element = tag as HTMLElement;
+				// Reset transform but preserve the animation
+				element.style.transform = ''; // This allows the CSS animation to take over
+				
+				// Ensure animations can still run
+				element.style.animationPlayState = 'running';
+			});
+		};
+		window.addEventListener('resize', resetSkillTagsOnResize);
+		
 		// Set up observers for scroll animations after DOM elements are available
 		if (aboutSection) {
 			aboutObserver.observe(aboutSection);
@@ -1291,6 +1305,9 @@
 			if (resizeCanvas) {
 				window.removeEventListener('resize', resizeCanvas);
 			}
+			
+			// Remove skill tags resize listener
+			window.removeEventListener('resize', resetSkillTagsOnResize);
 
 			// Disconnect observers
 			aboutObserver.disconnect();
@@ -1418,23 +1435,46 @@
 			try {
 				const skillTags = document.querySelectorAll('.skill-tag');
 				if (skillTags.length > 0) {
+					// Set the animation delays for floating effect - should happen regardless of initial animation
+					skillTags.forEach((tag, index) => {
+						// Circular index for center-out staggering
+						const centerIndex = Math.floor(skillTags.length / 2);
+						const distanceFromCenter = Math.abs(index - centerIndex);
+						const normalizedDelay = distanceFromCenter / skillTags.length;
+						(tag as HTMLElement).style.setProperty('--index', normalizedDelay.toString());
+					});
+				
+					// Initial reveal animation
 					animate(
 						'.skill-tag',
 						{
 							opacity: [0, 1],
-							scale: [0.8, 1],
-							y: [20, 0]
+							scale: [0.85, 1],
+							y: [15, 0]
 						},
 						{
 							delay: stagger(0.025, { from: 'center' }),
-							duration: 0.6
+							duration: 0.4,
+							easing: 'ease-out'
 						}
 					);
+
+					// Add a safety cleanup to ensure all skills are properly positioned
+					setTimeout(() => {
+						document.querySelectorAll('.skill-tag').forEach(el => {
+							const element = el as HTMLElement;
+							// Reset any stuck animations from the initial reveal
+							// But keep the CSS animation running
+							element.style.opacity = '1';
+							element.style.transform = ''; // This allows the CSS animation to take over
+						});
+					}, 1500);
 				}
 			} catch (error) {
 				console.error('Skill tag animation error:', error);
 				document.querySelectorAll('.skill-tag').forEach((el) => {
 					(el as HTMLElement).style.opacity = '1';
+					(el as HTMLElement).style.transform = '';
 				});
 			}
 		}, 600);
@@ -1855,18 +1895,20 @@
 				</div>
 			</div>
 
-			<!-- Increased margins for skills section to prevent overlap -->
-			<div class="my-8 mb-10 flex flex-wrap justify-center gap-3">
-				{#each skills as skill}
-					<span
-						class="skill-tag animate-ready rounded-full border border-gray-700 bg-[#2D3748] px-3 py-1 text-sm text-blue-300 transition-colors hover:border-blue-500"
-						>{skill}</span
-					>
-				{/each}
+			<!-- Increased margins for skills section to prevent overlap and added overflow container -->
+			<div class="my-8 mb-12 overflow-hidden">
+				<div class="flex flex-wrap justify-center gap-3">
+					{#each skills as skill}
+						<span
+							class="skill-tag animate-ready rounded-full border border-gray-700 bg-[#2D3748] px-3 py-1 text-sm text-blue-300 transition-colors hover:border-blue-500"
+							>{skill}</span
+						>
+					{/each}
+				</div>
 			</div>
 
 			<!-- Added more top margin to the buttons section -->
-			<div class="mt-6 flex justify-center gap-4">
+			<div class="mt-8 flex justify-center gap-4">
 				<a
 					href="/portfolio"
 					class="hero-button animate-ready rounded-lg bg-blue-700 px-6 py-3 text-white shadow-lg transition-colors hover:bg-blue-600"
@@ -2093,12 +2135,44 @@
 		position: relative; /* Add positioning context */
 		z-index: 5; /* Ensure proper stacking */
 		text-align: center; /* Center the text within each skill tag */
+		margin-bottom: 6px; /* Add vertical spacing for tags */
+		transform-origin: center center; /* Ensure scaling from center */
+		will-change: transform; /* Optimize for animations */
+		backface-visibility: hidden; /* Prevent flickering */
+		animation: skill-float 3s ease-in-out infinite;
+		animation-delay: calc(var(--index, 0) * 0.1s); /* Staggered animation start */
 	}
 
 	.skill-tag:hover {
 		border-color: #3b82f6; /* blue-500 */
 		transform: translateY(-2px) scale(1.05);
 		z-index: 10; /* Raise above other skills when hovered */
+		animation-play-state: paused; /* Pause animation on hover */
+	}
+	
+	/* Floating animation for skills */
+	@keyframes skill-float {
+		0%, 100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-4px);
+		}
+	}
+	
+	/* Skills section container */
+	section .container div > .overflow-hidden {
+		contain: layout paint; /* Better performance containment */
+		position: relative;
+		z-index: 5;
+		margin-bottom: 3rem !important; /* Force more space below skills */
+	}
+	
+	/* Skills wrapper */
+	section .container div > .overflow-hidden > div {
+		position: relative;
+		z-index: inherit;
+		padding-bottom: 6px; /* Extra padding to prevent cut-off */
 	}
 
 	.hero-button {
@@ -2434,5 +2508,18 @@
 			opacity: 0;
 			transform: scale(0.8) translateY(-5px);
 		}
+	}
+
+	/* Skills container styles for better overflow management */
+	.my-8.mb-12.overflow-hidden {
+		contain: layout paint; /* Better performance containment */
+		position: relative;
+		z-index: 5;
+	}
+	
+	.my-8.mb-12.overflow-hidden > div {
+		position: relative;
+		z-index: inherit;
+		padding-bottom: 4px; /* Extra padding to prevent cut-off */
 	}
 </style>
