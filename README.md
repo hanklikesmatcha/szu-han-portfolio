@@ -7,7 +7,6 @@ A modern, responsive portfolio website built with SvelteKit and TailwindCSS to s
 - **Home/About Me**: Professional introduction and overview of skills
 - **Portfolio**: Showcase of projects with GitHub links, screenshots, and video demos
 - **Services**: Detailed information about services offered and expertise
-- **Co-Founder Section**: Highlights qualities that make me a good co-founder candidate
 - **Responsive Design**: Optimized for all devices from mobile to desktop
 
 ## Technologies Used
