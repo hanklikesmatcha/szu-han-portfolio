@@ -32,6 +32,12 @@
 	let contentReady = false; // Flag to control when to show content
 	let testimonialSection: HTMLElement; // Added for testimonial section
 	let testimonialAnimated = false; // Flag to track if testimonials were animated
+	let useSimpleAnimation = false; // Flag to use super-simplified animation
+	let animationStarted = false; // Track if animation has started
+	let gradientCanvas: HTMLCanvasElement; // For simple gradient effect
+	let gradientCtx: CanvasRenderingContext2D | null;
+	let preloaded = false; // Flag to track if preloading is complete
+	let lowQualityMode = false; // Flag for very low quality mode
 
 	// Add click counters for name animations
 	let hankClickCount = 0;
@@ -704,9 +710,214 @@
 		}
 	}
 
-	// Choreographed fireworks sequences
+	// Preload key assets and initialize
+	function preloadAssets() {
+		// Skip preloading if already done
+		if (preloaded) return;
+		preloaded = true;
+		
+		// Preload profile image for faster rendering
+		const profileImg = new Image();
+		profileImg.src = '/images/me.jpg';
+		
+		// Preload background image if any
+		const bgImg = new Image();
+		bgImg.src = '/images/hometown.jpg';
+		
+		// Use simpler animation on desktop or if device has low performance
+		if (window.innerWidth >= 1024) {
+			// Desktop devices often struggle with Canvas animations
+			lowQualityMode = true;
+		}
+
+		// Check for battery level if possible
+		if ('getBattery' in navigator) {
+			(navigator as any).getBattery().then((battery: any) => {
+				// If battery level is below 20% or not charging, use low quality mode
+				if (battery && (battery.level < 0.2 && !battery.charging)) {
+					lowQualityMode = true;
+				}
+			}).catch(() => {
+				// If we can't get battery info, default to safer option
+				console.log('Could not access battery info');
+			});
+		}
+		
+		// Check if user prefers reduced motion
+		if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			lowQualityMode = true;
+		}
+		
+		// Test for GPU performance
+		try {
+			// Create a test canvas for performance check
+			const canvas = document.createElement('canvas');
+			canvas.width = 100;
+			canvas.height = 100;
+			const ctx = canvas.getContext('2d');
+			
+			if (ctx) {
+				const startTime = performance.now();
+				let totalDraws = 0;
+				
+				// Draw multiple shapes to test performance
+				for (let i = 0; i < 1000; i++) {
+					ctx.beginPath();
+					ctx.arc(50, 50, 30, 0, Math.PI * 2);
+					ctx.fillStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.5)`;
+					ctx.fill();
+					totalDraws++;
+					
+					// If drawing is taking too long, exit early and use low quality mode
+					if (performance.now() - startTime > 50) {
+						lowQualityMode = true;
+						console.log('Low GPU performance detected, using low quality mode');
+						break;
+					}
+				}
+				
+				// Clean up
+				ctx.clearRect(0, 0, 100, 100);
+			}
+		} catch (error) {
+			console.error('Performance test error:', error);
+			// Default to low quality on error
+			lowQualityMode = true;
+		}
+
+		console.log('Using low quality mode:', lowQualityMode);
+		
+		// Skip animation and show content directly if using low quality mode
+		if (lowQualityMode) {
+			useSimpleAnimation = true;
+		}
+		
+		// After preloading, initialize the animation
+		if (animationsReady && !animationStarted) {
+			initializeAnimation();
+		}
+	}
+
+	// Initialize animation based on device capability
+	function initializeAnimation() {
+		if (animationStarted) return;
+		animationStarted = true;
+		
+		if (useSimpleAnimation) {
+			// Use simple gradient animation instead of fireworks
+			initGradientAnimation();
+		} else {
+			// Use optimized fireworks for capable devices
+			startFireworksSequence();
+		}
+	}
+
+	// Simple gradient animation for low-end devices
+	function initGradientAnimation() {
+		if (!gradientCanvas || !gradientCtx) return;
+		
+		// Set canvas to full size
+		gradientCanvas.width = gradientCanvas.offsetWidth;
+		gradientCanvas.height = gradientCanvas.offsetHeight;
+		
+		// Colors for gradient (simplified palette)
+		const colors = [
+			'#3b82f6', // Blue
+			'#8b5cf6', // Purple
+			'#ec4899', // Pink
+			'#f59e0b'  // Amber
+		];
+		
+		let startTime = performance.now();
+		let animationDuration = 3000; // Animation lasts for 3 seconds
+		
+		function drawGradient(timestamp: number) {
+			const elapsed = timestamp - startTime;
+			const progress = Math.min(elapsed / animationDuration, 1);
+			
+			// Clear canvas
+			gradientCtx!.clearRect(0, 0, gradientCanvas.width, gradientCanvas.height);
+			
+			// Create gradient
+			const centerX = gradientCanvas.width / 2;
+			const centerY = gradientCanvas.height / 2 - 50; // Offset slightly upward
+			
+			// Radius grows with progress
+			const radius = (gradientCanvas.width / 2) * progress;
+			
+			// Create radial gradient
+			const gradient = gradientCtx!.createRadialGradient(
+				centerX, centerY, 0,
+				centerX, centerY, radius
+			);
+			
+			// Add color stops
+			gradient.addColorStop(0, colors[0]);
+			gradient.addColorStop(0.3, colors[1]);
+			gradient.addColorStop(0.6, colors[2]);
+			gradient.addColorStop(1, 'rgba(0,0,0,0)'); // Fade to transparent
+			
+			// Fill with gradient
+			gradientCtx!.fillStyle = gradient;
+			gradientCtx!.fillRect(0, 0, gradientCanvas.width, gradientCanvas.height);
+			
+			// Add some particles for visual interest
+			if (progress > 0.2) {
+				const particleCount = Math.floor(10 * progress);
+				
+				for (let i = 0; i < particleCount; i++) {
+					const x = centerX + (Math.random() - 0.5) * radius * 2;
+					const y = centerY + (Math.random() - 0.5) * radius * 2;
+					const size = Math.random() * 3 + 1;
+					
+					gradientCtx!.beginPath();
+					gradientCtx!.arc(x, y, size, 0, Math.PI * 2);
+					gradientCtx!.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+					gradientCtx!.globalAlpha = 0.7 * (1 - progress);
+					gradientCtx!.fill();
+					gradientCtx!.globalAlpha = 1;
+				}
+			}
+			
+			// Continue animation if not complete
+			if (progress < 1) {
+				requestAnimationFrame(drawGradient);
+			} else {
+				// Fade out
+				let opacity = 1;
+				function fadeOut() {
+					opacity -= 0.05;
+					gradientCanvas.style.opacity = opacity.toString();
+					
+					if (opacity <= 0) {
+						gradientCanvas.style.display = 'none';
+						
+						// Show content
+						contentReady = true;
+						revealContent();
+					} else {
+						requestAnimationFrame(fadeOut);
+					}
+				}
+				
+				// Start fade out after a brief pause
+				setTimeout(fadeOut, 500);
+			}
+		}
+		
+		// Start animation
+		requestAnimationFrame(drawGradient);
+	}
+
+	// Choreographed fireworks sequences (heavily modified for performance)
 	function startFireworksSequence() {
 		if (!fireworksCtx) return;
+
+		// Skip fireworks on low-quality mode
+		if (lowQualityMode) {
+			skipFireworksAndShowContent();
+			return;
+		}
 
 		// Check browser and device capabilities
 		// Check if we're on desktop (likely larger screen)
@@ -718,14 +929,13 @@
 		
 		// Set render scale based on performance level (lower = better performance but lower quality)
 		renderScale = isDesktopView 
-			? (performanceLevel === 'low' ? 0.5 : 0.75) 
-			: (performanceLevel === 'low' ? 0.6 : 0.9);
+			? (performanceLevel === 'low' ? 0.4 : 0.6) // Even lower for desktop
+			: (performanceLevel === 'low' ? 0.5 : 0.8);
 			
 		// Disable fireworks entirely on very low-end devices
 		if (performanceLevel === 'very-low' || 
 			(isSafari && performanceLevel === 'low') || 
 			(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-			fireworksDisabled = true;
 			skipFireworksAndShowContent();
 			return;
 		}
@@ -755,117 +965,40 @@
 		// Track time for fireworks scheduling
 		let startTime = performance.now();
 
-		// Even more reduced fireworks for desktop
+		// Even more reduced fireworks sequence
 		const fireworksSequence = [
-			// First wave - single centered burst
+			// Just two bursts for all devices
 			{ time: 500, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.4 },
-
-			// Second wave - pair of bursts (wider spacing, only one for all modes)
-			{ time: 1600, startX: width * 0.4, targetX: width * 0.35, targetY: height * 0.35 },
-			
-			// Mobile-only additional bursts
-			...(isDesktopView || performanceLevel === 'low' ? [] : [
-				{ time: 2000, startX: width * 0.6, targetX: width * 0.65, targetY: height * 0.35 },
-				// Third wave - reduced triangular formation with longer delay
-				{ time: 3000, startX: width * 0.3, targetX: width * 0.3, targetY: height * 0.3 },
-				{ time: 3300, startX: width * 0.7, targetX: width * 0.7, targetY: height * 0.3 },
-			]),
-			
-			// Add a final burst for all devices
-			{ time: 3800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 },
-
-			// Grand finale - even fewer bursts, single one for low performance
-			...(performanceLevel === 'low' 
-				? [{ time: 4800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.25 }]
-				: isDesktopView 
-					? [{ time: 4800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.25 }] 
-					: [
-						{ time: 4800, startX: width * 0.25, targetX: width * 0.25, targetY: height * 0.25 },
-						{ time: 5200, startX: width * 0.75, targetX: width * 0.75, targetY: height * 0.25 },
-						{ time: 5800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 }
-					])
+			{ time: 1800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.3 }
 		];
 
+		// Add one more burst for high-performance devices
+		if (performanceLevel === 'high' && !isDesktopView) {
+			fireworksSequence.push({ time: 3000, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.25 });
+		}
+
 		let sequenceIndex = 0;
-		// Even more aggressive particle reduction on desktop
-		let adaptiveParticleFactor = isDesktopView ? 0.5 : (performanceLevel === 'low' ? 0.7 : 1.0);
-		let skipFrames = 0; // For frame skipping when performance is low
-		const maxSkipFrames = isDesktopView ? 3 : (performanceLevel === 'low' ? 2 : 1);
+		// Even more aggressive particle reduction
+		let adaptiveParticleFactor = isDesktopView ? 0.4 : (performanceLevel === 'low' ? 0.6 : 0.8);
 		
-		// Batch rendering variables
+		// Batch rendering variables with more aggressive batching
 		let lastBatchTime = 0;
-		const batchInterval = isDesktopView ? 2 : 1; // Only render every X frames
+		const batchInterval = isDesktopView ? 3 : (performanceLevel === 'low' ? 2 : 1); // Render less frequently
+		
+		// Use a faster animation overall
+		const animationSpeedFactor = isDesktopView ? 1.5 : (performanceLevel === 'low' ? 1.3 : 1.0);
 
-		// Animation loop
+		// Animation loop with further optimizations
 		function animate(timestamp: number) {
-			// Calculate FPS for performance monitoring
-			if (timestamp) {
-				if (lastFrameTime) {
-					const delta = timestamp - lastFrameTime;
-					if (delta > 0) {
-						const instantFps = 1000 / delta;
-						// Smooth FPS calculation
-						fps = fps * 0.9 + instantFps * 0.1;
-
-						// Track consecutive low performance frames
-						if (fps < fpsThreshold * 0.7) {
-							lowPerformanceCounter++;
-							// If performance is consistently terrible, disable fireworks
-							if (lowPerformanceCounter > 10) {
-								fireworksDisabled = true;
-								skipFireworksAndShowContent();
-								return;
-							}
-						} else {
-							// Reset counter if performance improves
-							lowPerformanceCounter = Math.max(0, lowPerformanceCounter - 1);
-						}
-
-						// More aggressive particle reduction and frame skipping
-						if (fpsThrottleEnabled) {
-							if (fps < fpsThreshold) {
-								// More aggressive reduction for desktop
-								adaptiveParticleFactor *= isDesktopView ? 0.8 : 0.85; 
-								
-								// Limit the minimum to prevent empty explosions
-								if (adaptiveParticleFactor < 0.15) {
-									adaptiveParticleFactor = 0.15;
-								}
-								
-								// Skip more frames when performance is poor
-								skipFrames = maxSkipFrames;
-							} else if (fps > fpsThreshold + 10 && adaptiveParticleFactor < (isDesktopView ? 0.7 : 0.9)) {
-								// More conservative increase
-								adaptiveParticleFactor *= isDesktopView ? 1.01 : 1.03;
-								
-								// Cap at different levels for desktop vs mobile
-								const maxFactor = isDesktopView ? 0.7 : (performanceLevel === 'low' ? 0.8 : 0.9);
-								if (adaptiveParticleFactor > maxFactor) {
-									adaptiveParticleFactor = maxFactor;
-								}
-							}
-						}
-					}
-				}
-				lastFrameTime = timestamp;
-
-				// Log FPS less frequently
-				if (++frameCount % 180 === 0) {
-					console.log(
-						`Fireworks FPS: ${fps.toFixed(1)}, Particle factor: ${adaptiveParticleFactor.toFixed(2)}`
-					);
-				}
-			}
-
-			// Skip this frame if needed for performance
-			if (skipFrames > 0) {
-				skipFrames--;
-				fireworksAnimationId = requestAnimationFrame(animate);
-				return;
-			}
-
+			// Calculate FPS and apply timeScale to speed up animation
+			const timeElapsed = timestamp - (lastFrameTime || timestamp);
+			const adjustedElapsed = timeElapsed * animationSpeedFactor;
+			
+			lastFrameTime = timestamp;
+			
 			// Use batch rendering - only render every X frames based on performance
 			const shouldRender = timestamp - lastBatchTime >= batchInterval;
+			
 			if (shouldRender) {
 				lastBatchTime = timestamp;
 				
@@ -875,13 +1008,11 @@
 				const targetHeight = offscreenCanvas ? offscreenCanvas.height : (fireworksCanvas?.height || 0);
 				
 				if (ctx) {
-					// Clear canvas - use full clear for less transparency buildup
+					// Clear canvas with faster method
 					ctx.clearRect(0, 0, targetWidth, targetHeight);
 					
-					// Add a subtle background for trail effect - lighter for better performance
-					ctx.fillStyle = isDesktopView 
-						? 'rgba(26, 32, 44, 0.05)' // Much lighter for desktop
-						: 'rgba(26, 32, 44, 0.12)'; // Lighter than original
+					// Much lighter background
+					ctx.fillStyle = 'rgba(26, 32, 44, 0.03)';
 					ctx.fillRect(0, 0, targetWidth, targetHeight);
 					
 					// Set composite operation for better performance
@@ -890,7 +1021,7 @@
 			}
 
 			// Current time since start
-			const currentTime = performance.now() - startTime;
+			const currentTime = (performance.now() - startTime) * animationSpeedFactor;
 
 			// Add new fireworks based on sequence
 			while (
@@ -905,9 +1036,9 @@
 				sequenceIndex++;
 			}
 
-			// Update and draw fireworks - don't draw every particle for better performance
+			// Update and draw fireworks - super optimized with minimal draws
 			for (let i = fireworks.length - 1; i >= 0; i--) {
-				// Safety check to ensure this firework exists
+				// Skip non-existent fireworks
 				if (!fireworks[i]) continue;
 				
 				// Only draw if we're rendering this frame
@@ -916,18 +1047,21 @@
 					fireworks[i].draw(offscreenCtx || fireworksCtx!, isDesktopView);
 				}
 
-				// Update and check if firework is done
+				// Update with adjusted time
 				const isDone = fireworks[i].update(adaptiveParticleFactor);
 
 				// Remove finished fireworks
 				if (isDone) {
+					
 					fireworks.splice(i, 1);
 				}
 			}
 			
-			// If we rendered to offscreen canvas, copy to main canvas
+			// Copy from offscreen canvas if used
 			if (shouldRender && offscreenCtx && fireworksCtx) {
 				fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+				// Fast image drawing with disabled smoothing for better performance
+				fireworksCtx.imageSmoothingEnabled = false;
 				fireworksCtx.drawImage(
 					offscreenCanvas!,
 					0, 0, offscreenCanvas!.width, offscreenCanvas!.height,
@@ -940,9 +1074,10 @@
 				}
 			}
 
-			// Show content after all fireworks have started or earlier on desktop
-			const revealTime = (isDesktopView || performanceLevel === 'low') ? 4000 : 5500;
-			if (sequenceIndex >= fireworksSequence.length && !contentReady && currentTime > revealTime) {
+			// Show content much earlier
+			const revealTime = 2000; // Show content after 2 seconds in all cases
+			if ((sequenceIndex >= fireworksSequence.length && !contentReady) || 
+				currentTime > revealTime) {
 				contentReady = true;
 				revealContent();
 			}
@@ -951,24 +1086,22 @@
 			if (fireworks.length > 0 || sequenceIndex < fireworksSequence.length) {
 				fireworksAnimationId = requestAnimationFrame(animate);
 			} else {
-				// Fade out canvas when complete - faster on desktop
+				// Fade out canvas when complete - even faster
 				const fadeCanvas = () => {
 					let opacity = parseFloat(fireworksCanvas.style.opacity || '1');
-					opacity -= isDesktopView ? 0.08 : (performanceLevel === 'low' ? 0.05 : 0.02);
-
+					opacity -= 0.1; // Faster fade out
+					
 					if (opacity <= 0) {
 						fireworksCanvas.style.opacity = '0';
-						setTimeout(() => {
-							fireworksCanvas.style.display = 'none';
-							
-							// Clean up resources
-							if (offscreenCanvas) {
-								offscreenCanvas.width = 1;
-								offscreenCanvas.height = 1;
-								offscreenCanvas = null;
-								offscreenCtx = null;
-							}
-						}, 100);
+						fireworksCanvas.style.display = 'none';
+						
+						// Clean up resources
+						if (offscreenCanvas) {
+							offscreenCanvas.width = 1;
+							offscreenCanvas.height = 1;
+							offscreenCanvas = null;
+							offscreenCtx = null;
+						}
 						return;
 					}
 
@@ -976,13 +1109,83 @@
 					requestAnimationFrame(fadeCanvas);
 				};
 
-				setTimeout(fadeCanvas, isDesktopView ? 300 : (performanceLevel === 'low' ? 500 : 800));
+				// Start fade out sooner
+				fadeCanvas();
 			}
 		}
 
 		// Start animation
 		fireworksAnimationId = requestAnimationFrame(animate);
 	}
+
+	// Setup canvas and start animation when component is mounted
+	onMount(() => {
+		// Mark animations as ready
+		animationsReady = true;
+
+		// Setup gradientCanvas for simple animation
+		if (gradientCanvas) {
+			gradientCtx = gradientCanvas.getContext('2d');
+		}
+
+		// Setup canvas and resize function
+		let resizeCanvas: () => void;
+
+		if (fireworksCanvas) {
+			fireworksCtx = fireworksCanvas.getContext('2d', {
+				alpha: true,
+				desynchronized: true, // Hint for potential rendering optimization
+				willReadFrequently: false // Hint that we won't read back pixel data
+			});
+
+			// Set canvas size to match container
+			resizeCanvas = () => {
+				if (heroSection) {
+					fireworksCanvas.width = heroSection.offsetWidth;
+					fireworksCanvas.height = heroSection.offsetHeight;
+				}
+			};
+
+			// Initial resize
+			resizeCanvas();
+
+			// Handle window resize
+			window.addEventListener('resize', resizeCanvas);
+		}
+
+		// Preload assets, then start animation with a slight delay
+		preloadAssets();
+		
+		// Set up observers for scroll animations after DOM elements are available
+		if (aboutSection) {
+			aboutObserver.observe(aboutSection);
+		}
+
+		if (testimonialSection) {
+			testimonialObserver.observe(testimonialSection);
+		} else {
+			// If for some reason the section isn't available, make testimonials visible
+			ensureTestimonialsVisible();
+		}
+
+		// Ensure testimonials are visible after a delay regardless of scroll position
+		// This serves as a fallback for page navigation scenarios
+		setTimeout(ensureTestimonialsVisible, 2000);
+		
+		// Clean up on component unmount
+		return () => {
+			if (fireworksAnimationId) {
+				cancelAnimationFrame(fireworksAnimationId);
+			}
+			if (resizeCanvas) {
+				window.removeEventListener('resize', resizeCanvas);
+			}
+			
+			// Disconnect observers
+			aboutObserver.disconnect();
+			testimonialObserver.disconnect();
+		};
+	});
 
 	// Helper function to detect performance level
 	function detectPerformanceLevel(): 'high' | 'medium' | 'low' | 'very-low' {
@@ -1157,186 +1360,131 @@
 		testimonialAnimated = true;
 	}
 
-	// Setup canvas and start fireworks when component is mounted
-	onMount(() => {
-		// Mark animations as ready
-		animationsReady = true;
+	// About section entrance animation when scrolled to
+	const aboutObserver = new IntersectionObserver(
+		(entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting && !isAnimated && aboutSection) {
+					isAnimated = true;
 
-		// Setup canvas and resize function
-		let resizeCanvas: () => void;
-
-		if (fireworksCanvas) {
-			fireworksCtx = fireworksCanvas.getContext('2d');
-
-			// Set canvas size to match container
-			resizeCanvas = () => {
-				if (heroSection) {
-					fireworksCanvas.width = heroSection.offsetWidth;
-					fireworksCanvas.height = heroSection.offsetHeight;
-				}
-			};
-
-			// Initial resize
-			resizeCanvas();
-
-			// Handle window resize
-			window.addEventListener('resize', resizeCanvas);
-
-			// Start fireworks sequence (content will be shown afterward)
-			setTimeout(startFireworksSequence, 300);
-		}
-
-		// About section entrance animation when scrolled to
-		const aboutObserver = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting && !isAnimated) {
-						isAnimated = true;
-
-						try {
-							// More dynamic animation for section elements
-							animate(
-								'.about-element',
-								{
-									opacity: [0, 1],
-									x: [-40, 0],
-									scale: [0.95, 1]
-								},
-								{
-									delay: stagger(0.2, { start: 0.1 }),
-									duration: 0.8,
-									easing: (x) => {
-										try {
-											// Safely call spring with fallback
-											return spring({ stiffness: 100, damping: 15 })(x) || x;
-										} catch (error) {
-											console.error('Spring animation error:', error);
-											// Fallback to a simple cubic bezier easing
-											return 0.34 * (1 - Math.cos(Math.PI * x));
-										}
+					try {
+						// More dynamic animation for section elements
+						animate(
+							'.about-element',
+							{
+								opacity: [0, 1],
+								x: [-40, 0],
+								scale: [0.95, 1]
+							},
+							{
+								delay: stagger(0.2, { start: 0.1 }),
+								duration: 0.8,
+								easing: (x) => {
+									try {
+										// Safely call spring with fallback
+										return spring({ stiffness: 100, damping: 15 })(x) || x;
+									} catch (error) {
+										console.error('Spring animation error:', error);
+										// Fallback to a simple cubic bezier easing
+										return 0.34 * (1 - Math.cos(Math.PI * x));
 									}
 								}
-							);
+							}
+						);
 
-							// Add animation for the card too
-							animate(
-								'.about-section-card',
-								{
-									opacity: [0.7, 1],
-									scale: [0.98, 1],
-									y: [20, 0]
-								},
-								{
-									duration: 0.9,
-									easing: (x) => {
-										try {
-											// Safely call spring with fallback
-											return spring({ stiffness: 50, damping: 15 })(x) || x;
-										} catch (error) {
-											console.error('Spring animation error:', error);
-											// Fallback to a simple cubic bezier easing
-											return 0.34 * (1 - Math.cos(Math.PI * x));
-										}
+						// Add animation for the card too
+						animate(
+							'.about-section-card',
+							{
+								opacity: [0.7, 1],
+								scale: [0.98, 1],
+								y: [20, 0]
+							},
+							{
+								duration: 0.9,
+								easing: (x) => {
+									try {
+										// Safely call spring with fallback
+										return spring({ stiffness: 50, damping: 15 })(x) || x;
+									} catch (error) {
+										console.error('Spring animation error:', error);
+										// Fallback to a simple cubic bezier easing
+										return 0.34 * (1 - Math.cos(Math.PI * x));
 									}
 								}
-							);
-						} catch (error) {
-							console.error('About section animation error:', error);
-							document.querySelectorAll('.about-element, .about-section-card').forEach((el) => {
-								(el as HTMLElement).style.opacity = '1';
-							});
-						}
+							}
+						);
+					} catch (error) {
+						console.error('About section animation error:', error);
+						document.querySelectorAll('.about-element, .about-section-card').forEach((el) => {
+							(el as HTMLElement).style.opacity = '1';
+						});
 					}
-				});
-			},
-			{ threshold: 0.1, rootMargin: '-50px' }
-		);
+				}
+			});
+		},
+		{ threshold: 0.1, rootMargin: '-50px' }
+	);
 
-		if (aboutSection) {
-			aboutObserver.observe(aboutSection);
-		}
+	// Testimonial section animation when scrolled to
+	const testimonialObserver = new IntersectionObserver(
+		(entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting && !testimonialAnimated && testimonialSection) {
+					testimonialAnimated = true;
+					try {
+						animate(
+							'.testimonial-card',
+							{
+								opacity: [0, 1],
+								y: [60, 0],
+								scale: [0.9, 1]
+							},
+							{
+								delay: stagger(0.25),
+								duration: 0.8,
+								easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+							}
+						);
 
-		// Testimonial section animation when scrolled to
-		const testimonialObserver = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting && !testimonialAnimated) {
-						testimonialAnimated = true;
-						try {
-							animate(
-								'.testimonial-card',
-								{
-									opacity: [0, 1],
-									y: [60, 0],
-									scale: [0.9, 1]
-								},
-								{
-									delay: stagger(0.25),
-									duration: 0.8,
-									easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
-								}
-							);
-
-							// Add gentle pulse after appearing
-							setTimeout(() => {
-								const cards = document.querySelectorAll('.testimonial-card');
-								if (cards && cards.length > 0) {
-									cards.forEach((card, i) => {
-										animate(
-											card,
-											{
-												scale: [1, 1.02, 1],
-												boxShadow: [
-													'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-													'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
-													'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-												]
-											},
-											{
-												duration: 4 + i,
-												delay: i * 1.5,
-												repeat: Infinity,
-												easing: 'ease-in-out'
-											}
-										);
-									});
-								}
-							}, 1500);
-						} catch (error) {
-							console.error('Testimonial animation error:', error);
-							ensureTestimonialsVisible();
-						}
-					} else if (!testimonialAnimated) {
-						// If not intersecting but not yet animated, make sure they're visible anyway
-						// This helps when navigating back to the page
+						// Add gentle pulse after appearing
+						setTimeout(() => {
+							const cards = document.querySelectorAll('.testimonial-card');
+							if (cards && cards.length > 0) {
+								cards.forEach((card, i) => {
+									animate(
+										card,
+										{
+											scale: [1, 1.02, 1],
+											boxShadow: [
+												'0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+												'0 15px 25px -5px rgba(0, 0, 0, 0.3)',
+												'0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+											]
+										},
+										{
+											duration: 4 + i,
+											delay: i * 1.5,
+											repeat: Infinity,
+											easing: 'ease-in-out'
+										}
+									);
+								});
+							}
+						}, 1500);
+					} catch (error) {
+						console.error('Testimonial animation error:', error);
 						ensureTestimonialsVisible();
 					}
-				});
-			},
-			{ threshold: 0.1, rootMargin: '-50px' }
-		);
-
-		if (testimonialSection) {
-			testimonialObserver.observe(testimonialSection);
-		} else {
-			// If for some reason the section isn't available, make testimonials visible
-			ensureTestimonialsVisible();
-		}
-
-		// Ensure testimonials are visible after a delay regardless of scroll position
-		// This serves as a fallback for page navigation scenarios
-		setTimeout(ensureTestimonialsVisible, 2000);
-
-		// Clean up on component unmount
-		return () => {
-			if (fireworksAnimationId) {
-				cancelAnimationFrame(fireworksAnimationId);
-			}
-			if (resizeCanvas) {
-				window.removeEventListener('resize', resizeCanvas);
-			}
-		};
-	});
+				} else if (!testimonialAnimated) {
+					// If not intersecting but not yet animated, make sure they're visible anyway
+					// This helps when navigating back to the page
+					ensureTestimonialsVisible();
+				}
+			});
+		},
+		{ threshold: 0.1, rootMargin: '-50px' }
+	);
 </script>
 
 <svelte:head>
@@ -1366,11 +1514,15 @@
 <section class="perspective relative bg-[#1A202C] py-12 text-gray-100" bind:this={heroSection}>
 	<!-- Canvas for fireworks -->
 	<canvas class="fireworks-canvas" bind:this={fireworksCanvas}></canvas>
+	
+	<!-- Canvas for simple gradient animation -->
+	<canvas class="gradient-canvas" bind:this={gradientCanvas}></canvas>
+	
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col items-center">
 			<!-- Profile image added here -->
 			<div class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 shadow-lg shadow-blue-500/20 transition-transform duration-300 hover:scale-105">
-				<img src="/images/me.jpg" alt="Hank Chou" class="h-40 w-40 object-cover object-position-y-top" style="object-position: 20% 10%;" />
+				<img src="/images/me.jpg" alt="Hank Chou" class="h-40 w-40 object-cover object-position-y-top" style="object-position: 20% 10%;" loading="eager" />
 			</div>
 			
 			<div class="w-full max-w-3xl text-center">
@@ -1677,6 +1829,17 @@
 
 	/* Canvas for fireworks */
 	.fireworks-canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 10;
+		pointer-events: none;
+	}
+	
+	/* Canvas for simple gradient animation */
+	.gradient-canvas {
 		position: absolute;
 		top: 0;
 		left: 0;
