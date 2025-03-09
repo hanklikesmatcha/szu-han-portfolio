@@ -22,18 +22,17 @@
   let particleCount: number;
   const particleSize = 5;
   const maxRange = 2000;
-  const minRange = -2000;
   
   // Spiral galaxy properties
-  const spiralArms = 4; // Number of spiral arms
-  const spiralTightness = 0.6; // How tight the spiral is
-  const galaxyRadius = 1200; // Size of the galaxy
-  const coreSize = 350; // Size of the dense central core
-  const galaxyCoreParticles = 800; // Particles in the galaxy core - reduced density
+  const spiralArms = 8; // Number of spiral arms
+  const spiralTightness = 0.5; // How tight the spiral is
+  const galaxyRadius = 1500; // Size of the galaxy
+  const coreSize = 650; // Size of the dense central core
+  const galaxyCoreParticles = 700; // Particles in the galaxy core - reduced density
   
   // Animation timing control
   let animationPhase = 'entry'; // 'entry', 'normal'
-  let entryDuration = 6000; // ms - extended to 6 seconds for more dramatic entry
+  let entryDuration = 6800; // ms - extended to 6 seconds for more dramatic entry
   let entryProgress = 0; // 0-1 progress through entry
   
   // Camera properties - adjusted positions for better vertical positioning and core entry
@@ -52,8 +51,14 @@
   }[] = [];
   const clusterCount = 6; // Increased for more variety
   
+  // Travel path for continuous movement
+  let travelPath: { position: THREE.Vector3, lookAt: THREE.Vector3 }[] = [];
+  let currentPathIndex = 0;
+  let pathProgress = 0;
+  const pathTransitionTime = 12000; // Time to travel between path points (ms)
+  
   // Customizable props
-  export let speed = 0.345; // Speed increased by 15% from original 0.3
+  export let speed = 0.210; // Speed reduced by 40% from previous value
   export let autoStart = true;
   export let highPerformance = true;
   
@@ -141,6 +146,9 @@
     camera.position.copy(cameraPosition);
     camera.lookAt(cameraTarget);
     
+    // Set up the travel path for continuous movement through the galaxy
+    setupTravelPath();
+    
     // Create spiral galaxy structure
     createGalaxyStructure();
     
@@ -176,6 +184,48 @@
     
     // Handle resize
     window.addEventListener('resize', onWindowResize);
+  }
+  
+  // Setup travel path for continuous journey through the galaxy
+  function setupTravelPath() {
+    // Create interesting path points that take us throughout the galaxy
+    travelPath = [
+      // Initial entry point (inside core)
+      {
+        position: new THREE.Vector3(0, 50, 50),
+        lookAt: new THREE.Vector3(0, 0, -100)
+      },
+      // Move through first arm
+      {
+        position: new THREE.Vector3(400, 100, -300),
+        lookAt: new THREE.Vector3(700, 50, -500)
+      },
+      // Fly above the galaxy plane
+      {
+        position: new THREE.Vector3(800, 400, -200),
+        lookAt: new THREE.Vector3(0, -100, 0)
+      },
+      // Descend into another spiral arm
+      {
+        position: new THREE.Vector3(-600, 100, -400),
+        lookAt: new THREE.Vector3(-800, 0, -100)
+      },
+      // Wide orbit around the galaxy
+      {
+        position: new THREE.Vector3(-1000, 300, 500),
+        lookAt: new THREE.Vector3(0, 0, 0)
+      },
+      // Dive back toward the center
+      {
+        position: new THREE.Vector3(-300, 50, 800),
+        lookAt: new THREE.Vector3(0, 0, 0)
+      },
+      // Return to core from opposite side
+      {
+        position: new THREE.Vector3(0, 80, 300),
+        lookAt: new THREE.Vector3(0, 0, -100)
+      }
+    ];
   }
   
   // Create the spiral galaxy structure
@@ -336,7 +386,7 @@
       
       // Convert spherical to cartesian coordinates with more vertical spread
       corePositions[i * 3] = radiusSq * Math.cos(phi) * Math.cos(theta);
-      corePositions[i * 3 + 1] = (radiusSq * 0.4) * Math.sin(phi); // More vertical spread
+      corePositions[i * 3 + 1] = (radiusSq * 0.4) * Math.sin(phi) + 100; // Added +100 to move particles up
       corePositions[i * 3 + 2] = radiusSq * Math.cos(phi) * Math.sin(theta);
       
       // Color - bright white-yellow in center, matching arm colors at edges
@@ -389,6 +439,7 @@
     });
     
     galaxyCore = new THREE.Points(coreGeometry, coreMaterial);
+    galaxyCore.position.y = 250; // Move the entire core up by 100 units - adjust this value as needed
     scene.add(galaxyCore);
   }
   
@@ -413,8 +464,8 @@
       let x, y, z;
       if (Math.random() < 0.4) {
         // 40% of stars are in front of us for travel effect
-        const forwardDistance = Math.random() * 5000 + 2000; // Well ahead of camera
-        const spread = Math.random() * 2000;
+        const forwardDistance = Math.random() * 4000 + 2000; // Well ahead of camera
+        const spread = Math.random() * 2500;
         x = (Math.random() - 0.5) * spread;
         y = (Math.random() - 0.5) * spread;
         z = -forwardDistance; // Negative z is forward
@@ -560,12 +611,16 @@
       entryProgress = elapsedTime / entryDuration;
       handleEntryPhase(entryProgress, delta);
     } else if (animationPhase === 'entry') {
-      // Transition to normal phase
+      // Transition to normal traveling phase
       animationPhase = 'normal';
       
-      // Set up continuing dynamic effects for normal phase
-      // Keep the flow particles active for ongoing immersion
-      setupContinuousAnimation();
+      // Set up continuous travel animation
+      startContinuousTravel();
+    }
+    
+    // If in normal phase, update the continuous travel
+    if (animationPhase === 'normal') {
+      updateContinuousTravel(delta, elapsedTime);
     }
     
     // Update particles with galaxy motion
@@ -944,18 +999,19 @@
     galaxyCore.geometry.attributes.color.needsUpdate = true;
   }
   
-  // Set up continuous animation after entry phase
-  function setupContinuousAnimation() {
-    // Create subtle camera movement for the inside-galaxy view
-    // Subtle floating/drifting motion for immersion
+  // Start continuous travel after entry phase
+  function startContinuousTravel() {
+    // Begin the continuous travel through the galaxy
+    currentPathIndex = 0;
+    pathProgress = 0;
     
-    // Ensure proper view after entry is complete
-    camera.fov = 90; // Wide FOV for immersive feeling
-    camera.position.set(0, 50, 50); // Ensure we're inside the core
-    camera.lookAt(0, 0, -100); // Looking slightly forward
+    // Ensure we have the correct starting position
+    camera.position.copy(travelPath[0].position);
+    camera.lookAt(travelPath[0].lookAt);
+    camera.fov = 85; // Set a good FOV for traveling
     camera.updateProjectionMatrix();
     
-    // Ensure full opacity for all elements
+    // Make sure all elements are fully visible
     const particleMaterial = particles.material as THREE.PointsMaterial;
     const coreMaterial = galaxyCore.material as THREE.PointsMaterial;
     const flowMaterial = flowParticles.material as THREE.PointsMaterial;
@@ -964,66 +1020,180 @@
     coreMaterial.opacity = 0.8;
     flowMaterial.opacity = 0.8;
     
-    // Reset some flow particles to create persistent flow effect
-    resetFlowParticlesForContinuousAnimation();
+    // Reset flow particles to enhance travel effect
+    resetFlowParticlesForTravel();
   }
   
-  // Reset flow particles for continuous animation
-  function resetFlowParticlesForContinuousAnimation() {
+  // Update the continuous travel animation
+  function updateContinuousTravel(delta: number, elapsedTime: number) {
+    // Update path progress
+    pathProgress += (delta * 1000) / pathTransitionTime;
+    
+    // If we've reached the end of current path segment, move to next one
+    if (pathProgress >= 1) {
+      currentPathIndex = (currentPathIndex + 1) % travelPath.length;
+      pathProgress = 0;
+    }
+    
+    // Get current and next path points
+    const currentPoint = travelPath[currentPathIndex];
+    const nextIndex = (currentPathIndex + 1) % travelPath.length;
+    const nextPoint = travelPath[nextIndex];
+    
+    // Smooth easing for more natural camera movement
+    // Use sine curve for smooth acceleration and deceleration
+    const smoothProgress = 0.5 - 0.5 * Math.cos(pathProgress * Math.PI);
+    
+    // Interpolate position and lookAt
+    const newPosition = new THREE.Vector3();
+    newPosition.lerpVectors(currentPoint.position, nextPoint.position, smoothProgress);
+    
+    const newLookAt = new THREE.Vector3();
+    newLookAt.lerpVectors(currentPoint.lookAt, nextPoint.lookAt, smoothProgress);
+    
+    // Apply to camera
+    camera.position.copy(newPosition);
+    camera.lookAt(newLookAt);
+    
+    // Subtle FOV changes based on distance to galaxy center for dynamism
+    const distanceToCenter = camera.position.length();
+    const baseFOV = 85;
+    const fovVariation = 10;
+    
+    // Closer to center = wider FOV for immersion
+    camera.fov = baseFOV - fovVariation * (Math.min(1, distanceToCenter / 1000));
+    camera.updateProjectionMatrix();
+    
+    // Update flow particles to match travel direction
+    updateFlowParticlesForTravel(newLookAt.clone().sub(newPosition).normalize());
+  }
+  
+  // Reset flow particles for continuous travel animation
+  function resetFlowParticlesForTravel() {
     if (!flowParticles) return;
     
     const flowPositions = flowParticles.geometry.attributes.position.array as Float32Array;
     const flowCount = flowPositions.length / 3;
     
-    // Create a tunnel-like pattern around viewer
+    // Direction we're looking at
+    const direction = travelPath[0].lookAt.clone().sub(travelPath[0].position).normalize();
+    
+    // Create particles in a tunnel shape along our travel path
     for (let i = 0; i < flowCount; i++) {
       const ix = i * 3;
       
-      // Distribute particles in a cylinder ahead of the camera
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 200 + Math.random() * 800;
-      const zDistance = -2000 - Math.random() * 3000; // Ahead of the camera
+      // Random position in a cylinder around the view direction
+      // Basic orthogonal vectors to the direction
+      const up = new THREE.Vector3(0, 1, 0);
+      const right = new THREE.Vector3().crossVectors(direction, up).normalize();
+      const trueUp = new THREE.Vector3().crossVectors(right, direction).normalize();
       
-      // Calculate positions in a cylinder
-      flowPositions[ix] = Math.cos(angle) * radius;
-      flowPositions[ix + 1] = Math.sin(angle) * radius;
-      flowPositions[ix + 2] = zDistance;
+      // Random angle around the view direction
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 100 + Math.random() * 600;
+      
+      // Random distance along the view direction
+      const distance = -1000 - Math.random() * 3000;
+      
+      // Calculate final position
+      const pos = new THREE.Vector3()
+        .addScaledVector(direction, distance)
+        .addScaledVector(right, Math.cos(angle) * radius)
+        .addScaledVector(trueUp, Math.sin(angle) * radius)
+        .add(camera.position);
+      
+      // Set the position
+      flowPositions[ix] = pos.x;
+      flowPositions[ix + 1] = pos.y;
+      flowPositions[ix + 2] = pos.z;
     }
     
     flowParticles.geometry.attributes.position.needsUpdate = true;
   }
   
-  // Update flow particles in normal (post-entry) phase
-  function updateContinuousFlow(delta: number, elapsedTime: number) {
+  // Update flow particles to match current travel direction
+  function updateFlowParticlesForTravel(direction: THREE.Vector3) {
+    if (!flowParticles) return;
+    
     const flowPositions = flowParticles.geometry.attributes.position.array as Float32Array;
     const flowCount = flowPositions.length / 3;
     
-    // Pulsing speed effect for more dynamic motion
-    const timeFactor = Math.sin(elapsedTime * 0.0005) * 0.5 + 1.5;
-    const baseSpeed = 300 * delta * timeFactor;
+    // Find orthogonal vectors to our direction for creating tunnel effect
+    const up = new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(direction, up).normalize();
+    const trueUp = new THREE.Vector3().crossVectors(right, direction).normalize();
+    
+    // Speed is slower now (reduced by 40% as requested)
+    const baseSpeed = 180; // Reduced from 300
     
     for (let i = 0; i < flowCount; i++) {
-      if (Math.random() < 0.2) { // Process 20% of particles each frame
+      if (Math.random() < 0.15) { // Process fewer particles each frame for better performance
         const ix = i * 3;
-        const z = flowPositions[ix + 2];
         
-        // Move particles toward and past camera
-        flowPositions[ix + 2] += baseSpeed;
+        // Current position
+        const pos = new THREE.Vector3(
+          flowPositions[ix],
+          flowPositions[ix + 1],
+          flowPositions[ix + 2]
+        );
         
-        // Recycle particles that pass the camera
-        if (z > 500) {
+        // Vector from camera to particle
+        const vectorToParticle = pos.clone().sub(camera.position);
+        
+        // Projected distance along view direction
+        const distanceAlong = vectorToParticle.dot(direction);
+        
+        // Move particles along the view direction
+        const moveSpeed = baseSpeed * (0.008 + 0.004 * Math.random());
+        pos.addScaledVector(direction, moveSpeed);
+        
+        // If particle is too far behind us or too far ahead, reset it
+        if (distanceAlong > 500 || distanceAlong < -4000 || pos.distanceTo(camera.position) > 5000) {
+          // Random angle around the view direction
           const angle = Math.random() * Math.PI * 2;
-          const radius = 200 + Math.random() * 800;
-          const zDistance = -2000 - Math.random() * 3000;
+          const radius = 100 + Math.random() * 600;
           
-          flowPositions[ix] = Math.cos(angle) * radius;
-          flowPositions[ix + 1] = Math.sin(angle) * radius;
-          flowPositions[ix + 2] = zDistance;
+          // Random distance ahead
+          const distance = -1000 - Math.random() * 3000;
+          
+          // Calculate new position
+          pos.copy(camera.position)
+            .addScaledVector(direction, distance)
+            .addScaledVector(right, Math.cos(angle) * radius)
+            .addScaledVector(trueUp, Math.sin(angle) * radius);
         }
+        
+        // Update position
+        flowPositions[ix] = pos.x;
+        flowPositions[ix + 1] = pos.y;
+        flowPositions[ix + 2] = pos.z;
       }
     }
     
     flowParticles.geometry.attributes.position.needsUpdate = true;
+  }
+  
+  // Update flow particles in normal (post-entry) phase - now part of continuous travel
+  function updateContinuousFlow(delta: number, elapsedTime: number) {
+    // This is now handled by updateFlowParticlesForTravel
+    // We'll still use this function for special effects
+    
+    // Gentle pulsing of particle sizes for more dynamic look
+    const flowSizes = flowParticles.geometry.attributes.size?.array as Float32Array;
+    
+    if (flowSizes) {
+      const sizePulse = 0.2 * Math.sin(elapsedTime * 0.0003);
+      const baseSize = 3 * (1 + sizePulse);
+      
+      for (let i = 0; i < flowSizes.length; i++) {
+        if (Math.random() < 0.05) {
+          // Randomize a few particle sizes each frame
+          flowSizes[i] = baseSize * (0.8 + Math.random() * 0.4);
+        }
+      }
+      
+      flowParticles.geometry.attributes.size.needsUpdate = true;
+    }
   }
   
   function onWindowResize() {
