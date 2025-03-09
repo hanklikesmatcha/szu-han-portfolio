@@ -1759,15 +1759,10 @@
 
 	// Function to check device performance
 	function checkPerformance() {
-		// Simple check for mobile devices which might struggle with 3D
-		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-			navigator.userAgent
-		);
+		// No longer disable by default on mobile devices
+		lowQualityMode = false;
 		
-		// If on a mobile device, use low quality mode
-		lowQualityMode = isMobile;
-		
-		// Additional check - if device has less than 4 logical processors, use low quality mode
+		// Only use low quality mode if device has very limited CPU resources
 		if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
 			lowQualityMode = true;
 		}
