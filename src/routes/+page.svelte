@@ -98,6 +98,52 @@
 		}
 	}
 
+	// Performance monitoring variables
+	let lastFrameTime = 0;
+	let frameCount = 0;
+	let fps = 60;
+	let fpsThrottleEnabled = true;
+	let fpsThreshold = 30; // Target minimum FPS
+	let isDesktopView = false; // Flag to detect desktop view for additional optimization
+	let fireworksDisabled = false; // Flag to completely disable fireworks on very low-end devices
+	let lowPerformanceCounter = 0; // Counter for consecutive low performance frames
+	let offscreenCanvas: HTMLCanvasElement | null = null; // For off-screen rendering
+	let offscreenCtx: CanvasRenderingContext2D | null = null;
+	let renderScale = 1.0; // Scale factor for off-screen rendering
+	
+	// Particle pool to reduce object creation/garbage collection
+	const particlePool: Particle[] = [];
+	const maxPoolSize = 300;
+
+	// Gets a particle from the pool or creates a new one
+	function getParticle(
+		x: number,
+		y: number,
+		vx: number,
+		vy: number,
+		size: number,
+		color: string,
+		lifespan: number,
+		isStreamer: boolean,
+		isSecondary: boolean = false,
+		canSplit: boolean = false,
+		gravity: number = 0.1
+	): Particle {
+		if (particlePool.length > 0) {
+			const particle = particlePool.pop()!;
+			particle.reset(x, y, vx, vy, size, color, lifespan, isStreamer, isSecondary, canSplit, gravity);
+			return particle;
+		}
+		return new Particle(x, y, vx, vy, size, color, lifespan, isStreamer, isSecondary, canSplit, gravity);
+	}
+
+	// Returns a particle to the pool
+	function recycleParticle(particle: Particle) {
+		if (particlePool.length < maxPoolSize) {
+			particlePool.push(particle);
+		}
+	}
+
 	// Fireworks class for optimized Canvas-based rendering
 	class Firework {
 		x: number;
@@ -111,8 +157,9 @@
 		trail: { x: number; y: number }[];
 		explosionSize: number;
 		explosionType: string;
+		particleFactor: number; // Add factor to control particle counts
 
-		constructor(startX: number, targetX: number, targetY: number) {
+		constructor(startX: number, targetX: number, targetY: number, particleFactor: number = 1.0) {
 			// Start position (bottom of screen)
 			this.x = startX;
 			this.y = fireworksCanvas ? fireworksCanvas.height : 0;
@@ -124,20 +171,22 @@
 			this.hasExploded = false;
 			// Random upward velocity
 			this.velocity = Math.random() * 2 + 3;
-			// Trail for rocket effect - shorter trail for performance
+			// Trail for rocket effect - even shorter trail for better performance
 			this.trail = [];
-			// Maximum trail length - reduced for performance
-			const maxTrail = 5; // Reduced from 8
+			// Maximum trail length - further reduced for performance
+			const maxTrail = 3; // Reduced from 5
 			for (let i = 0; i < maxTrail; i++) {
 				this.trail.push({ x: this.x, y: this.y });
 			}
-			// Random explosion size
-			this.explosionSize = Math.random() * 0.5 + 0.8; // 0.8 to 1.3 scale factor
-			// Random explosion type
-			const types = ['circular', 'ring', 'starburst', 'crossette', 'willow'];
+			// Random explosion size - smaller explosions on desktop
+			this.explosionSize = Math.random() * 0.4 + 0.7; // 0.7 to 1.1 scale factor (reduced)
+			// Particle control factor
+			this.particleFactor = particleFactor;
+			// Simplified explosion types for better performance
+			const types = ['circular', 'ring', 'starburst'];
 			this.explosionType = types[Math.floor(Math.random() * types.length)];
 		}
-
+		
 		getRandomFireworkColor() {
 			const colors = [
 				'#60a5fa',
@@ -162,7 +211,12 @@
 			return colors[Math.floor(Math.random() * colors.length)];
 		}
 
-		update() {
+		update(particleFactor?: number) {
+			// Update particle factor if provided
+			if (particleFactor !== undefined) {
+				this.particleFactor = particleFactor;
+			}
+			
 			if (this.hasExploded) {
 				// Update all particles
 				for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -170,6 +224,8 @@
 
 					// Remove dead particles
 					if (this.particles[i].alpha <= 0) {
+						// Recycle the particle
+						recycleParticle(this.particles[i]);
 						this.particles.splice(i, 1);
 					}
 				}
@@ -207,48 +263,41 @@
 				case 'starburst':
 					this.createStarburstExplosion();
 					break;
-				case 'crossette':
-					this.createCrossetteExplosion();
-					break;
-				case 'willow':
-					this.createWillowExplosion();
-					break;
 				default:
 					this.createCircularExplosion();
 			}
 
-			// Lower chance for secondary explosion to improve performance
-			if (Math.random() < 0.2) {
-				// Reduced from 0.3
+			// Reduce chance of secondary explosions even more
+			if (Math.random() < 0.1) { // Reduced from 0.2
 				setTimeout(
 					() => {
 						this.createSecondaryExplosion();
 					},
-					Math.random() * 300 + 100
+					Math.random() * 200 + 100 // Faster explosion timing
 				);
 			}
 		}
 
 		createSecondaryExplosion() {
-			// Create smaller secondary explosion - reduced particle count
-			const count = Math.floor(Math.random() * 10) + 5; // Reduced from 20+10
+			// Create smaller secondary explosion - further reduced particle count
+			const count = Math.floor(Math.random() * 5 + 3); // Reduced from 10+5
 			const color = this.getRandomFireworkColor();
 
 			for (let i = 0; i < count; i++) {
 				const angle = Math.random() * Math.PI * 2;
-				const speed = Math.random() * 3 + 1;
+				const speed = Math.random() * 2 + 1;
 				const vx = Math.cos(angle) * speed;
 				const vy = Math.sin(angle) * speed;
-				const size = Math.random() * 2 + 1;
+				const size = Math.random() * 1.5 + 1;
 
-				const particle = new Particle(
+				const particle = getParticle(
 					this.targetX,
 					this.targetY,
 					vx,
 					vy,
 					size,
 					color,
-					Math.random() * 0.5 + 0.3,
+					Math.random() * 0.3 + 0.3, // Shorter life
 					Math.random() < 0.1, // Reduced from 0.2
 					true
 				);
@@ -258,29 +307,32 @@
 		}
 
 		createCircularExplosion() {
-			// Standard circular explosion - reduced particle count
-			const particleCount = Math.floor(Math.random() * 20) + 20; // Reduced from 40+40
+			// Standard circular explosion - further reduced particle count
+			// Apply particleFactor to control particle count
+			const baseCount = 15; // Reduced from 20
+			const randomCount = 10; // Reduced from 20
+			const particleCount = Math.floor((Math.random() * randomCount + baseCount) * this.particleFactor);
 
 			for (let i = 0; i < particleCount; i++) {
 				// Random velocity in all directions
 				const angle = Math.random() * Math.PI * 2;
-				const speed = Math.random() * 5 + 1;
+				const speed = Math.random() * 4 + 1; // Reduced from 5+1
 				const vx = Math.cos(angle) * speed * this.explosionSize;
 				const vy = Math.sin(angle) * speed * this.explosionSize;
 
-				// Random size for particles
-				const size = Math.random() * 3 + 1;
+				// Random size for particles - smaller for performance
+				const size = Math.random() * 2 + 1; // Reduced from 3+1
 
 				// Create particle with random properties
-				const particle = new Particle(
+				const particle = getParticle(
 					this.targetX,
 					this.targetY,
 					vx,
 					vy,
 					size,
 					this.color,
-					Math.random() * 0.7 + 0.3,
-					Math.random() < 0.1, // Reduced from 0.15
+					Math.random() * 0.5 + 0.3, // Shorter lifespan
+					Math.random() < 0.05, // Reduced from 0.1
 					false
 				);
 
@@ -289,29 +341,32 @@
 		}
 
 		createRingExplosion() {
-			// Creates a ring pattern - reduced particle count
-			const particleCount = Math.floor(Math.random() * 15) + 25; // Reduced from 30+50
-			const ringThickness = Math.random() * 0.5 + 0.5;
+			// Creates a ring pattern - further reduced particle count
+			// Apply particleFactor to control particle count
+			const baseCount = 20; // Reduced from 25
+			const randomCount = 10; // Reduced from 15
+			const particleCount = Math.floor((Math.random() * randomCount + baseCount) * this.particleFactor);
+			const ringThickness = Math.random() * 0.3 + 0.3; // Reduced from 0.5+0.5
 
 			for (let i = 0; i < particleCount; i++) {
 				const angle = (i / particleCount) * Math.PI * 2;
 				// All particles go at similar speeds for ring effect
 				const variance = Math.random() * ringThickness;
-				const speed = (4 + variance) * this.explosionSize;
+				const speed = (3 + variance) * this.explosionSize; // Reduced from 4+variance
 				const vx = Math.cos(angle) * speed;
 				const vy = Math.sin(angle) * speed;
 
-				const size = Math.random() * 2.5 + 1.5;
+				const size = Math.random() * 2 + 1; // Reduced from 2.5+1.5
 
-				const particle = new Particle(
+				const particle = getParticle(
 					this.targetX,
 					this.targetY,
 					vx,
 					vy,
 					size,
 					this.color,
-					Math.random() * 0.5 + 0.5,
-					Math.random() < 0.1, // Reduced from 0.2
+					Math.random() * 0.4 + 0.4, // Shorter lifespan
+					Math.random() < 0.05, // Reduced from 0.1
 					false
 				);
 
@@ -320,35 +375,39 @@
 		}
 
 		createStarburstExplosion() {
-			// Creates a star pattern with defined rays - optimized
-			const rayCount = Math.floor(Math.random() * 4) + 6; // Reduced from 8-12
-			const particlesPerRay = Math.floor(Math.random() * 3) + 5; // Reduced from 7-12
+			// Creates a star pattern with defined rays - further optimized
+			const rayCount = Math.floor(Math.random() * 3) + 4; // Reduced from 4+6
+			// Apply particleFactor to control particle count
+			const maxParticlesPerRay = Math.floor((Math.random() * 2 + 4) * this.particleFactor); // Reduced from 3+5
 
 			for (let ray = 0; ray < rayCount; ray++) {
 				const rayAngle = (ray / rayCount) * Math.PI * 2;
+				
+				// Use particleFactor to determine how many particles per ray
+				const particlesPerRay = Math.max(2, Math.floor(maxParticlesPerRay));
 
 				for (let i = 0; i < particlesPerRay; i++) {
 					// Particles go in similar directions for each ray
-					const angleVariance = (Math.random() - 0.5) * 0.3;
+					const angleVariance = (Math.random() - 0.5) * 0.2; // Reduced from 0.3
 					const angle = rayAngle + angleVariance;
 
 					// Speed increases for particles further from center
-					const speed = (2 + i * 0.5) * this.explosionSize;
+					const speed = (1.5 + i * 0.4) * this.explosionSize; // Reduced from 2+i*0.5
 					const vx = Math.cos(angle) * speed;
 					const vy = Math.sin(angle) * speed;
 
 					// Size decreases for particles further from center
-					const size = Math.max(1, 3 - i * 0.2);
+					const size = Math.max(1, 2.5 - i * 0.2); // Reduced from 3-i*0.2
 
-					const particle = new Particle(
+					const particle = getParticle(
 						this.targetX,
 						this.targetY,
 						vx,
 						vy,
 						size,
 						this.color,
-						Math.random() * 0.3 + 0.7,
-						i === particlesPerRay - 1, // Last particle in ray is a streamer
+						Math.random() * 0.2 + 0.5, // Shorter lifespan
+						i === particlesPerRay - 1 && Math.random() < 0.5, // Only 50% chance for last particle to be a streamer
 						false
 					);
 
@@ -357,83 +416,27 @@
 			}
 		}
 
-		createCrossetteExplosion() {
-			// Initial burst - reduced particle count
-			const mainCount = Math.floor(Math.random() * 10) + 10; // Reduced from 20+20
-
-			for (let i = 0; i < mainCount; i++) {
-				const angle = Math.random() * Math.PI * 2;
-				const speed = Math.random() * 4 + 3;
-				const vx = Math.cos(angle) * speed * this.explosionSize;
-				const vy = Math.sin(angle) * speed * this.explosionSize;
-				const size = Math.random() * 3 + 1;
-
-				// Lower chance to split for better performance
-				const particle = new Particle(
-					this.targetX,
-					this.targetY,
-					vx,
-					vy,
-					size,
-					this.color,
-					Math.random() * 0.4 + 0.4,
-					false,
-					false,
-					Math.random() < 0.3 // Reduced from 0.5
-				);
-
-				this.particles.push(particle);
-			}
-		}
-
-		createWillowExplosion() {
-			// Creates willow effect - reduced particle count
-			const particleCount = Math.floor(Math.random() * 15) + 20; // Reduced from 30+40
-
-			for (let i = 0; i < particleCount; i++) {
-				const angle = Math.random() * Math.PI * 2;
-				// Initial outward velocity
-				const speed = Math.random() * 4 + 2;
-				const vx = Math.cos(angle) * speed * this.explosionSize;
-				// More upward bias for initial burst
-				const vy = Math.sin(angle) * speed * this.explosionSize - 1;
-
-				const size = Math.random() * 2 + 2;
-
-				// Willow streamers last longer and fall more
-				const particle = new Particle(
-					this.targetX,
-					this.targetY,
-					vx,
-					vy,
-					size,
-					this.color,
-					Math.random() * 0.5 + 0.9, // Longer life
-					true, // All are streamers
-					false,
-					false,
-					0.15 // Higher gravity
-				);
-
-				this.particles.push(particle);
-			}
-		}
-
-		draw(ctx: CanvasRenderingContext2D) {
+		draw(ctx: CanvasRenderingContext2D, isDesktopView = false) {
 			if (this.hasExploded) {
+				// For desktop, we can skip drawing some particles for better performance
+				const skipFactor = isDesktopView ? 2 : 1; // Draw every 2nd particle on desktop
+				
 				// Draw all particles
-				for (let i = 0; i < this.particles.length; i++) {
-					this.particles[i].draw(ctx);
+				for (let i = 0; i < this.particles.length; i += skipFactor) {
+					this.particles[i].draw(ctx, isDesktopView);
 				}
 			} else {
-				// Draw rocket trail - simplified for performance
+				// Simplified rocket drawing for better performance
 				ctx.beginPath();
 				ctx.strokeStyle = this.color;
 				ctx.lineWidth = 2;
 				ctx.moveTo(this.x, this.y);
 
-				// Draw trail with fading effect - simplified
+				// Draw trail with fading effect - even more simplified
 				for (let i = 0; i < this.trail.length; i++) {
+					// Skip some points on desktop for better performance
+					if (isDesktopView && i % 2 === 1 && i > 0) continue;
+					
 					ctx.lineTo(this.trail[i].x, this.trail[i].y);
 					// Fade out the line as it gets farther from the head
 					ctx.globalAlpha = 1 - i / this.trail.length;
@@ -441,17 +444,19 @@
 				ctx.stroke();
 				ctx.globalAlpha = 1;
 
-				// Draw rocket head
+				// Draw rocket head - simplified
 				ctx.beginPath();
-				ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+				ctx.arc(this.x, this.y, 2, 0, Math.PI * 2); // Smaller radius
 				ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
 				ctx.fill();
 
-				// Simple glow effect - more efficient
-				ctx.beginPath();
-				ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
-				ctx.fillStyle = 'rgba(255, 220, 180, 0.2)';
-				ctx.fill();
+				// Skip glow effect on desktop for better performance
+				if (!isDesktopView) {
+					ctx.beginPath();
+					ctx.arc(this.x, this.y, 4, 0, Math.PI * 2); // Smaller glow radius
+					ctx.fillStyle = 'rgba(255, 220, 180, 0.15)'; // More transparent
+					ctx.fill();
+				}
 			}
 		}
 	}
@@ -516,6 +521,46 @@
 			}
 		}
 
+		reset(
+			x: number,
+			y: number,
+			vx: number,
+			vy: number,
+			size: number,
+			color: string,
+			lifespan: number,
+			isStreamer: boolean,
+			isSecondary: boolean = false,
+			canSplit: boolean = false,
+			gravity: number = 0.1
+		) {
+			this.x = x;
+			this.y = y;
+			this.vx = vx;
+			this.vy = vy;
+			this.size = size;
+			this.color = color;
+			this.alpha = 1;
+			this.decay = 0.015 / lifespan;
+			this.isStreamer = isStreamer;
+			this.isSecondary = isSecondary;
+			this.canSplit = canSplit;
+			this.hasSplit = false;
+			this.splitTime = Math.random() * 15 + 10;
+			this.gravity = gravity;
+			this.rotation = Math.random() * Math.PI * 2;
+			this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+
+			if (this.isStreamer) {
+				this.decay = this.decay * 0.4;
+				this.size = this.size * 1.5;
+			}
+
+			if (this.isSecondary) {
+				this.decay = this.decay * 1.5;
+			}
+		}
+
 		update() {
 			// Update position
 			this.x += this.vx;
@@ -537,15 +582,85 @@
 				this.split();
 			}
 
-			// Reduce alpha based on decay rate
-			this.alpha -= this.decay;
+			// Additional optimization: faster decay on desktop
+			if (isDesktopView) {
+				this.alpha -= this.decay * 1.25;
+			} else {
+				this.alpha -= this.decay;
+			}
 
 			// Ensure alpha doesn't go below 0
 			if (this.alpha < 0) this.alpha = 0;
 		}
 
+		// Updated to handle desktop optimization
+		draw(ctx: CanvasRenderingContext2D, isDesktopView = false) {
+			// Skip drawing if particle is invisible
+			if (this.alpha <= 0) return;
+
+			// Set global alpha for transparency
+			ctx.globalAlpha = this.alpha;
+
+			// Draw particle
+			ctx.beginPath();
+
+			// Streamers get a different shape
+			if (this.isStreamer) {
+				// Extremely simplified streamer drawing for better performance
+				ctx.save();
+				ctx.translate(this.x, this.y);
+
+				// Skip rotation calculation for better performance on desktop
+				if (!isDesktopView) {
+					const angle = Math.atan2(this.vy, this.vx);
+					ctx.rotate(angle);
+				}
+
+				// Simplified streamer shape
+				ctx.beginPath();
+				ctx.moveTo(0, 0);
+				ctx.lineTo(-this.size * 3, 0); // Shorter streamer
+				
+				// Skip additional shape complexity on desktop
+				if (!isDesktopView) {
+					ctx.lineTo(-this.size * 3, -this.size * 0.2);
+					ctx.lineTo(-this.size * 3, this.size * 0.2);
+					ctx.closePath();
+				}
+
+				ctx.fillStyle = this.color;
+				ctx.fill();
+
+				ctx.restore();
+			} else {
+				// Regular particles as simple circles
+				ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+
+				// Skip all glow effects on desktop
+				if (!isDesktopView && this.alpha > 0.7 && this.size > 2) {
+					ctx.shadowColor = this.color;
+					ctx.shadowBlur = 2; // Further reduced from 3
+				}
+
+				ctx.fillStyle = this.color;
+				ctx.fill();
+				
+				// Always reset shadow blur for consistent rendering
+				if (ctx.shadowBlur) {
+					ctx.shadowBlur = 0;
+				}
+			}
+
+			// Reset global alpha
+			ctx.globalAlpha = 1;
+		}
+		
+		// Optimize the split method to create fewer particles
 		split() {
-			// Split into fewer smaller particles
+			// Skip splitting entirely on desktop
+			if (isDesktopView) return;
+			
+			// Original split implementation with reduced particle count
 			if (!fireworksCtx) return;
 
 			const canvas = fireworksCtx.canvas;
@@ -565,91 +680,58 @@
 			// Additional safety check to ensure parentFirework is defined before using it
 			if (!parentFirework) return;
 
-			// Reduced from 4 to 3 child particles
-			for (let i = 0; i < 3; i++) {
-				const angle = (i / 3) * Math.PI * 2 + Math.random() * 0.5;
-				const speed = Math.random() * 2 + 1;
+			// Further reduced from 3 to just 2 child particles
+			for (let i = 0; i < 2; i++) {
+				const angle = (i / 2) * Math.PI * 2 + Math.random() * 0.5;
+				const speed = Math.random() * 1.5 + 0.5; // Reduced speed
 				const vx = Math.cos(angle) * speed;
 				const vy = Math.sin(angle) * speed;
 
-				const childParticle = new Particle(
+				const childParticle = getParticle(
 					this.x,
 					this.y,
 					vx,
 					vy,
-					this.size * 0.6,
+					this.size * 0.5, // Smaller child particles
 					this.color,
-					Math.random() * 0.3 + 0.2,
-					i === 0, // First particle is a streamer
+					Math.random() * 0.2 + 0.1, // Even shorter life
+					i === 0, // Only first particle is a streamer
 					true
 				);
 
 				parentFirework.particles.push(childParticle);
 			}
 		}
-
-		draw(ctx: CanvasRenderingContext2D) {
-			// Skip drawing if particle is invisible
-			if (this.alpha <= 0) return;
-
-			// Set global alpha for transparency
-			ctx.globalAlpha = this.alpha;
-
-			// Draw particle
-			ctx.beginPath();
-
-			// Streamers get a different shape
-			if (this.isStreamer) {
-				// Simplified streamer drawing for better performance
-				ctx.save();
-				ctx.translate(this.x, this.y);
-
-				// Use simpler rotation calculation
-				const angle = Math.atan2(this.vy, this.vx);
-				ctx.rotate(angle);
-
-				// Simpler shape
-				ctx.beginPath();
-				ctx.moveTo(0, 0);
-				ctx.lineTo(-this.size * 4, 0);
-				ctx.lineTo(-this.size * 4, -this.size * 0.3);
-				ctx.lineTo(-this.size * 4, this.size * 0.3);
-				ctx.closePath();
-
-				ctx.fillStyle = this.color;
-				ctx.fill();
-
-				ctx.restore();
-			} else {
-				// Regular particles
-				ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-
-				// Only apply glow to larger particles for better performance
-				if (this.alpha > 0.7 && this.size > 2) {
-					ctx.shadowColor = this.color;
-					ctx.shadowBlur = 3; // Reduced from 5
-				}
-
-				ctx.fillStyle = this.color;
-				ctx.fill();
-				ctx.shadowBlur = 0;
-			}
-
-			// Reset global alpha
-			ctx.globalAlpha = 1;
-		}
 	}
-
-	// Performance monitoring variables
-	let lastFrameTime = 0;
-	let frameCount = 0;
-	let fps = 60;
-	let fpsThrottleEnabled = true;
-	let fpsThreshold = 30; // Target minimum FPS
 
 	// Choreographed fireworks sequences
 	function startFireworksSequence() {
 		if (!fireworksCtx) return;
+
+		// Check browser and device capabilities
+		// Check if we're on desktop (likely larger screen)
+		isDesktopView = window.innerWidth >= 1024;
+
+		// Try to detect performance level more accurately
+		const performanceLevel = detectPerformanceLevel();
+		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+		
+		// Set render scale based on performance level (lower = better performance but lower quality)
+		renderScale = isDesktopView 
+			? (performanceLevel === 'low' ? 0.5 : 0.75) 
+			: (performanceLevel === 'low' ? 0.6 : 0.9);
+			
+		// Disable fireworks entirely on very low-end devices
+		if (performanceLevel === 'very-low' || 
+			(isSafari && performanceLevel === 'low') || 
+			(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+			fireworksDisabled = true;
+			skipFireworksAndShowContent();
+			return;
+		}
+
+		// Setup offscreen canvas for better performance
+		setupOffscreenCanvas();
 
 		// Clear any existing animation
 		if (fireworksAnimationId) {
@@ -673,28 +755,46 @@
 		// Track time for fireworks scheduling
 		let startTime = performance.now();
 
-		// More dramatic choreography but with fewer fireworks for performance
+		// Even more reduced fireworks for desktop
 		const fireworksSequence = [
 			// First wave - single centered burst
 			{ time: 500, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.4 },
 
-			// Second wave - pair of bursts (delayed slightly for better spacing)
+			// Second wave - pair of bursts (wider spacing, only one for all modes)
 			{ time: 1600, startX: width * 0.4, targetX: width * 0.35, targetY: height * 0.35 },
-			{ time: 2000, startX: width * 0.6, targetX: width * 0.65, targetY: height * 0.35 },
-
-			// Third wave - triangular formation with longer delay
-			{ time: 3000, startX: width * 0.3, targetX: width * 0.3, targetY: height * 0.3 },
-			{ time: 3300, startX: width * 0.7, targetX: width * 0.7, targetY: height * 0.3 },
+			
+			// Mobile-only additional bursts
+			...(isDesktopView || performanceLevel === 'low' ? [] : [
+				{ time: 2000, startX: width * 0.6, targetX: width * 0.65, targetY: height * 0.35 },
+				// Third wave - reduced triangular formation with longer delay
+				{ time: 3000, startX: width * 0.3, targetX: width * 0.3, targetY: height * 0.3 },
+				{ time: 3300, startX: width * 0.7, targetX: width * 0.7, targetY: height * 0.3 },
+			]),
+			
+			// Add a final burst for all devices
 			{ time: 3800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 },
 
-			// Grand finale - fewer but well-spaced bursts
-			{ time: 4800, startX: width * 0.25, targetX: width * 0.25, targetY: height * 0.25 },
-			{ time: 5200, startX: width * 0.75, targetX: width * 0.75, targetY: height * 0.25 },
-			{ time: 5800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 }
+			// Grand finale - even fewer bursts, single one for low performance
+			...(performanceLevel === 'low' 
+				? [{ time: 4800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.25 }]
+				: isDesktopView 
+					? [{ time: 4800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.25 }] 
+					: [
+						{ time: 4800, startX: width * 0.25, targetX: width * 0.25, targetY: height * 0.25 },
+						{ time: 5200, startX: width * 0.75, targetX: width * 0.75, targetY: height * 0.25 },
+						{ time: 5800, startX: width * 0.5, targetX: width * 0.5, targetY: height * 0.2 }
+					])
 		];
 
 		let sequenceIndex = 0;
-		let adaptiveParticleFactor = 1.0; // Will be adjusted based on performance
+		// Even more aggressive particle reduction on desktop
+		let adaptiveParticleFactor = isDesktopView ? 0.5 : (performanceLevel === 'low' ? 0.7 : 1.0);
+		let skipFrames = 0; // For frame skipping when performance is low
+		const maxSkipFrames = isDesktopView ? 3 : (performanceLevel === 'low' ? 2 : 1);
+		
+		// Batch rendering variables
+		let lastBatchTime = 0;
+		const batchInterval = isDesktopView ? 2 : 1; // Only render every X frames
 
 		// Animation loop
 		function animate(timestamp: number) {
@@ -707,32 +807,86 @@
 						// Smooth FPS calculation
 						fps = fps * 0.9 + instantFps * 0.1;
 
-						// Adjust particle count based on performance
+						// Track consecutive low performance frames
+						if (fps < fpsThreshold * 0.7) {
+							lowPerformanceCounter++;
+							// If performance is consistently terrible, disable fireworks
+							if (lowPerformanceCounter > 10) {
+								fireworksDisabled = true;
+								skipFireworksAndShowContent();
+								return;
+							}
+						} else {
+							// Reset counter if performance improves
+							lowPerformanceCounter = Math.max(0, lowPerformanceCounter - 1);
+						}
+
+						// More aggressive particle reduction and frame skipping
 						if (fpsThrottleEnabled) {
-							if (fps < fpsThreshold && adaptiveParticleFactor > 0.3) {
-								adaptiveParticleFactor *= 0.9; // Reduce particles if low FPS
-							} else if (fps > fpsThreshold + 10 && adaptiveParticleFactor < 1.0) {
-								adaptiveParticleFactor *= 1.05; // Increase particles if high FPS
+							if (fps < fpsThreshold) {
+								// More aggressive reduction for desktop
+								adaptiveParticleFactor *= isDesktopView ? 0.8 : 0.85; 
+								
+								// Limit the minimum to prevent empty explosions
+								if (adaptiveParticleFactor < 0.15) {
+									adaptiveParticleFactor = 0.15;
+								}
+								
+								// Skip more frames when performance is poor
+								skipFrames = maxSkipFrames;
+							} else if (fps > fpsThreshold + 10 && adaptiveParticleFactor < (isDesktopView ? 0.7 : 0.9)) {
+								// More conservative increase
+								adaptiveParticleFactor *= isDesktopView ? 1.01 : 1.03;
+								
+								// Cap at different levels for desktop vs mobile
+								const maxFactor = isDesktopView ? 0.7 : (performanceLevel === 'low' ? 0.8 : 0.9);
+								if (adaptiveParticleFactor > maxFactor) {
+									adaptiveParticleFactor = maxFactor;
+								}
 							}
 						}
 					}
 				}
 				lastFrameTime = timestamp;
 
-				// Log FPS every 60 frames
-				if (++frameCount % 60 === 0) {
+				// Log FPS less frequently
+				if (++frameCount % 180 === 0) {
 					console.log(
 						`Fireworks FPS: ${fps.toFixed(1)}, Particle factor: ${adaptiveParticleFactor.toFixed(2)}`
 					);
 				}
 			}
 
-			// Clear canvas - use full clear for less transparency buildup
-			if (fireworksCtx) {
-				fireworksCtx.clearRect(0, 0, width, height);
-				// Add a subtle background for trail effect
-				fireworksCtx.fillStyle = 'rgba(26, 32, 44, 0.15)';
-				fireworksCtx.fillRect(0, 0, width, height);
+			// Skip this frame if needed for performance
+			if (skipFrames > 0) {
+				skipFrames--;
+				fireworksAnimationId = requestAnimationFrame(animate);
+				return;
+			}
+
+			// Use batch rendering - only render every X frames based on performance
+			const shouldRender = timestamp - lastBatchTime >= batchInterval;
+			if (shouldRender) {
+				lastBatchTime = timestamp;
+				
+				// Use offscreen canvas if available
+				const ctx = offscreenCtx || fireworksCtx;
+				const targetWidth = offscreenCanvas ? offscreenCanvas.width : (fireworksCanvas?.width || 0);
+				const targetHeight = offscreenCanvas ? offscreenCanvas.height : (fireworksCanvas?.height || 0);
+				
+				if (ctx) {
+					// Clear canvas - use full clear for less transparency buildup
+					ctx.clearRect(0, 0, targetWidth, targetHeight);
+					
+					// Add a subtle background for trail effect - lighter for better performance
+					ctx.fillStyle = isDesktopView 
+						? 'rgba(26, 32, 44, 0.05)' // Much lighter for desktop
+						: 'rgba(26, 32, 44, 0.12)'; // Lighter than original
+					ctx.fillRect(0, 0, targetWidth, targetHeight);
+					
+					// Set composite operation for better performance
+					ctx.globalCompositeOperation = 'lighter';
+				}
 			}
 
 			// Current time since start
@@ -744,31 +898,51 @@
 				currentTime >= fireworksSequence[sequenceIndex].time
 			) {
 				const sequence = fireworksSequence[sequenceIndex];
-				const fw = new Firework(sequence.startX, sequence.targetX, sequence.targetY);
-
+				
+				// Create firework with adaptiveParticleFactor to control explosion size
+				const fw = new Firework(sequence.startX, sequence.targetX, sequence.targetY, adaptiveParticleFactor);
 				fireworks.push(fw);
 				sequenceIndex++;
 			}
 
-			// Update and draw fireworks
+			// Update and draw fireworks - don't draw every particle for better performance
 			for (let i = fireworks.length - 1; i >= 0; i--) {
 				// Safety check to ensure this firework exists
 				if (!fireworks[i]) continue;
 				
-				// Draw the firework
-				fireworks[i].draw(fireworksCtx!);
+				// Only draw if we're rendering this frame
+				if (shouldRender) {
+					// Draw the firework with optimized drawing
+					fireworks[i].draw(offscreenCtx || fireworksCtx!, isDesktopView);
+				}
 
 				// Update and check if firework is done
-				const isDone = fireworks[i].update();
+				const isDone = fireworks[i].update(adaptiveParticleFactor);
 
 				// Remove finished fireworks
 				if (isDone) {
 					fireworks.splice(i, 1);
 				}
 			}
+			
+			// If we rendered to offscreen canvas, copy to main canvas
+			if (shouldRender && offscreenCtx && fireworksCtx) {
+				fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+				fireworksCtx.drawImage(
+					offscreenCanvas!,
+					0, 0, offscreenCanvas!.width, offscreenCanvas!.height,
+					0, 0, fireworksCanvas.width, fireworksCanvas.height
+				);
+				
+				// Reset composite operation
+				if (offscreenCtx) {
+					offscreenCtx.globalCompositeOperation = 'source-over';
+				}
+			}
 
-			// Show content after all fireworks have started
-			if (sequenceIndex >= fireworksSequence.length && !contentReady && currentTime > 6000) {
+			// Show content after all fireworks have started or earlier on desktop
+			const revealTime = (isDesktopView || performanceLevel === 'low') ? 4000 : 5500;
+			if (sequenceIndex >= fireworksSequence.length && !contentReady && currentTime > revealTime) {
 				contentReady = true;
 				revealContent();
 			}
@@ -777,16 +951,24 @@
 			if (fireworks.length > 0 || sequenceIndex < fireworksSequence.length) {
 				fireworksAnimationId = requestAnimationFrame(animate);
 			} else {
-				// Fade out canvas when complete
+				// Fade out canvas when complete - faster on desktop
 				const fadeCanvas = () => {
 					let opacity = parseFloat(fireworksCanvas.style.opacity || '1');
-					opacity -= 0.02;
+					opacity -= isDesktopView ? 0.08 : (performanceLevel === 'low' ? 0.05 : 0.02);
 
 					if (opacity <= 0) {
 						fireworksCanvas.style.opacity = '0';
 						setTimeout(() => {
 							fireworksCanvas.style.display = 'none';
-						}, 500);
+							
+							// Clean up resources
+							if (offscreenCanvas) {
+								offscreenCanvas.width = 1;
+								offscreenCanvas.height = 1;
+								offscreenCanvas = null;
+								offscreenCtx = null;
+							}
+						}, 100);
 						return;
 					}
 
@@ -794,12 +976,93 @@
 					requestAnimationFrame(fadeCanvas);
 				};
 
-				setTimeout(fadeCanvas, 1000);
+				setTimeout(fadeCanvas, isDesktopView ? 300 : (performanceLevel === 'low' ? 500 : 800));
 			}
 		}
 
 		// Start animation
 		fireworksAnimationId = requestAnimationFrame(animate);
+	}
+
+	// Helper function to detect performance level
+	function detectPerformanceLevel(): 'high' | 'medium' | 'low' | 'very-low' {
+		// Check for obvious low-end indicators
+		const memory = (navigator as any).deviceMemory;
+		const cores = navigator.hardwareConcurrency || 0;
+		const isLowPowerMode = 'getBattery' in navigator && (navigator as any).getBattery && (navigator as any).getBattery().then((b: any) => b.charging);
+		const isReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		
+		// Basic heuristics for performance level
+		if (isReducedMotion) {
+			return 'very-low';
+		}
+		
+		if (memory && memory <= 2) {
+			return 'low';
+		}
+		
+		if (cores <= 2) {
+			return 'low';
+		}
+		
+		if (memory && memory <= 4 && cores <= 4) {
+			return 'medium';
+		}
+		
+		if (isLowPowerMode) {
+			return 'low';
+		}
+		
+		// Mobile detection
+		const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+		if (isMobile) {
+			return cores <= 4 ? 'low' : 'medium';
+		}
+		
+		// Default to high for modern desktops
+		return 'high';
+	}
+
+	// Setup offscreen canvas for better performance
+	function setupOffscreenCanvas() {
+		// Skip if already set up or disabled
+		if (offscreenCanvas || !fireworksCanvas) return;
+		
+		try {
+			offscreenCanvas = document.createElement('canvas');
+			
+			// Use smaller dimensions for better performance
+			offscreenCanvas.width = Math.floor(fireworksCanvas.width * renderScale);
+			offscreenCanvas.height = Math.floor(fireworksCanvas.height * renderScale);
+			
+			offscreenCtx = offscreenCanvas.getContext('2d', { alpha: true });
+			
+			// Optimize the context
+			if (offscreenCtx) {
+				// Disable image smoothing for better performance
+				offscreenCtx.imageSmoothingEnabled = false;
+			}
+		} catch (e) {
+			console.error('Failed to create offscreen canvas:', e);
+			offscreenCanvas = null;
+			offscreenCtx = null;
+		}
+	}
+
+	// Skip fireworks and show content directly
+	function skipFireworksAndShowContent() {
+		if (fireworksCanvas) {
+			fireworksCanvas.style.display = 'none';
+		}
+		
+		if (fireworksAnimationId) {
+			cancelAnimationFrame(fireworksAnimationId);
+			fireworksAnimationId = 0;
+		}
+		
+		// Show content immediately
+		contentReady = true;
+		setTimeout(revealContent, 100);
 	}
 
 	// Function to reveal content after fireworks
@@ -1513,8 +1776,6 @@
 		100% { transform: scale(1); opacity: 1; }
 	}
 
-
-
 	/* Shake animation */
 	@keyframes name-shake {
 		0% { transform: translateX(0); }
@@ -1525,7 +1786,6 @@
 		100% { transform: translateX(0); }
 	}
 
-
 	/* 3D Rotate animation */
 	@keyframes name-rotate {
 		0% { transform: rotateY(0); }
@@ -1533,12 +1793,10 @@
 		100% { transform: rotateY(360deg); }
 	}
 
-
 	/* Bounce animation */
 	@keyframes name-bounce {
 		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
 		40% { transform: translateY(-20px); }
 		60% { transform: translateY(-10px); }
 	}
-
 </style>

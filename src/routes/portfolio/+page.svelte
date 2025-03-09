@@ -24,15 +24,6 @@
 			githubUrl: 'https://github.com/hanklikesmatcha/cnc-cost-analysis',
 			liveUrl: 'https://cnc-cost-analysis-production.up.railway.app/',
 			image: '/images/cnc-cost-analysis.jpg'
-		},
-		{
-			id: 'personal-website',
-			title: 'Portfolio Website',
-			description: 'This is my portfolio website, where I showcase my projects and work.',
-			technologies: ['TypeScript/SvelteKit', 'Tailwind CSS', 'Animation'],
-			githubUrl: 'https://github.com/hanklikesmatcha/szu-han-portfolio',
-			liveUrl: 'https://hankchou.me',
-			image: '/images/portfolio-website.jpg'
 		}
 	];
 
