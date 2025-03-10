@@ -1825,7 +1825,7 @@
 					src="/images/me.jpg"
 					alt="Hank Chou"
 					class="object-position-y-top h-40 w-40 object-cover"
-					style="object-position: 20% 10%;"
+					style="object-position: 10% 7%; transform: translateX(-5px);"
 					loading="eager"
 				/>
 			</div>
