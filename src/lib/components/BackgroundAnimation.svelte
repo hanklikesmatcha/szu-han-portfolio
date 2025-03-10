@@ -32,11 +32,11 @@
   
   // Animation timing control
   let animationPhase = 'entry'; // 'entry', 'normal'
-  let entryDuration = 6800; // ms - extended to 6 seconds for more dramatic entry
+  let entryDuration = 3500; // ms - reduced for faster entry to the core
   let entryProgress = 0; // 0-1 progress through entry
   
   // Camera properties - adjusted positions for better vertical positioning and core entry
-  let cameraPosition = new THREE.Vector3(0, 2500, 6000); // Start higher and further back
+  let cameraPosition = new THREE.Vector3(0, 1500, 18000); // Increased distance - start much further back
   let cameraTarget = new THREE.Vector3(0, 200, 0); // Look slightly above the center
   let targetCameraPosition = new THREE.Vector3(0, 50, 50); // End position INSIDE the galaxy core
   
