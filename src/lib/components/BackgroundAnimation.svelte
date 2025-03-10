@@ -20,15 +20,15 @@
   
   // Animation properties
   let particleCount: number;
-  const particleSize = 5;
+  const particleSize = 8;
   const maxRange = 2000;
   
   // Spiral galaxy properties
-  const spiralArms = 8; // Number of spiral arms
-  const spiralTightness = 0.7; // How tight the spiral is
-  const galaxyRadius = 1700; // Size of the galaxy
-  const coreSize = 300; // Size of the dense central core (reduced from 650)
-  const galaxyCoreParticles = 450; // Particles in the galaxy core - reduced from 700 for less density
+  const spiralArms = 12; // Number of spiral arms
+  const spiralTightness = 0.9; // How tight the spiral is
+  const galaxyRadius = 1800; // Size of the galaxy
+  const coreSize = 186; // Size of the dense central core (reduced by 7% from 200)
+  const galaxyCoreParticles = 320; // Particles in the galaxy core (reduced by 20% from 400)
   
   // Animation timing control
   let animationPhase = 'entry'; // 'entry', 'normal'
@@ -49,7 +49,7 @@
     colorBase: number,
     armIndex: number // Which spiral arm this cluster belongs to
   }[] = [];
-  const clusterCount = 6; // Increased for more variety
+  const clusterCount = 4; // Increased for more variety
   
   // Travel path for continuous movement
   let travelPath: { position: THREE.Vector3, lookAt: THREE.Vector3 }[] = [];
@@ -58,7 +58,7 @@
   const pathTransitionTime = 12000; // Time to travel between path points (ms)
   
   // Customizable props
-  export let speed = 0.210; // Speed reduced by 40% from previous value
+  export let speed = 0.150; // Speed reduced by 40% from previous value
   export let autoStart = true;
   export let highPerformance = true;
   
@@ -380,13 +380,13 @@
     // Create a less dense center with particles that are more spread out
     for (let i = 0; i < galaxyCoreParticles; i++) {
       // Use a modified distribution for a less dense center
-      const radiusSq = Math.pow(Math.random(), 0.6) * coreSize; // Increased from 0.5 to 0.6 for more spread out distribution
+      const radiusSq = Math.pow(Math.random(), 0.7) * coreSize; // Increased from 0.6 to 0.7 for more spread out distribution
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.random() * Math.PI - Math.PI / 2;
       
-      // Convert spherical to cartesian coordinates with more vertical spread
+      // Convert spherical to cartesian coordinates with symmetrical vertical spread
       corePositions[i * 3] = radiusSq * Math.cos(phi) * Math.cos(theta);
-      corePositions[i * 3 + 1] = (radiusSq * 0.4) * Math.sin(phi) + 100; // Added +100 to move particles up
+      corePositions[i * 3 + 1] = (radiusSq * 0.4) * Math.sin(phi); // Removed the +100 offset to avoid double shifting
       corePositions[i * 3 + 2] = radiusSq * Math.cos(phi) * Math.sin(theta);
       
       // Color - bright white-yellow in center, matching arm colors at edges
@@ -416,7 +416,7 @@
       
       // Size - more variation for a less uniform appearance
       const sizeVariation = Math.random() * 0.8 + 0.2;
-      coreSizes[i] = particleSize * (1.0 - distFromCenter * 0.4) * sizeVariation; // Reduced base size multiplier from 1.2 to 1.0
+      coreSizes[i] = particleSize * (0.9 - distFromCenter * 0.4) * sizeVariation; // Reduced from 1.0 to 0.9 for smaller particles
     }
     
     coreGeometry.setAttribute('position', new THREE.BufferAttribute(corePositions, 3));
@@ -428,10 +428,10 @@
     
     // Less intense core material with lower opacity
     const coreMaterial = new THREE.PointsMaterial({
-      size: 6.5, // Reduced from 7
+      size: 6, // Reduced from 6.5
       vertexColors: true,
       transparent: true,
-      opacity: 0.8, // Reduced from 1.0
+      opacity: 0.7, // Reduced from 0.8 for less visual density
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -439,7 +439,7 @@
     });
     
     galaxyCore = new THREE.Points(coreGeometry, coreMaterial);
-    galaxyCore.position.y = 250; // Move the entire core up by 100 units - adjust this value as needed
+    galaxyCore.position.y = 150; // Maintained vertical position
     scene.add(galaxyCore);
   }
   
