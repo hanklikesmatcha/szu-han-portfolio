@@ -25,10 +25,10 @@
   
   // Spiral galaxy properties
   const spiralArms = 8; // Number of spiral arms
-  const spiralTightness = 0.5; // How tight the spiral is
-  const galaxyRadius = 1500; // Size of the galaxy
-  const coreSize = 650; // Size of the dense central core
-  const galaxyCoreParticles = 700; // Particles in the galaxy core - reduced density
+  const spiralTightness = 0.7; // How tight the spiral is
+  const galaxyRadius = 1700; // Size of the galaxy
+  const coreSize = 300; // Size of the dense central core (reduced from 650)
+  const galaxyCoreParticles = 450; // Particles in the galaxy core - reduced from 700 for less density
   
   // Animation timing control
   let animationPhase = 'entry'; // 'entry', 'normal'
@@ -380,7 +380,7 @@
     // Create a less dense center with particles that are more spread out
     for (let i = 0; i < galaxyCoreParticles; i++) {
       // Use a modified distribution for a less dense center
-      const radiusSq = Math.pow(Math.random(), 0.5) * coreSize; // Less concentrated
+      const radiusSq = Math.pow(Math.random(), 0.6) * coreSize; // Increased from 0.5 to 0.6 for more spread out distribution
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.random() * Math.PI - Math.PI / 2;
       
@@ -395,17 +395,17 @@
       // Weighted random choice to select between white and colored core
       let hue, saturation, lightness;
       
-      if (Math.random() < 0.6 - distFromCenter * 0.5) { // Reduced central brightness probability
-        // Bright white-yellow center (60% of inner particles, down from 70%)
+      if (Math.random() < 0.5 - distFromCenter * 0.5) { // Reduced from 0.6 to 0.5 for fewer bright central particles
+        // Bright white-yellow center (50% of inner particles, down from 60%)
         hue = 0.14; // Slight yellow tint
         saturation = 0.4 * distFromCenter; // Higher saturation for more visible color
-        lightness = 0.8 - 0.3 * distFromCenter; // Increased from 0.65 to 0.8 for brighter core
+        lightness = 0.7 - 0.3 * distFromCenter; // Reduced from 0.8 to 0.7 for less brightness
       } else {
         // More colored particles matching arms
         const colorIndex = Math.floor(Math.random() * getColorPalette().length);
         hue = getColorPalette()[colorIndex].hue;
         saturation = 0.7;
-        lightness = 0.65; // Increased from 0.5 for brighter colored particles
+        lightness = 0.6; // Reduced from 0.65 for less brightness
       }
       
       color.setHSL(hue, saturation, lightness);
@@ -415,8 +415,8 @@
       coreColors[i * 3 + 2] = color.b;
       
       // Size - more variation for a less uniform appearance
-      const sizeVariation = Math.random() * 0.8 + 0.3;
-      coreSizes[i] = particleSize * (1.2 - distFromCenter * 0.4) * sizeVariation;
+      const sizeVariation = Math.random() * 0.8 + 0.2;
+      coreSizes[i] = particleSize * (1.0 - distFromCenter * 0.4) * sizeVariation; // Reduced base size multiplier from 1.2 to 1.0
     }
     
     coreGeometry.setAttribute('position', new THREE.BufferAttribute(corePositions, 3));
@@ -428,10 +428,10 @@
     
     // Less intense core material with lower opacity
     const coreMaterial = new THREE.PointsMaterial({
-      size: 7,
+      size: 6.5, // Reduced from 7
       vertexColors: true,
       transparent: true,
-      opacity: 1.0,
+      opacity: 0.8, // Reduced from 1.0
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -742,7 +742,7 @@
       const flowMaterial = flowParticles.material as THREE.PointsMaterial;
       
       particleMaterial.opacity = 0.8 + brightnessFactor * 0.4; // Increased from 0.5 to 0.8
-      coreMaterial.opacity = 0.7 + brightnessFactor * 0.5; // Increased from 0.4 to 0.7
+      coreMaterial.opacity = 0.6 + brightnessFactor * 0.4; // Reduced from 0.7 to 0.6
       flowMaterial.opacity = 0.7 + brightnessFactor * 0.5; // Increased from 0.4 to 0.7
     }
     
@@ -960,7 +960,7 @@
     galaxyCore.rotation.y += delta * 0.05;
     
     // Pulsing effect for galaxy core
-    const pulseMagnitude = Math.sin(elapsedTime * 0.001) * 0.1 + 1;
+    const pulseMagnitude = Math.sin(elapsedTime * 0.001) * 0.08 + 1; // Reduced from 0.1 to 0.08 for subtler pulsing
     galaxyCore.scale.set(pulseMagnitude, pulseMagnitude, pulseMagnitude);
     
     // Update galaxy core particles
@@ -969,12 +969,12 @@
     const coreCount = coreSizes.length;
     
     // Occasional bright flashes in the core
-    if (Math.random() < 0.01) {
+    if (Math.random() < 0.008) { // Reduced from 0.01 for fewer flashes
       const flashIndex = Math.floor(Math.random() * coreCount);
       
       // Make this particle temporarily brighter
       const originalSize = coreSizes[flashIndex];
-      coreSizes[flashIndex] = originalSize * (1.5 + Math.random());
+      coreSizes[flashIndex] = originalSize * (1.3 + Math.random()); // Reduced from 1.5 to 1.3
       
       // Brighter color
       const colorIx = flashIndex * 3;
@@ -988,7 +988,7 @@
       color.getHSL(hsl);
       
       // Increase brightness
-      color.setHSL(hsl.h, hsl.s, Math.min(0.9, hsl.l + 0.2));
+      color.setHSL(hsl.h, hsl.s, Math.min(0.85, hsl.l + 0.15)); // Reduced from 0.9 to 0.85 and from 0.2 to 0.15
       
       coreColors[colorIx] = color.r;
       coreColors[colorIx + 1] = color.g;
@@ -1017,7 +1017,7 @@
     const flowMaterial = flowParticles.material as THREE.PointsMaterial;
     
     particleMaterial.opacity = 0.8;
-    coreMaterial.opacity = 0.8;
+    coreMaterial.opacity = 0.7; // Reduced from 0.8
     flowMaterial.opacity = 0.8;
     
     // Reset flow particles to enhance travel effect
