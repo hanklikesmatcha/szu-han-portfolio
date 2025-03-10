@@ -1946,18 +1946,13 @@
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Background</h3>
 					<p class="mb-6 text-gray-200">
-						Hey there! I'm a full-stack dev who loves building user-friendly software that actually
-						solves problems. I'm originally from Taipei (that's the beautiful city in the photo!),
-						but I've been living in New Zealand and working with multi-national startups for over 7
-						years now. My journey between these cultures has sparked my love for connecting
-						technology with vibrant communities. My technical toolkit includes <span
-							class="font-bold transition-colors duration-300 hover:text-blue-300">Python</span
-						>
-						and
-						<span class="font-bold transition-colors duration-300 hover:text-blue-300"
-							>TypeScript</span
-						>. I enjoy collaboration and believe in making tech accessible to everyone, so don't
-						hesitate to reach out if you want to chat about a project or just talk tech!
+						Hey there! I'm a senior full-stack developer with <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">7+ years</span> of experience delivering high-impact solutions for multi-national startups. I'm originally from Taipei (that's the beautiful city in the photo!), 
+						but I've been living in New Zealand where I've collaborated with diverse teams across multiple time zones. My journey between these cultures has enhanced my ability to communicate effectively and adapt to different business environments. My expertise includes <span
+							class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">AI-powered solutions</span
+						> (intelligent data classification and content generation), 
+						<span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40"
+							>intuitive user interfaces</span
+						> that delight customers, <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">responsive web applications</span> that work flawlessly across all devices with optimized mobile experiences, and <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">high-performance backend systems</span>. I've designed and implemented <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">cloud infrastructure</span> that scales automatically with demand and <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">containerized applications</span> for consistent deployment across environments. I thrive in collaborative environments and have a proven track record of translating complex business requirements into elegant technical solutions. Let's connect to discuss how my skills can help bring your vision to life!
 					</p>
 
 					<div
