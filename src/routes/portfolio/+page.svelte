@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { animate, stagger, spring } from 'motion';
+	import CTA from '$lib/components/CTA.svelte';
 
 	// Project data including both personal and professional projects
 	const projects = [
@@ -163,7 +164,6 @@
 	let projectsGrid: HTMLElement;
 	let filtersContainer: HTMLElement;
 	let heroSection: HTMLElement;
-	let ctaSection: HTMLElement;
 	let animationsApplied = false;
 
 	// Replace the dynamic filters with a static array of outcome-focused filters
@@ -368,139 +368,11 @@
 		});
 	}
 
-	// Function to setup copy email functionality
-	function setupCopyEmailFunctionality() {
-		document.querySelectorAll('.copy-email-btn').forEach((btn) => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				// Cast btn to HTMLElement at the beginning to fix all TypeScript errors
-				const htmlBtn = btn as HTMLElement;
-				const emailAddress = 'szuhan.eng@gmail.com';
-				navigator.clipboard
-					.writeText(emailAddress)
-					.then(() => {
-						// Show success message in tooltip
-						const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
-						if (tooltip) {
-							tooltip.textContent = 'Email copied!';
-							tooltip.classList.add('tooltip-visible');
-
-							// Create and display success animation elements
-
-							// 1. Create ripple effect
-							const ripple = document.createElement('span');
-							ripple.className = 'copy-ripple';
-							htmlBtn.appendChild(ripple);
-
-							// 2. Add animation class to button
-							htmlBtn.classList.add('copy-success-pulse');
-
-							// 3. Handle text content change for Contact Me buttons
-							const hasButtonText = htmlBtn.childNodes.length > 0 && 
-								Array.from(htmlBtn.childNodes).some(node => 
-									node.nodeType === Node.TEXT_NODE && node.textContent?.trim() !== '');
-							
-							if (hasButtonText) {
-								// Save original text by looking for direct text nodes
-								const textNodes = Array.from(htmlBtn.childNodes)
-									.filter(node => node.nodeType === Node.TEXT_NODE);
-								
-								if (textNodes.length > 0) {
-									const originalText = textNodes[0].textContent?.trim() || '';
-									htmlBtn.dataset.originalText = originalText;
-									
-									// Create a wrapper with checkmark and text that won't change button dimensions
-									const successContent = document.createElement('div');
-									successContent.className = 'copy-success-content';
-									// Simplified to just show text without the checkmark icon
-									successContent.innerHTML = `<span class="success-text">Email Copied!</span>`;
-									
-									// Clear text nodes and add our wrapper
-									textNodes.forEach(node => node.textContent = '');
-									// Append the success content to the first text node's parent
-									if (textNodes[0].parentNode) {
-										textNodes[0].parentNode.insertBefore(successContent, textNodes[0]);
-									}
-								}
-							} else {
-								// For icon-only buttons, create and add a temporary success label
-								const successLabel = document.createElement('span');
-								successLabel.className = 'copy-success-label';
-								successLabel.textContent = 'Copied!';
-								htmlBtn.appendChild(successLabel);
-
-								// Make sure the original SVG icon stays visible
-								const svgIcon = htmlBtn.querySelector('svg');
-								if (svgIcon) svgIcon.style.opacity = '1';
-							}
-
-							// Clean up elements after animations complete
-							setTimeout(() => {
-								ripple.remove();
-								htmlBtn.classList.remove('copy-success-pulse');
-
-								// Remove success content and restore original text
-								if (htmlBtn.dataset.originalText) {
-									const successContent = htmlBtn.querySelector('.copy-success-content');
-									if (successContent) {
-										successContent.remove();
-									}
-								
-									// Restore the original text in the first text node
-									const textNodes = Array.from(htmlBtn.childNodes)
-										.filter(node => node.nodeType === Node.TEXT_NODE);
-									
-									if (textNodes.length > 0) {
-										textNodes[0].textContent = htmlBtn.dataset.originalText || '';
-									} else {
-										// If there are no text nodes, create one
-										htmlBtn.appendChild(document.createTextNode(htmlBtn.dataset.originalText || ''));
-									}
-									
-									delete htmlBtn.dataset.originalText;
-								}
-
-								// Remove success label if it was added
-								const successLabel = htmlBtn.querySelector('.copy-success-label');
-								if (successLabel) successLabel.remove();
-
-								tooltip.textContent = 'Copy email address';
-								tooltip.classList.remove('tooltip-visible');
-							}, 2000);
-						}
-					})
-					.catch((err) => {
-						console.error('Failed to copy email: ', err);
-					});
-			});
-
-			// Show tooltip on hover
-			btn.addEventListener('mouseenter', () => {
-				const htmlBtn = btn as HTMLElement;
-				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
-				if (tooltip) {
-					tooltip.classList.add('tooltip-visible');
-				}
-			});
-
-			// Hide tooltip on mouse leave
-			btn.addEventListener('mouseleave', () => {
-				const htmlBtn = btn as HTMLElement;
-				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
-				if (tooltip && tooltip.textContent !== 'Email copied!') {
-					tooltip.classList.remove('tooltip-visible');
-				}
-			});
-		});
-	}
-
 	onMount(() => {
 		// Ensure hero elements are visible immediately to prevent flashing
 		ensureHeroElementsVisible();
 
-		// Setup copy email functionality
-		setupCopyEmailFunctionality();
-
+		// Setup animation code but without the CTA section observer
 		// Hero section animation - more dramatic entrance with staggered reveal
 		try {
 			animate(
@@ -573,43 +445,6 @@
 
 		if (filtersContainer) {
 			observer.observe(filtersContainer);
-		}
-
-		// CTA section animation when scrolled to
-		const ctaObserver = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						try {
-							animate(
-								'.cta-element',
-								{
-									opacity: [0, 1],
-									y: [20, 0],
-									scale: [0.9, 1.05, 1]
-								},
-								{
-									delay: stagger(0.2),
-									duration: 0.8,
-									easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)'
-								}
-							);
-						} catch (error) {
-							console.error('CTA animation error:', error);
-							// Ensure CTA elements are visible if animation fails
-							document.querySelectorAll('.cta-element').forEach((el) => {
-								(el as HTMLElement).style.opacity = '1';
-								(el as HTMLElement).style.transform = 'translateY(0) scale(1)';
-							});
-						}
-					}
-				});
-			},
-			{ threshold: 0.2 }
-		);
-
-		if (ctaSection) {
-			ctaObserver.observe(ctaSection);
 		}
 
 		// Add hover effect to project cards
@@ -791,7 +626,7 @@
 				</svg>
 			</a>
 			<button
-				class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+				class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-pink-400 p-3 text-white shadow-lg transition-all hover:bg-pink-400"
 				aria-label="Copy Email Address"
 			>
 				<span
@@ -1007,30 +842,7 @@
 </div>
 
 <!-- CTA Section -->
-<section class="bg-gray-900 py-12" bind:this={ctaSection}>
-	<div class="container mx-auto px-4 text-center">
-		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">
-			Interested in working together?
-		</h2>
-		<div class="flex justify-center gap-4">
-			<a
-				href="/services"
-				class="cta-element cta-button-fixed rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
-			>
-				View My Services
-			</a>
-			<button
-				class="copy-email-btn cta-element cta-button-fixed relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
-			>
-				<span
-					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
-					>Copy email address</span
-				>
-				Contact Me
-			</button>
-		</div>
-	</div>
-</section>
+<CTA heading="Interested in working together?" buttonText="View My Services" buttonLink="/services" />
 
 <style>
 	/* 3D Animation styles */
@@ -1210,114 +1022,13 @@
 		transform: translateY(-3px) scale(1.05);
 	}
 
-	/* CTA element styling */
-	.cta-element {
-		opacity: 1; /* Start visible by default */
-		transform-style: preserve-3d;
-		backface-visibility: hidden;
-		will-change: transform, opacity;
-		transition: all 0.3s ease;
-	}
-
-	/* Fixed-size CTA buttons that don't scale */
-	.cta-button-fixed {
-		transform: none !important; /* Prevent any transform */
-		transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; /* Only transition colors */
-		will-change: background-color, color, border-color; /* Only watch for color changes */
-		min-width: 160px; /* Ensure consistent width */
-		height: 40px; /* Fixed height instead of min-height */
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		box-sizing: border-box; /* Include padding in dimensions */
-		overflow: hidden; /* Prevent content from affecting dimensions */
-		white-space: nowrap; /* Keep text on one line */
-		line-height: 1; /* Standardize line height */
-		padding: 0 1.5rem; /* Standardize padding */
-		font-size: 1rem; /* Standardize font size */
-	}
-
 	/* Ensure content is visible if JS fails */
 	@media (prefers-reduced-motion: reduce) {
 		.project-card,
-		.filter-btn,
-		.cta-element {
+		.filter-btn {
 			opacity: 1 !important;
 			transform: none !important;
 			filter: none !important;
-		}
-	}
-
-	/* Email button tooltip styles */
-	.copy-email-btn {
-		position: relative;
-		cursor: pointer;
-		overflow: hidden; /* Ensure ripple doesn't overflow */
-	}
-
-	.copy-tooltip {
-		z-index: 10;
-		pointer-events: none;
-		white-space: nowrap;
-		/* Add a small triangle/arrow */
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-	}
-
-	.copy-tooltip:after {
-		content: '';
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		margin-left: -6px;
-		border-width: 6px;
-		border-style: solid;
-		border-color: #1a202c transparent transparent transparent;
-	}
-
-	@keyframes copy-pulse {
-		0% {
-			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
-		}
-		70% {
-			box-shadow: 0 0 0 15px rgba(147, 51, 234, 0);
-		}
-		100% {
-			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
-		}
-	}
-
-	@keyframes copy-ripple {
-		0% {
-			width: 0;
-			height: 0;
-			opacity: 0.6;
-		}
-		100% {
-			width: 200%;
-			height: 200%;
-			opacity: 0;
-		}
-	}
-
-	@keyframes fadeInOut {
-		0% {
-			opacity: 0;
-			transform: scale(0.8) translateY(5px);
-		}
-		15% {
-			opacity: 1;
-			transform: scale(1.1) translateY(0);
-		}
-		25% {
-			transform: scale(1) translateY(0);
-		}
-		85% {
-			opacity: 1;
-			transform: scale(1) translateY(0);
-		}
-		100% {
-			opacity: 0;
-			transform: scale(0.8) translateY(-5px);
 		}
 	}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { animate, stagger, spring } from 'motion';
+	import CTA from '$lib/components/CTA.svelte';
 
 	// Services based on LinkedIn profile
 	const services = [
@@ -50,7 +51,6 @@
 	let heroSection: HTMLElement;
 	let servicesSection: HTMLElement;
 	let expertiseSection: HTMLElement;
-	let ctaSection: HTMLElement;
 
 	// Track scroll position and direction
 	let lastScrollTop = 0;
@@ -60,14 +60,10 @@
 	let sectionStates = {
 		hero: { visible: false, animated: { down: false, up: false } },
 		services: { visible: false, animated: { down: false, up: false } },
-		expertise: { visible: false, animated: { down: false, up: false } },
-		cta: { visible: false, animated: { down: false, up: false } }
+		expertise: { visible: false, animated: { down: false, up: false } }
 	};
 
 	onMount(() => {
-		// Setup copy email functionality
-		setupCopyEmailFunctionality();
-
 		// Initial hero section animation
 		animateHeroSection('down');
 		sectionStates.hero.animated.down = true;
@@ -177,36 +173,6 @@
 					}
 					// Reset animation flags when section is out of view
 					sectionStates.expertise.animated = { up: false, down: false };
-				}
-			});
-		}, observerOptions);
-
-		// CTA section observer
-		const ctaObserver = new IntersectionObserver((entries) => {
-			entries.forEach((entry) => {
-				const isVisible = entry.isIntersecting;
-				const wasVisible = sectionStates.cta.visible;
-				sectionStates.cta.visible = isVisible;
-
-				// Element is entering viewport
-				if (isVisible && scrollDirection === 'down' && !sectionStates.cta.animated.down) {
-					animateCTASection('down');
-					sectionStates.cta.animated.down = true;
-				} else if (isVisible && scrollDirection === 'up' && !sectionStates.cta.animated.up) {
-					animateCTASection('up');
-					sectionStates.cta.animated.up = true;
-				}
-				// Element is leaving viewport
-				else if (wasVisible && !isVisible) {
-					if (scrollDirection === 'up') {
-						// When scrolling up and CTA section moves out of view (below viewport)
-						animateCTASectionExit('down');
-					} else {
-						// When scrolling down and CTA section moves out of view (above viewport)
-						animateCTASectionExit('up');
-					}
-					// Reset animation flags when section is out of view
-					sectionStates.cta.animated = { up: false, down: false };
 				}
 			});
 		}, observerOptions);
@@ -360,58 +326,10 @@
 			}
 		}
 
-		function animateCTASection(direction: 'up' | 'down') {
-			try {
-				const elements = document.querySelectorAll('.cta-element');
-				if (elements && elements.length > 0) {
-					animate(
-						'.cta-element',
-						{
-							opacity: [0, 1],
-							y: direction === 'down' ? [40, 0] : [-40, 0],
-							scale: direction === 'down' ? [0.9, 1.05, 1] : [1.1, 0.95, 1] // Different bounce effect based on direction
-						},
-						{
-							delay: stagger(0.2),
-							duration: 0.8,
-							easing: 'cubic-bezier(0.22, 1.5, 0.36, 1)'
-						}
-					);
-				}
-			} catch (error) {
-				console.error('CTA animation error:', error);
-			}
-		}
-
-		function animateCTASectionExit(direction: 'up' | 'down') {
-			try {
-				// Check if elements exist before animating
-				const elements = document.querySelectorAll('.cta-element');
-				if (elements && elements.length > 0) {
-					animate(
-						'.cta-element',
-						{
-							opacity: [1, 0],
-							y: direction === 'down' ? [0, 40] : [0, -40],
-							scale: direction === 'down' ? [1, 0.9] : [1, 1.1]
-						},
-						{
-							delay: stagger(0.1, { from: 'last' }),
-							duration: 0.6,
-							easing: 'cubic-bezier(0.6, 0.1, 0.9, 0.4)'
-						}
-					);
-				}
-			} catch (error) {
-				console.error('CTA exit animation error:', error);
-			}
-		}
-
 		// Observe sections
 		if (heroSection) heroObserver.observe(heroSection);
 		if (servicesSection) servicesObserver.observe(servicesSection);
 		if (expertiseSection) expertiseObserver.observe(expertiseSection);
-		if (ctaSection) ctaObserver.observe(ctaSection);
 
 		// Add hover effect to service cards safely
 		const serviceCards = document.querySelectorAll('.service-card');
@@ -467,105 +385,6 @@
 			});
 		}
 	});
-
-	// Function to setup copy email functionality
-	function setupCopyEmailFunctionality() {
-		document.querySelectorAll('.copy-email-btn').forEach((btn) => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				// Cast btn to HTMLElement at the beginning to fix all TypeScript errors
-				const htmlBtn = btn as HTMLElement;
-				const emailAddress = 'szuhan.eng@gmail.com';
-				navigator.clipboard
-					.writeText(emailAddress)
-					.then(() => {
-						// Show success message in tooltip
-						const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
-						if (tooltip) {
-							tooltip.textContent = 'Email copied!';
-							tooltip.classList.add('tooltip-visible');
-
-							// Create and display success animation elements
-
-							// 1. Create ripple effect
-							const ripple = document.createElement('span');
-							ripple.className = 'copy-ripple';
-							htmlBtn.appendChild(ripple);
-
-							// 2. Create success checkmark icon
-							const checkmark = document.createElement('span');
-							checkmark.className = 'copy-checkmark';
-							checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-							htmlBtn.appendChild(checkmark);
-
-							// 3. Add animation class to button itself
-							htmlBtn.classList.add('copy-success-pulse');
-
-							// 4. Handle text content change for Contact Me buttons
-							const originalText = htmlBtn.textContent?.trim();
-							// Store button text (if it's a text button like "Contact Me")
-							if (originalText && originalText !== '') {
-								// Save original text
-								htmlBtn.dataset.originalText = originalText;
-								// Change button text to success message
-								htmlBtn.textContent = 'Email Copied!';
-							} else {
-								// For icon-only buttons, create and add a temporary success label
-								const successLabel = document.createElement('span');
-								successLabel.className = 'copy-success-label';
-								successLabel.textContent = 'Copied!';
-								htmlBtn.appendChild(successLabel);
-
-								// Make sure the original SVG icon stays visible
-								const svgIcon = htmlBtn.querySelector('svg');
-								if (svgIcon) svgIcon.style.opacity = '1';
-							}
-
-							// Clean up elements after animations complete
-							setTimeout(() => {
-								ripple.remove();
-								checkmark.remove();
-								htmlBtn.classList.remove('copy-success-pulse');
-
-								// Restore original button text if it was changed
-								if (htmlBtn.dataset.originalText) {
-									htmlBtn.textContent = htmlBtn.dataset.originalText;
-									delete htmlBtn.dataset.originalText;
-								}
-
-								// Remove success label if it was added
-								const successLabel = htmlBtn.querySelector('.copy-success-label');
-								if (successLabel) successLabel.remove();
-
-								tooltip.textContent = 'Copy email address';
-								tooltip.classList.remove('tooltip-visible');
-							}, 2000);
-						}
-					})
-					.catch((err) => {
-						console.error('Failed to copy email: ', err);
-					});
-			});
-
-			// Show tooltip on hover
-			btn.addEventListener('mouseenter', () => {
-				const htmlBtn = btn as HTMLElement;
-				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
-				if (tooltip) {
-					tooltip.classList.add('tooltip-visible');
-				}
-			});
-
-			// Hide tooltip on mouse leave
-			btn.addEventListener('mouseleave', () => {
-				const htmlBtn = btn as HTMLElement;
-				const tooltip = htmlBtn.querySelector('.copy-tooltip') as HTMLElement;
-				if (tooltip && tooltip.textContent !== 'Email copied!') {
-					tooltip.classList.remove('tooltip-visible');
-				}
-			});
-		});
-	}
 </script>
 
 <svelte:head>
@@ -604,7 +423,7 @@
 				</svg>
 			</a>
 			<button
-				class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+				class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-pink-400 p-3 text-white shadow-lg transition-all hover:bg-pink-400"
 				aria-label="Copy Email Address"
 			>
 				<span
@@ -696,36 +515,14 @@
 	</div>
 </section>
 
-<!-- CTA Section -->
-<section class="bg-gray-900 py-12" bind:this={ctaSection}>
-	<div class="container mx-auto px-4 text-center">
-		<h2 class="cta-element mb-4 text-2xl font-bold text-blue-400">Ready to start your project?</h2>
-		<div class="flex justify-center gap-4">
-			<a
-				href="/portfolio"
-				class="cta-element rounded-lg border border-blue-500 px-6 py-2 text-blue-400 transition-colors hover:bg-gray-800"
-			>
-				View My Work
-			</a>
-			<button
-				class="copy-email-btn cta-element relative rounded-lg bg-blue-800 px-6 py-2 text-white transition-colors hover:bg-blue-700"
-			>
-				<span
-					class="copy-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity"
-					>Copy email address</span
-				>
-				Contact Me
-			</button>
-		</div>
-	</div>
-</section>
+<!-- CTA Section (using component) -->
+<CTA heading="Ready to start your project?" buttonText="View My Work" buttonLink="/portfolio" />
 
 <style>
 	/* Improve visibility for all elements */
 	.hero-element,
 	.service-card,
-	.expertise-element,
-	.cta-element {
+	.expertise-element {
 		opacity: 1;
 	}
 
@@ -746,104 +543,5 @@
 
 	.expertise-element {
 		will-change: transform, opacity;
-	}
-
-	.cta-element {
-		will-change: transform, opacity;
-		transition:
-			background-color 0.3s ease,
-			transform 0.3s ease;
-	}
-
-	.cta-element:hover {
-		transform: translateY(-2px);
-	}
-
-	/* Email button tooltip styles */
-	.copy-email-btn {
-		position: relative;
-		cursor: pointer;
-		overflow: hidden; /* Ensure ripple doesn't overflow */
-	}
-
-	.copy-tooltip {
-		z-index: 10;
-		pointer-events: none;
-		white-space: nowrap;
-		/* Add a small triangle/arrow */
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-	}
-
-	.copy-tooltip:after {
-		content: '';
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		margin-left: -6px;
-		border-width: 6px;
-		border-style: solid;
-		border-color: #1a202c transparent transparent transparent;
-	}
-
-	@keyframes copy-pulse {
-		0% {
-			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7);
-		}
-		70% {
-			box-shadow: 0 0 0 15px rgba(147, 51, 234, 0);
-		}
-		100% {
-			box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
-		}
-	}
-
-	@keyframes copy-ripple {
-		0% {
-			width: 0;
-			height: 0;
-			opacity: 0.6;
-		}
-		100% {
-			width: 200%;
-			height: 200%;
-			opacity: 0;
-		}
-	}
-
-	@keyframes copy-checkmark {
-		0% {
-			opacity: 0;
-			transform: translate(-50%, -50%) scale(0.5);
-		}
-		60% {
-			opacity: 1;
-			transform: translate(-50%, -50%) scale(1.2);
-		}
-		100% {
-			opacity: 0;
-			transform: translate(-50%, -50%) scale(1);
-		}
-	}
-
-	@keyframes fadeInOut {
-		0% {
-			opacity: 0;
-			transform: scale(0.8) translateY(5px);
-		}
-		15% {
-			opacity: 1;
-			transform: scale(1.1) translateY(0);
-		}
-		25% {
-			transform: scale(1) translateY(0);
-		}
-		85% {
-			opacity: 1;
-			transform: scale(1) translateY(0);
-		}
-		100% {
-			opacity: 0;
-			transform: scale(0.8) translateY(-5px);
-		}
 	}
 </style>

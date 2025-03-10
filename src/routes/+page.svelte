@@ -91,40 +91,64 @@
 	}
 
 	onMount(() => {
-		
-		document.querySelectorAll('.copy-email-btn').forEach((button) => {
-			button.addEventListener('click', async () => {
-				try {
-					// Copy my email to clipboard
-					await navigator.clipboard.writeText('hank@chou.dev');
+		try {
+			// Create animation instance after component is mounted
+			if (animationComponent && animationComponent.initAnimation) {
+				animationComponent.initAnimation();
+			}
 
-					// Get the tooltip element
-					const tooltip = button.querySelector('.copy-tooltip');
-					if (tooltip) {
-						// Update the tooltip text to show success
-						tooltip.textContent = 'Email copied!';
-						tooltip.classList.add('opacity-100');
+			// Trigger landing animations, with appropriate delay for smooth sequence
+			if (heroSection) {
+				setTimeout(() => {
+					heroSection.classList.add('active');
+				}, 300);
+			}
 
-						// Hide the tooltip after 2 seconds
-						setTimeout(() => {
-							tooltip.classList.remove('opacity-100');
-							// Reset tooltip text after it's hidden
-							setTimeout(() => {
-								tooltip.textContent = 'Copy email address';
-							}, 300);
-						}, 2000);
-					}
+			if (aboutSection) {
+				// Animate about section when scrolled into view
+				const aboutObserver = new IntersectionObserver((entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							aboutSection.classList.add('active');
+							// Unobserve to trigger only once
+							aboutObserver.unobserve(aboutSection);
+						}
+					});
+				}, { threshold: 0.25 });
 
-					// Add visual feedback to the button
-					button.classList.add('animate-pulse');
-					setTimeout(() => {
-						button.classList.remove('animate-pulse');
-					}, 1000);
-				} catch (err) {
-					console.error('Failed to copy email: ', err);
-				}
-			});
-		});
+				aboutObserver.observe(aboutSection);
+			}
+
+			if (testimonialSection) {
+				// Animate testimonial section when scrolled into view
+				const testimonialObserver = new IntersectionObserver((entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							testimonialSection.classList.add('active');
+							testimonialObserver.unobserve(testimonialSection);
+						}
+					});
+				}, { threshold: 0.25 });
+
+				testimonialObserver.observe(testimonialSection);
+			}
+
+			if (ctaSection) {
+				// Animate CTA section when scrolled into view
+				const ctaObserver = new IntersectionObserver((entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							ctaSection.classList.add('active');
+							ctaObserver.unobserve(ctaSection);
+						}
+					});
+				}, { threshold: 0.25 });
+
+				ctaObserver.observe(ctaSection);
+			}
+		} catch (error) {
+			console.error('Error in onMount:', error);
+		}
 	});
 </script>
 
@@ -159,4 +183,88 @@
 
 <Testimonial bind:testimonialSection />
 
-<CTA bind:ctaSection />
+<CTA 
+	bind:ctaSection 
+	heading="Ready to explore my work?" 
+	buttonText="View My Work" 
+	buttonLink="/portfolio" 
+/>
+
+<style>
+	/* Email button styles needed for animation */
+
+	@keyframes copy-ripple {
+		0% {
+			width: 0;
+			height: 0;
+			opacity: 0.6;
+		}
+		100% {
+			width: 200%;
+			height: 200%;
+			opacity: 0;
+		}
+	}
+	@keyframes copy-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7);
+		}
+		70% {
+			box-shadow: 0 0 0 15px rgba(66, 153, 225, 0);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(66, 153, 225, 0);
+		}
+	}
+
+
+	@keyframes fadeInOut {
+		0% {
+			opacity: 0;
+			transform: scale(0.8) translateY(5px);
+		}
+		15% {
+			opacity: 1;
+			transform: scale(1.1) translateY(0);
+		}
+		25% {
+			transform: scale(1) translateY(0);
+		}
+		85% {
+			opacity: 1;
+			transform: scale(1) translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(0.8) translateY(-5px);
+		}
+	}
+
+	/* Name animation keyframes */
+	@keyframes name-pulse {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.1); }
+		100% { transform: scale(1); }
+	}
+
+	@keyframes name-shake {
+		0%, 100% { transform: translateX(0); }
+		25% { transform: translateX(-5px); }
+		50% { transform: translateX(5px); }
+		75% { transform: translateX(-5px); }
+	}
+
+	@keyframes name-rotate {
+		0% { transform: rotate(0deg); }
+		25% { transform: rotate(5deg); }
+		50% { transform: rotate(-5deg); }
+		75% { transform: rotate(5deg); }
+		100% { transform: rotate(0deg); }
+	}
+
+	@keyframes name-bounce {
+		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+		40% { transform: translateY(-10px); }
+		60% { transform: translateY(-5px); }
+	}
+</style>

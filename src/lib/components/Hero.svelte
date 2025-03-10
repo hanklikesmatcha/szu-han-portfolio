@@ -95,7 +95,7 @@
 						</svg>
 					</a>
 					<button
-						class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-purple-700 p-3 text-white shadow-lg transition-all hover:bg-purple-600"
+						class="copy-email-btn group relative flex items-center justify-center rounded-lg bg-pink-400 p-3 text-white shadow-lg transition-all hover:bg-pink-400"
 						aria-label="Copy Email Address"
 					>
 						<span
