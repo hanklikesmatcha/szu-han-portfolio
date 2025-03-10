@@ -5,7 +5,6 @@
 	import About from '$lib/components/About.svelte';
 	import Testimonial from '$lib/components/Testimonial.svelte';
 	import CTA from '$lib/components/CTA.svelte';
-	import SharedStyles from '$lib/components/SharedStyles.svelte';
 
 	// Add state variable for the 3D animation
 	let animationComponent: BackgroundAnimation | null = null;
@@ -164,8 +163,6 @@
 	<meta property="og:image" content="https://hankchou.me/images/hank-social.png" />
 	<meta property="og:url" content="https://hankchou.me" />
 </svelte:head>
-
-<SharedStyles />
 
 <BackgroundAnimation bind:this={animationComponent} />
 

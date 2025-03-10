@@ -4,6 +4,7 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import '../app.css';
+	import '$lib/styles/global.css';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { animate, spring } from 'motion';
