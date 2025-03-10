@@ -911,7 +911,8 @@
 						<img
 							src={project.image}
 							alt={project.title}
-							class="h-full w-full object-cover object-top"
+							class="h-full w-full object-cover object-center"
+							style="object-position: center;"
 						/>
 					{:else}
 						<div class="flex h-full w-full items-center justify-center">
