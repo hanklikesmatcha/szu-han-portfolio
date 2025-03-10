@@ -161,10 +161,8 @@
 	<!-- Open Graph / Social Media Meta Tags -->
 	<meta property="og:title" content="Hank Chou | AI-Powered Software Engineer" />
 	<meta property="og:description" content="Senior software engineer specializing in AI-driven applications, responsive web development, and scalable cloud solutions." />
-	<meta property="og:image" content="https://hankchou.com/images/@hank-social.png" />
-	<meta property="og:url" content="https://hankchou.com" />
-	<meta property="og:type" content="website" />
-	<meta name="twitter:card" content="summary_large_image" />
+	<meta property="og:image" content="https://hankchou.me/images/hank-social.png" />
+	<meta property="og:url" content="https://hankchou.me" />
 </svelte:head>
 
 <SharedStyles />

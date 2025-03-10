@@ -31,7 +31,6 @@
 		isFirstLoad = false;
 
 		// More dramatic initial page entrance animation
-		console.log('Running page content animation');
 		try {
 			const pageContent = document.querySelector('.page-content');
 			if (pageContent) {
@@ -104,6 +103,14 @@
 		return newDepth >= oldDepth ? 'forward' : 'backward';
 	}
 </script>
+
+<svelte:head>
+	<!-- Common meta tags that apply to all pages -->
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta property="og:type" content="website" />
+	<link rel="icon" href="/favicon.png" />
+</svelte:head>
 
 <div class="perspective-container flex min-h-screen flex-col bg-[#171923] text-gray-100">
 	<header class="border-b border-gray-800">
