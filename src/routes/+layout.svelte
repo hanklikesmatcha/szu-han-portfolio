@@ -59,7 +59,6 @@
 			currentPath = $page.url.pathname;
 
 			// Animate page content with enhanced effects
-			console.log('Running page transition animation');
 			try {
 				const pageContent = document.querySelector('.page-content');
 				if (pageContent) {

@@ -60,7 +60,6 @@
 							
 							// If there was an SVG icon, make sure to preserve it
 							if (originalHTML.includes('<svg')) {
-								console.log('Button had an SVG icon, preserving it');
 								// The button had an SVG icon, try to preserve it
 								const parser = new DOMParser();
 								const doc = parser.parseFromString(originalHTML, 'text/html');
