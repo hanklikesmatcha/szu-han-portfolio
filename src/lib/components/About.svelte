@@ -17,15 +17,25 @@
 					class="about-element animate-ready transition-transform duration-300 hover:translate-y-[-2px]"
 				>
 					<h3 class="mb-2 text-xl font-semibold text-blue-300">My Background</h3>
-					<p class="mb-6 text-gray-200">
-						Hey there! I'm a senior full-stack developer with <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">7+ years</span> of experience delivering high-impact solutions for multi-national startups. I'm originally from Taipei (that's the beautiful city in the photo!), 
-						but I've been living in New Zealand where I've collaborated with diverse teams across multiple time zones. My journey between these cultures has enhanced my ability to communicate effectively and adapt to different business environments. My expertise includes <span
-							class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">AI-powered solutions</span
-						> (intelligent data classification and content generation), 
-						<span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40"
-							>intuitive user interfaces</span
-						> that delight customers, <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">responsive web applications</span> that work flawlessly across all devices with optimized mobile experiences, and <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">high-performance backend systems</span>. I've designed and implemented <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">cloud infrastructure</span> that scales automatically with demand and <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">containerized applications</span> for consistent deployment across environments. I thrive in collaborative environments and have a proven track record of translating complex business requirements into elegant technical solutions. Let's connect to discuss how my skills can help bring your vision to life!
-					</p>
+					<div class="mb-6 text-gray-200 space-y-4">
+						<p>
+							Hey there! I'm a senior full-stack developer with <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">7+ years</span> of experience delivering high-impact solutions for multi-national startups. I'm originally from Taipei (that's the beautiful city in the photo!), 
+							but I've been living in New Zealand where I've collaborated with diverse teams across multiple time zones. My journey between these cultures has enhanced my ability to communicate effectively and adapt to different business environments.
+						</p>
+						
+						<p>
+							My expertise includes <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">AI-powered solutions</span> (intelligent data classification and content generation), 
+							<span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">intuitive user interfaces</span> that delight customers, and <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">responsive web applications</span> that work flawlessly across all devices with optimized mobile experiences.
+						</p>
+						
+						<p>
+							I've developed <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">high-performance backend systems</span>, designed and implemented <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">cloud infrastructure</span> that scales automatically with demand, and built <span class="bg-indigo-900/30 px-1.5 py-0.5 rounded font-bold text-pink-200 border border-indigo-700/40">containerized applications</span> for consistent deployment across environments.
+						</p>
+						
+						<p>
+							I thrive in collaborative environments and have a proven track record of translating complex business requirements into elegant technical solutions. Let's connect to discuss how my skills can help bring your vision to life!
+						</p>
+					</div>
 
 					<div
 						class="mx-auto max-w-md overflow-hidden rounded-lg border-2 border-gray-700 shadow-lg transition-transform duration-300 hover:scale-105"
