@@ -1263,7 +1263,7 @@
 <style>
   .background-animation {
     position: fixed;
-    top: -200px; /* Moved up by 50px from original 0 position */
+    top: -160px; /* Moved up by 50px from original 0 position */
     left: 0;
     width: 100%;
     height: 100%;
