@@ -11,20 +11,15 @@
 	
 	// Skills based on LinkedIn profile
 	const skills = [
-		'Full-Stack Development',
-		'Python',
-		'TypeScript',
-		'Cloud Services & DevOps',
-		'AWS',
-		'Azure',
-		'Hugging Face',
-		'PyTorch',
-		'LangChain',
-		'Supabase',
-		'Mobile Development',
-		'Database Migration',
-		'Data Engineering and Machine Learning with Python',
-		'Technical Mentoring'
+		'AI Business Solutions',
+		'Custom Software',
+		'Data Insights',
+		'Scalable Cloud Systems',
+		'Digital Transformation',
+		'Process Automation',
+		'Web & Mobile Apps',
+		'User Experience Design',
+		'Technology Roadmapping'
 	];
 
 	let heroSection: HTMLElement;
