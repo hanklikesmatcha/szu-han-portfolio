@@ -9,7 +9,9 @@
 			title: 'Full-Stack Development',
 			description:
 				'End-to-end web application development using modern frameworks and technologies. I build scalable, responsive applications with clean code, security focus, and optimal performance.',
-			icon: '💻',
+			icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+				</svg>`,
 			skills: [
 				'Python/FastAPI',
 				'TypeScript/React',
@@ -23,14 +25,18 @@
 			title: 'Data Engineering and Machine Learning with Python',
 			description:
 				'Specializing in database migrations, schema design, and table structure optimization. I help businesses build efficient data foundations and integrate machine learning models to enhance applications with AI capabilities like NLP and computer vision.',
-			icon: '🤖',
+			icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+				</svg>`,
 			skills: ['Database Migration', 'PyTorch', 'Hugging Face', 'LangChain', 'AI Integration']
 		},
 		{
 			title: 'Technical Mentoring',
 			description:
 				"Expert guidance for developers and teams looking to improve their skills. Drawing from my experience as a Python Bootcamp Instructor, I can help elevate your team's technical capabilities through structured learning and hands-on coaching.",
-			icon: '👨‍🏫',
+			icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+				</svg>`,
 			skills: [
 				'Python Training',
 				'Code Reviews',
@@ -43,7 +49,9 @@
 			title: 'Cloud Services & DevOps',
 			description:
 				'Implementation and management of cloud infrastructure and deployment pipelines. I leverage containerization and serverless technologies to create scalable, cost-effective cloud solutions that optimize performance and reliability.',
-			icon: '☁️',
+			icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
+				</svg>`,
 			skills: ['AWS', 'Azure', 'GCP', 'CI/CD Pipelines', 'Containerisation', 'Docker', 'CloudFlare']
 		}
 	];
@@ -79,12 +87,6 @@
 		const observerOptions = {
 			threshold: 0.15,
 			rootMargin: '-50px 0px -100px 0px'
-		};
-
-		// Create observer for tracking elements leaving the viewport
-		const exitObserverOptions = {
-			threshold: 0,
-			rootMargin: '0px 0px 0px 0px'
 		};
 
 		// Hero section observer
@@ -459,7 +461,9 @@
 				<div
 					class="service-card rounded-xl border border-gray-700 bg-gray-800 p-6 transition-colors hover:border-blue-500"
 				>
-					<div class="mb-4 text-4xl">{service.icon}</div>
+					<div class="mb-4" aria-hidden="true">
+						{@html service.icon}
+					</div>
 					<h3 class="mb-3 text-2xl font-bold text-blue-300">{service.title}</h3>
 					<p class="mb-4 text-gray-300">{service.description}</p>
 
@@ -479,15 +483,27 @@
 	<div class="container mx-auto px-4">
 		<h2 class="mb-10 text-center text-3xl font-bold text-blue-400">Technical Expertise</h2>
 
-		<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-			<div class="expertise-element">
+		<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+			<div class="expertise-element rounded-xl bg-gray-800 p-6">
 				<h3 class="mb-3 text-xl font-bold text-blue-300">AI and Machine Learning Integration</h3>
-				<p class="mb-6 text-gray-300">
+				<p class="text-gray-300">
 					My experience with AI technologies like Large Language Models, Classification, Computer
 					Vision, and NLP enables me to integrate advanced machine learning capabilities into
 					applications, enhancing user experiences and automating complex processes.
 				</p>
+			</div>
 
+			<div class="expertise-element rounded-xl bg-gray-800 p-6">
+				<h3 class="mb-3 text-xl font-bold text-blue-300">Data Engineering Excellence</h3>
+				<p class="text-gray-300">
+					I specialize in designing efficient database structures, implementing seamless migrations,
+					and optimizing table schemas for performance. My experience includes working with
+					migration tools like Python Alembic, TypeORM, Drizzle, and Prisma for the Node.js
+					ecosystem.
+				</p>
+			</div>
+
+			<div class="expertise-element rounded-xl bg-gray-800 p-6">
 				<h3 class="mb-3 text-xl font-bold text-blue-300">Educational Background</h3>
 				<p class="text-gray-300">
 					My experience as a Python Bootcamp Instructor has honed my ability to explain complex
@@ -495,20 +511,12 @@
 				</p>
 			</div>
 
-			<div class="expertise-element">
-				<h3 class="mb-3 text-xl font-bold text-blue-300">Data Engineering Excellence</h3>
-				<p class="mb-6 text-gray-300">
-					I specialize in designing efficient database structures, implementing seamless migrations,
-					and optimizing table schemas for performance. My experience includes working with
-					migration tools like Python Alembic, TypeORM, Drizzle, and Prisma for the Node.js
-					ecosystem. I've developed robust database solutions for financial and energy systems while
-					ensuring data integrity and performance.
-				</p>
-
+			<div class="expertise-element rounded-xl bg-gray-800 p-6">
 				<h3 class="mb-3 text-xl font-bold text-blue-300">Adaptability & Problem-Solving</h3>
 				<p class="text-gray-300">
 					I approach technical challenges with creativity and persistence, finding solutions even
-					when the path forward isn't immediately clear.
+					when the path forward isn't immediately clear. I've developed robust database solutions for 
+					financial and energy systems while ensuring data integrity and performance.
 				</p>
 			</div>
 		</div>

@@ -165,6 +165,7 @@
 	let filtersContainer: HTMLElement;
 	let heroSection: HTMLElement;
 	let animationsApplied = false;
+	let scrollAnimationsApplied: Record<string, boolean> = {}; // Track which cards have been animated
 
 	// Replace the dynamic filters with a static array of outcome-focused filters
 	const filters = [
@@ -269,6 +270,9 @@
 			// Update filter
 			filter = newFilter;
 
+			// Reset scroll animations for the new filtered cards
+			resetScrollAnimations();
+
 			// After DOM updates, animate cards back in with dramatic 3D effect
 			setTimeout(() => {
 				animate(
@@ -325,6 +329,9 @@
 		).finished.then(() => {
 			// Update category filter
 			categoryFilter = newCategory;
+
+			// Reset scroll animations for the new filtered cards
+			resetScrollAnimations();
 
 			// After DOM updates, animate cards back in
 			setTimeout(() => {
@@ -420,20 +427,7 @@
 								}
 							);
 
-							// Project cards animation
-							animate(
-								'.project-card',
-								{
-									opacity: [0, 1],
-									y: [60, 0],
-									scale: [0.95, 1]
-								},
-								{
-									delay: stagger(0.15, { from: 'center' }),
-									duration: 0.9,
-									easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-								}
-							);
+							// Project cards animation is now handled by individual card observers
 						} catch (error) {
 							console.error('Projects section animation error:', error);
 						}
@@ -446,6 +440,9 @@
 		if (filtersContainer) {
 			observer.observe(filtersContainer);
 		}
+
+		// Set up scroll animations for each project card
+		setupScrollAnimations();
 
 		// Add hover effect to project cards
 		document.querySelectorAll('.project-card').forEach((card) => {
@@ -591,6 +588,149 @@
 			ensureHeroElementsVisible();
 		};
 	});
+
+	// Function to set up scroll animations for project cards
+	function setupScrollAnimations() {
+		// Create a separate observer for each project card
+		const cardObserver = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					// Get the card ID to track which cards have been animated
+					const card = entry.target as HTMLElement;
+					const cardId = card.dataset.projectId;
+
+					// Only animate if the card is coming into view and hasn't been animated yet
+					if (entry.isIntersecting && cardId && !scrollAnimationsApplied[cardId]) {
+						// Mark this card as animated
+						scrollAnimationsApplied[cardId] = true;
+
+						// Get device type for more tailored animations
+						const isMobile = window.innerWidth < 768;
+
+						try {
+							// Different animation based on device type
+							if (isMobile) {
+								// Mobile animation - slide and fade in with slight rotation
+								animate(
+									card,
+									{
+										opacity: [0, 1],
+										y: [100, 0],
+										rotateX: [5, 0],
+										scale: [0.9, 1]
+									},
+									{
+										duration: 0.7,
+										easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+									}
+								);
+
+								// Animate project image separately with a slight delay
+								const projectImage = card.querySelector('.project-image');
+								if (projectImage) {
+									animate(
+										projectImage,
+										{
+											opacity: [0.6, 1],
+											scale: [0.9, 1]
+										},
+										{
+											delay: 0.2,
+											duration: 0.5,
+											easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+										}
+									);
+								}
+
+								// Animate tech tags with staggered delay
+								const techTags = card.querySelectorAll('.rounded-md');
+								if (techTags.length) {
+									animate(
+										techTags,
+										{
+											opacity: [0, 1],
+											x: ['-20px', '0px']
+										},
+										{
+											delay: stagger(0.1, { start: 0.3 }),
+											duration: 0.4,
+											easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+										}
+									);
+								}
+							} else {
+								// Desktop animation - more subtle with 3D effects
+								animate(
+									card,
+									{
+										opacity: [0, 1],
+										y: [60, 0],
+										scale: [0.95, 1]
+									},
+									{
+										duration: 0.9,
+										easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+									}
+								);
+							}
+
+							// Add a subtle "bounce" effect after the main animation
+							setTimeout(() => {
+								animate(
+									card,
+									{
+										y: [0, -10, 0]
+									},
+									{
+										duration: 0.6,
+										easing: (x) => {
+											try {
+												return spring({ stiffness: 100, damping: 15 })(x) || x;
+											} catch (error) {
+												return x;
+											}
+										}
+									}
+								);
+							}, 800);
+						} catch (error) {
+							console.error('Card scroll animation error:', error);
+						}
+					}
+				});
+			},
+			{
+				// Lower threshold and larger rootMargin for mobile to start animations earlier
+				threshold: 0.15,
+				rootMargin: '0px 0px -100px 0px'
+			}
+		);
+
+		// Observe all project cards
+		document.querySelectorAll('.project-card').forEach((card) => {
+			cardObserver.observe(card);
+		});
+
+		// Reset animations when filters change
+		window.addEventListener('resize', () => {
+			// Reset scroll animations on resize for responsive behavior
+			scrollAnimationsApplied = {};
+			
+			// Re-observe all cards after a short delay to allow DOM updates
+			setTimeout(() => {
+				document.querySelectorAll('.project-card').forEach((card) => {
+					cardObserver.observe(card);
+				});
+			}, 300);
+		});
+	}
+
+	// Function to reset scroll animations when filters change
+	function resetScrollAnimations() {
+		scrollAnimationsApplied = {};
+		// Allow animations to be re-applied on next scroll
+		setTimeout(setupScrollAnimations, 50);
+	}
 </script>
 
 <svelte:head>
@@ -740,6 +880,7 @@
 				'professional'
 					? 'border-purple-600/50'
 					: ''}"
+				data-project-id={project.id}
 			>
 				<div class="project-image relative h-48 overflow-hidden">
 					{#if project.image}
@@ -879,7 +1020,7 @@
 		background-color: #1e2433;
 		border-color: #4a5568;
 		border-width: 4px; /* Increased from 2px to 4px for thicker borders */
-		opacity: 1; /* Start visible by default */
+		opacity: 0; /* Start invisible for scroll animations */
 		transform-style: preserve-3d; /* Enable 3D transformations */
 		backface-visibility: hidden; /* Prevent flickering */
 		will-change: transform, opacity, borderColor; /* Added borderColor */
@@ -1029,6 +1170,19 @@
 			opacity: 1 !important;
 			transform: none !important;
 			filter: none !important;
+		}
+	}
+
+	/* Mobile-specific scroll animation enhancements */
+	@media (max-width: 767px) {
+		.project-card {
+			transform-origin: center bottom; /* For better mobile animations */
+			will-change: transform, opacity, scale; /* Optimize for mobile animations */
+		}
+		
+		/* Add perspective to mobile cards for more pronounced 3D effect */
+		.perspective {
+			perspective: 800px; /* Less intense perspective for mobile */
 		}
 	}
 </style>

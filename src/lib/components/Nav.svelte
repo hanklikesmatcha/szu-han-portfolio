@@ -46,19 +46,47 @@
 					menuOverlay.style.left = '0';
 					menuOverlay.style.width = '100vw';
 					menuOverlay.style.height = '100vh';
-					menuOverlay.style.backgroundColor = 'rgba(17, 24, 39, 0.9)'; // More opaque for better performance
-					// Use backdrop blur only in high performance mode
-					if (!PERFORMANCE_MODE) {
-						menuOverlay.style.backdropFilter = 'blur(8px)';
-						menuOverlay.style.setProperty('-webkit-backdrop-filter', 'blur(8px)');
-					}
+					menuOverlay.style.backgroundColor = 'rgba(17, 24, 39, 0.6)'; // More transparent background
+					
+					// Always use backdrop blur for better visual appeal but keep it light for performance
+					menuOverlay.style.backdropFilter = 'blur(5px)';
+					menuOverlay.style.setProperty('-webkit-backdrop-filter', 'blur(5px)');
+					
 					menuOverlay.style.zIndex = '2147483647';
 					menuOverlay.style.overflow = 'auto';
 					menuOverlay.style.display = 'flex';
 					menuOverlay.style.flexDirection = 'column';
-					menuOverlay.style.alignItems = 'center';
-					menuOverlay.style.justifyContent = 'center';
-					menuOverlay.style.padding = '2rem 1rem';
+					menuOverlay.style.alignItems = 'flex-end'; // Align to right side where hamburger is
+					menuOverlay.style.justifyContent = 'flex-start'; // Start from top
+					menuOverlay.style.padding = '0'; // Remove padding
+					
+					// Add entrance animation for the overlay
+					menuOverlay.style.opacity = '0';
+					menuOverlay.style.transition = 'opacity 0.25s ease';
+					
+					// Force repaint before starting animation
+					setTimeout(() => {
+						menuOverlay.style.opacity = '1';
+					}, 10);
+
+					// Create dropdown container for menu items
+					const dropdownContainer = document.createElement('div');
+					dropdownContainer.style.display = 'flex';
+					dropdownContainer.style.flexDirection = 'column';
+					dropdownContainer.style.width = 'auto'; // Auto width instead of 100%
+					dropdownContainer.style.maxWidth = '240px'; // Narrower width
+					dropdownContainer.style.backgroundColor = 'rgba(15, 23, 42, 0.95)'; // Darker background
+					dropdownContainer.style.marginTop = '68px'; // Position below the navbar
+					dropdownContainer.style.marginRight = '16px'; // Add some margin from right edge
+					dropdownContainer.style.borderRadius = '0 0 12px 12px'; // Rounded bottom corners
+					dropdownContainer.style.overflow = 'hidden';
+					dropdownContainer.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.3)';
+					dropdownContainer.style.border = '1px solid rgba(96, 165, 250, 0.2)';
+					dropdownContainer.style.transformOrigin = 'top right';
+					dropdownContainer.style.transform = 'translateY(-20px) scale(0.95)';
+					dropdownContainer.style.opacity = '0';
+					dropdownContainer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+					menuOverlay.appendChild(dropdownContainer);
 
 					// Add close button that matches the hamburger menu style
 					const closeButton = document.createElement('button');
@@ -78,6 +106,17 @@
 					closeButton.style.cursor = 'pointer';
 					closeButton.style.backgroundColor = 'rgba(30, 41, 59, 0.8)'; // Add background color
 					closeButton.setAttribute('aria-label', 'Close menu');
+					
+					// Add hover effect to close button
+					closeButton.style.transition = 'transform 0.2s ease, background-color 0.2s ease';
+					closeButton.addEventListener('mouseenter', () => {
+						closeButton.style.transform = 'scale(1.05)';
+						closeButton.style.backgroundColor = 'rgba(59, 130, 246, 0.8)';
+					});
+					closeButton.addEventListener('mouseleave', () => {
+						closeButton.style.transform = 'scale(1)';
+						closeButton.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+					});
 
 					// Create X icon using spans similar to hamburger menu
 					for (let i = 0; i < 2; i++) {
@@ -88,7 +127,7 @@
 						line.style.backgroundColor = '#3b82f6';
 						line.style.borderRadius = '9999px';
 						line.style.position = 'absolute';
-						line.style.transition = 'transform 0.3s ease';
+						line.style.transition = 'transform 0.3s ease, background-color 0.2s ease';
 
 						if (i === 0) {
 							line.style.transform = 'rotate(45deg)';
@@ -100,23 +139,27 @@
 					}
 
 					closeButton.addEventListener('click', closeMobileMenu);
+					closeButton.addEventListener('touchend', (e) => {
+						e.preventDefault();
+						closeMobileMenu();
+					});
 					menuOverlay.appendChild(closeButton);
 
 					// Create menu items container with improved styling
 					const menuItemsContainer = document.createElement('div');
 					menuItemsContainer.style.display = 'flex';
 					menuItemsContainer.style.flexDirection = 'column';
-					menuItemsContainer.style.alignItems = 'center';
+					menuItemsContainer.style.alignItems = 'center'; // Center items horizontally
 					menuItemsContainer.style.width = '100%';
-					menuItemsContainer.style.maxWidth = '350px';
-					menuItemsContainer.style.gap = '16px';
-					menuOverlay.appendChild(menuItemsContainer);
+					menuItemsContainer.style.gap = '12px'; // Increase gap between items for better spacing
+					menuItemsContainer.style.padding = '12px'; // Add more padding inside container
+					dropdownContainer.appendChild(menuItemsContainer);
 
 					// Prepare batch DOM operations using DocumentFragment
 					const fragment = document.createDocumentFragment();
 
-					// Add menu items with improved styling
-					navItems.forEach((item) => {
+					// Add menu items with improved styling and staggered animation
+					navItems.forEach((item, index) => {
 						const isActive = isNavItemActive(item.path, activePath);
 
 						// Create menu item
@@ -124,24 +167,28 @@
 						menuItem.href = item.path;
 						menuItem.style.display = 'flex';
 						menuItem.style.alignItems = 'center';
-						menuItem.style.width = '100%';
-						menuItem.style.padding = '1rem 1.5rem';
+						menuItem.style.justifyContent = 'center'; // Center content horizontally
+						menuItem.style.width = '90%'; // Slightly narrower than container
+						menuItem.style.padding = '0.85rem 1.25rem'; // Slightly more vertical padding
 						menuItem.style.backgroundColor = isActive
 							? 'rgba(59, 130, 246, 0.9)'
-							: 'rgba(30, 41, 59, 0.8)';
-						menuItem.style.borderRadius = '12px';
+							: 'rgba(30, 41, 59, 0.6)';
+						menuItem.style.borderRadius = '8px'; // Smaller border radius
 						menuItem.style.border = isActive
-							? '2px solid #60a5fa'
-							: '1px solid rgba(96, 165, 250, 0.3)';
+							? '1px solid #60a5fa'
+							: '1px solid rgba(96, 165, 250, 0.2)';
 						menuItem.style.textDecoration = 'none';
 						menuItem.style.color = 'white';
-						menuItem.style.fontSize = '18px';
+						menuItem.style.fontSize = '16px'; // Slightly smaller font
 						menuItem.style.fontWeight = 'bold';
 						menuItem.style.gap = '12px';
-						menuItem.style.transition = 'all 0.3s ease';
 						menuItem.style.position = 'relative';
+						menuItem.style.transform = 'translateX(-10px)';
+						menuItem.style.opacity = '0';
+						menuItem.style.transition = 'all 0.3s ease';
 						menuItem.setAttribute('aria-label', item.label);
 						menuItem.setAttribute('data-path', item.path);
+						menuItem.setAttribute('data-index', index.toString());
 
 						if (isActive) {
 							menuItem.setAttribute('aria-current', 'page');
@@ -168,6 +215,59 @@
 						// Add icon and label to menuItem
 						menuItem.appendChild(icon);
 						menuItem.appendChild(label);
+						
+						// Add interactive hover effects
+						menuItem.addEventListener('mouseenter', () => {
+							if (!isActive) {
+								menuItem.style.backgroundColor = 'rgba(59, 130, 246, 0.5)';
+								menuItem.style.transform = 'translateY(-3px) scale(1.02)';
+								menuItem.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+								
+								// Animate the icon
+								const iconElem = menuItem.querySelector('svg');
+								if (iconElem) {
+									iconElem.style.transition = 'transform 0.2s ease';
+									iconElem.style.transform = 'scale(1.2) translateX(-2px)';
+								}
+							}
+						});
+						
+						menuItem.addEventListener('mouseleave', () => {
+							if (!isActive) {
+								menuItem.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+								menuItem.style.transform = 'translateY(0) scale(1)';
+								menuItem.style.boxShadow = 'none';
+								
+								// Reset icon animation
+								const iconElem = menuItem.querySelector('svg');
+								if (iconElem) {
+									iconElem.style.transform = 'scale(1) translateX(0)';
+								}
+							}
+						});
+
+						// Add touch-friendly effects for mobile
+						menuItem.addEventListener('touchstart', () => {
+							if (!isActive) {
+								menuItem.style.backgroundColor = 'rgba(59, 130, 246, 0.5)';
+								menuItem.style.transform = 'translateY(-3px) scale(1.02)';
+							}
+						});
+						
+						menuItem.addEventListener('touchend', () => {
+							if (!isActive) {
+								menuItem.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+								menuItem.style.transform = 'translateY(0) scale(1)';
+								
+								// Simple highlight animation
+								setTimeout(() => {
+									menuItem.style.backgroundColor = 'rgba(59, 130, 246, 0.7)';
+									setTimeout(() => {
+										menuItem.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+									}, 200);
+								}, 50);
+							}
+						});
 
 						// Add click event with simplified animations
 						menuItem.addEventListener('click', (e) => {
@@ -269,22 +369,66 @@
 
 					// Add to body
 					document.body.appendChild(menuOverlay);
+					
+					// Animate dropdown container first
+					setTimeout(() => {
+						dropdownContainer.style.opacity = '1';
+						dropdownContainer.style.transform = 'translateY(0) scale(1)';
+						
+						// Then stagger the menu items
+						const menuItems = menuItemsContainer.querySelectorAll('a');
+						menuItems.forEach((item, index) => {
+							setTimeout(() => {
+								item.style.opacity = '1';
+								item.style.transform = 'translateX(0)';
+							}, 50 + (index * 40)); // Slightly faster staggered delay
+						});
+					}, 50);
 
 					// Lock body scroll
 					document.body.style.overflow = 'hidden';
 				} catch (e) {
 					console.error('Error creating menu overlay', e);
 				}
-			}, 50);
+			}, 20); // Reduced delay for more responsive feel
 		} else if (browser) {
-			// Remove menu overlay if it exists
+			// Remove menu overlay with exit animation
 			const menuOverlay = document.getElementById('full-page-menu-overlay');
-			if (menuOverlay && menuOverlay.parentNode) {
-				menuOverlay.parentNode.removeChild(menuOverlay);
+			if (menuOverlay) {
+				// Find dropdown container and animate it out first
+				const dropdownContainer = menuOverlay.querySelector('div');
+				if (dropdownContainer) {
+					dropdownContainer.style.transform = 'translateY(-20px) scale(0.95)';
+					dropdownContainer.style.opacity = '0';
+				}
+				
+				// First animate out the menu items in reverse order
+				const menuItems = menuOverlay.querySelectorAll('a');
+				menuItems.forEach((item, index) => {
+					const delay = (menuItems.length - index - 1) * 20; // Faster exit
+					setTimeout(() => {
+						item.style.opacity = '0';
+						item.style.transform = 'translateX(-10px)';
+					}, delay);
+				});
+				
+				// Then animate out the container
+				setTimeout(() => {
+					menuOverlay.style.opacity = '0';
+					
+					// Remove from DOM after animation completes
+					setTimeout(() => {
+						if (menuOverlay.parentNode) {
+							menuOverlay.parentNode.removeChild(menuOverlay);
+						}
+						// Restore body scroll
+						document.body.style.overflow = '';
+					}, 200); // Faster removal
+				}, menuItems.length * 20 + 50);
+			} else {
+				// Restore body scroll if no menu found
+				document.body.style.overflow = '';
 			}
-
-			// Restore body scroll
-			document.body.style.overflow = '';
 		}
 	}
 
@@ -293,14 +437,43 @@
 		isMobileMenuOpen = false;
 
 		if (browser) {
-			// Remove menu overlay if it exists
+			// Remove menu overlay with exit animation
 			const menuOverlay = document.getElementById('full-page-menu-overlay');
-			if (menuOverlay && menuOverlay.parentNode) {
-				menuOverlay.parentNode.removeChild(menuOverlay);
+			if (menuOverlay) {
+				// Find dropdown container and animate it out first
+				const dropdownContainer = menuOverlay.querySelector('div');
+				if (dropdownContainer) {
+					dropdownContainer.style.transform = 'translateY(-20px) scale(0.95)';
+					dropdownContainer.style.opacity = '0';
+				}
+				
+				// First animate out the menu items in reverse order
+				const menuItems = menuOverlay.querySelectorAll('a');
+				menuItems.forEach((item, index) => {
+					const delay = (menuItems.length - index - 1) * 20; // Faster exit
+					setTimeout(() => {
+						item.style.opacity = '0';
+						item.style.transform = 'translateX(-10px)';
+					}, delay);
+				});
+				
+				// Then animate out the container
+				setTimeout(() => {
+					menuOverlay.style.opacity = '0';
+					
+					// Remove from DOM after animation completes
+					setTimeout(() => {
+						if (menuOverlay.parentNode) {
+							menuOverlay.parentNode.removeChild(menuOverlay);
+						}
+						// Restore body scroll
+						document.body.style.overflow = '';
+					}, 200); // Faster removal
+				}, menuItems.length * 20 + 50);
+			} else {
+				// Restore body scroll if no menu found
+				document.body.style.overflow = '';
 			}
-
-			// Restore body scroll
-			document.body.style.overflow = '';
 		}
 	}
 
