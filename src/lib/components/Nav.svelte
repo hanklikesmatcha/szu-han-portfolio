@@ -73,15 +73,13 @@
 					const dropdownContainer = document.createElement('div');
 					dropdownContainer.style.display = 'flex';
 					dropdownContainer.style.flexDirection = 'column';
-					dropdownContainer.style.width = 'auto'; // Auto width instead of 100%
-					dropdownContainer.style.maxWidth = '240px'; // Narrower width
-					dropdownContainer.style.backgroundColor = 'rgba(15, 23, 42, 0.95)'; // Darker background
+					dropdownContainer.style.width = '100%';
+					dropdownContainer.style.maxWidth = '300px'; // Narrower width
 					dropdownContainer.style.marginTop = '68px'; // Position below the navbar
 					dropdownContainer.style.marginRight = '16px'; // Add some margin from right edge
 					dropdownContainer.style.borderRadius = '0 0 12px 12px'; // Rounded bottom corners
 					dropdownContainer.style.overflow = 'hidden';
 					dropdownContainer.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.3)';
-					dropdownContainer.style.border = '1px solid rgba(96, 165, 250, 0.2)';
 					dropdownContainer.style.transformOrigin = 'top right';
 					dropdownContainer.style.transform = 'translateY(-20px) scale(0.95)';
 					dropdownContainer.style.opacity = '0';
@@ -149,10 +147,10 @@
 					const menuItemsContainer = document.createElement('div');
 					menuItemsContainer.style.display = 'flex';
 					menuItemsContainer.style.flexDirection = 'column';
-					menuItemsContainer.style.alignItems = 'center'; // Center items horizontally
+					menuItemsContainer.style.alignItems = 'center'; // Change from 'stretch' to 'center' to center the items horizontally
 					menuItemsContainer.style.width = '100%';
-					menuItemsContainer.style.gap = '12px'; // Increase gap between items for better spacing
-					menuItemsContainer.style.padding = '12px'; // Add more padding inside container
+					menuItemsContainer.style.gap = '12px'; // Smaller gaps between items
+					menuItemsContainer.style.padding = '8px'; // Add padding inside container
 					dropdownContainer.appendChild(menuItemsContainer);
 
 					// Prepare batch DOM operations using DocumentFragment
@@ -167,9 +165,9 @@
 						menuItem.href = item.path;
 						menuItem.style.display = 'flex';
 						menuItem.style.alignItems = 'center';
-						menuItem.style.justifyContent = 'center'; // Center content horizontally
-						menuItem.style.width = '90%'; // Slightly narrower than container
-						menuItem.style.padding = '0.85rem 1.25rem'; // Slightly more vertical padding
+						menuItem.style.justifyContent = 'center'; // Add this to center contents horizontally
+						menuItem.style.width = '100%';
+						menuItem.style.padding = '0.75rem 1.25rem'; // Smaller padding
 						menuItem.style.backgroundColor = isActive
 							? 'rgba(59, 130, 246, 0.9)'
 							: 'rgba(30, 41, 59, 0.6)';
