@@ -37,9 +37,6 @@
 		<div class="flex flex-col items-center">
 			<!-- Profile image wrapper with solid background -->
 			<div class="relative z-20">
-				<!-- Solid circle behind image -->
-				<div class="absolute inset-0 rounded-full bg-[#1A202C] shadow-xl"></div>
-				
 				<div
 					class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 bg-gray-900 shadow-lg shadow-blue-500/50 transition-transform duration-300 hover:scale-105 relative z-10"
 				>
