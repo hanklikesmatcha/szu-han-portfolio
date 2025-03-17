@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	
 	// Props
 	export let skills: string[] = [];
 	export let heroSection: HTMLElement | null = null;
@@ -37,17 +35,23 @@
 
 	<div class="container mx-auto px-4">
 		<div class="flex flex-col items-center">
-			<!-- Profile image -->
-			<div
-				class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 shadow-lg shadow-blue-500/20 transition-transform duration-300 hover:scale-105"
-			>
-				<img
-					src="/images/me.jpg"
-					alt="Hank Chou"
-					class="object-position-y-top h-40 w-40 object-cover"
-					style="object-position: 10% 7%;"
-					loading="eager"
-				/>
+			<!-- Profile image wrapper with solid background -->
+			<div class="relative z-20">
+				<!-- Solid circle behind image -->
+				<div class="absolute inset-0 rounded-full bg-[#1A202C] shadow-xl"></div>
+				
+				<div
+					class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 bg-gray-900 shadow-lg shadow-blue-500/50 transition-transform duration-300 hover:scale-105 relative z-10"
+				>
+					<div class="absolute inset-0 bg-gray-900 opacity-90"></div>
+					<img
+						src="/images/me.jpg"
+						alt="Hank Chou"
+						class="object-position-y-top h-40 w-40 object-cover relative z-20"
+						style="object-position: 10% 7%; mix-blend-mode: normal;"
+						loading="eager"
+					/>
+				</div>
 			</div>
 
 			<div class="w-full max-w-3xl text-center">

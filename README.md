@@ -1,21 +1,18 @@
-# Personal Portfolio Website
+# SvelteKit Portfolio Template
 
-A modern, responsive portfolio website built with SvelteKit and TailwindCSS to showcase my projects, skills, and services.
+A modern, responsive portfolio website template built with SvelteKit and TailwindCSS. This template provides a solid foundation for developers to showcase their projects, skills, and services.
 
-## Features
+## ✨ Features
 
-- **Home/About Me**: Professional introduction and overview of skills
-- **Portfolio**: Showcase of projects with GitHub links, screenshots, and video demos
-- **Services**: Detailed information about services offered and expertise
-- **Responsive Design**: Optimized for all devices from mobile to desktop
+- **Modern Tech Stack**: Built with SvelteKit and TailwindCSS
+- **Internationalization**: Ready-to-use i18n setup with Paraglide
+- **Responsive Design**: Mobile-first approach with beautiful UI components
+- **Performance Optimized**: Fast loading times and smooth transitions
+- **SEO Friendly**: Meta tags and structured data included
+- **Type Safety**: Full TypeScript support
+- **Testing Ready**: Vitest setup included
 
-## Technologies Used
-
-- [SvelteKit](https://kit.svelte.dev/) - Full-stack web development framework
-- [TailwindCSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) - Internationalization
-
-## Setup and Development
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -27,8 +24,8 @@ A modern, responsive portfolio website built with SvelteKit and TailwindCSS to s
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/portfolio.git
-cd portfolio
+git clone https://github.com/yourusername/sveltekit-portfolio-template.git
+cd sveltekit-portfolio-template
 ```
 
 2. Install dependencies
@@ -49,47 +46,71 @@ pnpm dev
 
 4. Open your browser and navigate to `http://localhost:5173`
 
-## Customization
+## 🛠️ Project Structure
 
-### Personal Information
+```
+src/
+├── lib/
+│   ├── components/     # Reusable UI components
+│   ├── paraglide/     # i18n translations
+│   ├── styles/        # Global styles and Tailwind config
+│   └── server/        # Server-side utilities
+├── routes/            # SvelteKit routes
+│   ├── +page.svelte   # Home page
+│   ├── portfolio/     # Portfolio section
+│   └── services/      # Services section
+└── app.html          # HTML template
+```
+
+## 🎨 Customization
+
+### 1. Personal Information
 
 Update your personal information in the following files:
 
-- `src/routes/+layout.svelte` - Update navigation and footer links
-- `src/routes/+page.svelte` - Update about section with your information
-- `src/routes/portfolio/+page.svelte` - Add your actual projects
-- `src/routes/services/+page.svelte` - Customize services you offer
+- `src/routes/+layout.svelte` - Navigation and footer links
+- `src/routes/+page.svelte` - About section
+- `src/routes/portfolio/+page.svelte` - Project showcase
+- `src/routes/services/+page.svelte` - Services offered
 
-### Images
+### 2. Styling
 
-Add your images to the `static/images` directory:
+- The project uses TailwindCSS for styling
+- Custom styles can be added in `src/lib/styles/`
+- Theme colors can be modified in `tailwind.config.js`
 
-- Project screenshots
-- Profile photo
-- Testimonial photos
+### 3. Internationalization
 
-## Deployment
+- Translations are managed in `src/lib/paraglide/`
+- Add new languages by creating translation files
+- Update language switcher in `src/lib/components/`
 
-This site can be deployed to any platform that supports SvelteKit. Here are a few options:
+## 🤝 Contributing
 
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
-- [Cloudflare Pages](https://pages.cloudflare.com/)
+We welcome contributions! Please follow these steps:
 
-Example deployment command:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-```bash
-npm run build
-```
+### Development Guidelines
 
-## License
+- Follow the existing code style
+- Add tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting PR
 
-[MIT License](LICENSE)
+## 🙏 Acknowledgments
 
-## Contact
+- [SvelteKit](https://kit.svelte.dev/) - The web framework
+- [TailwindCSS](https://tailwindcss.com/) - The CSS framework
+- [Paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) - i18n solution
 
-Your Name - [your.email@example.com](mailto:your.email@example.com)
+## 📫 Support
 
----
-
-Made with ❤️ using SvelteKit and TailwindCSS
+If you find this template helpful, please consider:
+- Starring the repository
+- Reporting bugs
+- Contributing to the project
