@@ -40,12 +40,12 @@
 				<div
 					class="hero-element animate-ready mb-6 overflow-hidden rounded-full border-4 border-blue-400 bg-gray-900 shadow-lg shadow-blue-500/50 transition-transform duration-300 hover:scale-105 relative z-10"
 				>
-					<div class="absolute inset-0 bg-gray-900 opacity-90"></div>
+					<div class="absolute"></div>
 					<img
 						src="/images/me.jpg"
 						alt="Hank Chou"
-						class="object-position-y-top h-40 w-40 object-cover relative z-20"
-						style="object-position: 10% 7%; mix-blend-mode: normal;"
+						class="h-44 w-44 object-cover object-top relative z-20 scale-130 transform"
+						style="object-position: 10% 120%;"
 						loading="eager"
 					/>
 				</div>
