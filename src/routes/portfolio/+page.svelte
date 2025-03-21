@@ -6,6 +6,19 @@
 	// Project data including both personal and professional projects
 	const projects = [
 		{
+			id: 'o3space',
+			title: 'O3Space - Social Community App',
+			description:
+				'A mobile application for the O3 community platform that connects users in a safe, engaging social space. Built with Flutter and Supabase, this app provides a responsive and intuitive interface for community interaction with real-time updates and seamless user experience.',
+			technologies: ['Flutter', 'Supabase', 'Postgres', 'Mobile Development', 'Firebase'],
+			companyUrl: 'https://www.o3space.org/socialapp',
+			image: '/images/o3.jpg',
+			featured: true,
+			appStoreUrl: 'https://apps.apple.com/nz/app/o3space/id6730118317',
+			type: 'professional',
+			companyName: 'O3'
+		},
+		{
 			id: 'running4life',
 			title: 'Running4Life - Fitness Platform',
 			description:
@@ -171,6 +184,7 @@
 	const filters = [
 		'all',
 		'Web Development',
+		'Mobile Development',
 		'Data Analytics',
 		'AI & Machine Learning',
 		'Cloud Solutions',
@@ -213,6 +227,8 @@
 				'Cloud Computing': 'Cloud Solutions',
 				Microservices: 'Cloud Solutions',
 				Docker: 'Cloud Solutions',
+				Supabase: 'Cloud Solutions',
+				Firebase: 'Cloud Solutions',
 
 				// API Development
 				'API Development': 'API Development',
@@ -233,7 +249,10 @@
 				'Python/FastAPI': 'Full-Stack',
 				Python: 'Full-Stack',
 				JavaScript: 'Full-Stack',
-				Database: 'Full-Stack'
+				Database: 'Full-Stack',
+				Postgres: 'Full-Stack',
+				Flutter: 'Mobile Development',
+				'Mobile Development': 'Mobile Development'
 			};
 
 			// Check if any of the project's technologies map to the selected outcome category
@@ -958,6 +977,16 @@
 								class="project-link flex-1 rounded bg-blue-700 px-4 py-2 text-center text-sm text-white hover:bg-blue-600"
 							>
 								Live Demo
+							</a>
+						{/if}
+						{#if project.appStoreUrl}
+							<a
+								href={project.appStoreUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="project-link flex-1 rounded bg-[#0D96F6] px-4 py-2 text-center text-sm text-white hover:bg-blue-600"
+							>
+								App Store
 							</a>
 						{/if}
 						{#if project.type === 'professional' && !project.githubUrl && !project.liveUrl && project.companyUrl}
