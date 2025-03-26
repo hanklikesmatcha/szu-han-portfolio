@@ -32,11 +32,11 @@ const handleSeoAndPerformance: Handle = async ({ event, resolve }) => {
 	response.headers.set(
 		'Content-Security-Policy',
 		"default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' https://app.posthog.com; " +
+			"script-src 'self' 'unsafe-inline' vitals.vercel-insights.com; " +
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https:; " +
 			"font-src 'self'; " +
-			"connect-src 'self' https://app.posthog.com; " +
+			"connect-src 'self' vitals.vercel-insights.com vercel.com; " +
 			"media-src 'self'; " +
 			"object-src 'none'; " +
 			"frame-src 'self'; " +

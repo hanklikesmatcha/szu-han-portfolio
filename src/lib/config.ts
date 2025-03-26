@@ -19,7 +19,7 @@ export const DEFAULT_TWITTER_CARD = 'summary_large_image';
 export const CONTACT_EMAIL = 'contact@hankchou.me';
 
 // Analytics
-export const POSTHOG_API_KEY = 'your-posthog-api-key'; // Replace with actual key
+// Using @vercel/analytics - no API key needed as it's managed by Vercel
 
 // Performance thresholds
 export const PERFORMANCE_BUDGET = {

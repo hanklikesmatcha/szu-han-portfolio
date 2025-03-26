@@ -2,12 +2,6 @@
  * Performance utilities for optimizing SvelteKit routes
  */
 
-// Define LayoutShift interface
-interface LayoutShift extends PerformanceEntry {
-	value: number;
-	hadRecentInput: boolean;
-}
-
 // Define NetworkInformation interface
 interface NetworkInformation {
 	saveData: boolean;
@@ -72,49 +66,8 @@ export const preloadStrategies = {
 	}
 };
 
-// Track performance metrics and report to PostHog
-export const trackPerformance = () => {
-	if (typeof window === 'undefined') return; // Server-side guard
-
-	// Use Performance Observer to monitor layout shifts
-	if ('PerformanceObserver' in window) {
-		try {
-			const layoutShiftObserver = new PerformanceObserver((list) => {
-				for (const entry of list.getEntries()) {
-					// Cast entry to LayoutShift type
-					const layoutShift = entry as LayoutShift;
-
-					// Only send significant layout shifts to reduce noise
-					if (layoutShift.value > 0.05 && window.posthog) {
-						window.posthog.capture('layout_shift', {
-							value: layoutShift.value,
-							path: window.location.pathname
-						});
-					}
-				}
-			});
-
-			layoutShiftObserver.observe({ type: 'layout-shift', buffered: true });
-
-			// Track largest contentful paint
-			const lcpObserver = new PerformanceObserver((list) => {
-				const entries = list.getEntries();
-				const lastEntry = entries[entries.length - 1];
-
-				if (window.posthog && lastEntry) {
-					window.posthog.capture('largest_contentful_paint', {
-						value: lastEntry.startTime,
-						path: window.location.pathname
-					});
-				}
-			});
-
-			lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
-		} catch (e) {
-			console.error('Performance Observer error:', e);
-		}
-	}
-};
+// Vercel Analytics automatically tracks web vitals
+// No manual tracking needed as it's handled by the @vercel/analytics package
 
 // Cache resources that rarely change
 export const setupResourceCache = () => {
@@ -138,9 +91,6 @@ export const setupResourceCache = () => {
 // Initialize all performance optimizations
 export const initializePerformanceOptimizations = () => {
 	if (typeof window === 'undefined') return;
-
-	// Setup tracking and caching
-	trackPerformance();
 
 	// Handle network condition changes
 	if ('connection' in navigator) {
@@ -166,5 +116,5 @@ export const initializePerformanceOptimizations = () => {
 	}
 
 	// Preconnect to essential domains
-	preloadStrategies.preconnect(['https://app.posthog.com']);
+	preloadStrategies.preconnect(['vitals.vercel-insights.com']);
 };
