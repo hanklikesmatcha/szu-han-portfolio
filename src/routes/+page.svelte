@@ -5,6 +5,8 @@
 	import About from '$lib/components/About.svelte';
 	import Testimonial from '$lib/components/Testimonial.svelte';
 	import CTA from '$lib/components/CTA.svelte';
+	import SEO from '$lib/components/SEO.svelte';
+	import '$lib/styles/animations.css'; // Import the global animations
 
 	// Add state variable for the 3D animation
 	let animationComponent: BackgroundAnimation | null = null;
@@ -146,18 +148,45 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Hank Chou | AI-Powered Software Engineer</title>
-	<meta
-		name="description"
-		content="Hank Chou - A senior software engineer specializing in AI-driven applications, responsive web development, and scalable cloud solutions."
-	/>
-	<!-- Open Graph / Social Media Meta Tags -->
-	<meta property="og:title" content="Hank Chou | AI-Powered Software Engineer" />
-	<meta property="og:description" content="Senior software engineer specializing in AI-driven applications, responsive web development, and scalable cloud solutions." />
-	<meta property="og:image" content="https://hankchou.me/images/hank-social.png" />
-	<meta property="og:url" content="https://hankchou.me" />
-</svelte:head>
+<SEO 
+	title="Hank Chou | AI-Powered Software Engineer"
+	description="Hank Chou - A senior software engineer specializing in AI-driven applications, responsive web development, and scalable cloud solutions."
+	image="https://hankchou.me/images/hank-social.png"
+	url="https://hankchou.me"
+	type="website"
+	keywords="hank chou, senior software engineer, AI development, software development, cloud architecture, San Francisco, tech consultant, SvelteKit, web applications"
+	jsonLd={{
+		'@type': 'Person',
+		'name': 'Hank Chou',
+		'jobTitle': 'Senior Software Engineer',
+		'url': 'https://hankchou.me',
+		'sameAs': [
+			'https://github.com/hankszuhan',
+			'https://linkedin.com/in/hankchou'
+		],
+		'knowsAbout': [
+			'AI-Powered Applications',
+			'Software Engineering',
+			'Cloud Architecture',
+			'Web Development',
+			'Mobile Applications',
+			'Digital Transformation'
+		],
+		'alumniOf': {
+			'@type': 'CollegeOrUniversity',
+			'name': 'University of California, Berkeley'
+		},
+		'workLocation': {
+			'@type': 'Place',
+			'address': {
+				'@type': 'PostalAddress',
+				'addressLocality': 'San Francisco',
+				'addressRegion': 'CA',
+				'addressCountry': 'US'
+			}
+		}
+	}}
+/>
 
 <BackgroundAnimation bind:this={animationComponent} />
 
@@ -179,82 +208,3 @@
 	buttonText="View My Work" 
 	buttonLink="/portfolio" 
 />
-
-<style>
-	/* Email button styles needed for animation */
-
-	@keyframes copy-ripple {
-		0% {
-			width: 0;
-			height: 0;
-			opacity: 0.6;
-		}
-		100% {
-			width: 200%;
-			height: 200%;
-			opacity: 0;
-		}
-	}
-	@keyframes copy-pulse {
-		0% {
-			box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7);
-		}
-		70% {
-			box-shadow: 0 0 0 15px rgba(66, 153, 225, 0);
-		}
-		100% {
-			box-shadow: 0 0 0 0 rgba(66, 153, 225, 0);
-		}
-	}
-
-
-	@keyframes fadeInOut {
-		0% {
-			opacity: 0;
-			transform: scale(0.8) translateY(5px);
-		}
-		15% {
-			opacity: 1;
-			transform: scale(1.1) translateY(0);
-		}
-		25% {
-			transform: scale(1) translateY(0);
-		}
-		85% {
-			opacity: 1;
-			transform: scale(1) translateY(0);
-		}
-		100% {
-			opacity: 0;
-			transform: scale(0.8) translateY(-5px);
-		}
-	}
-
-	/* Name animation keyframes */
-	@keyframes name-pulse {
-		0% { transform: scale(1); }
-		50% { transform: scale(1.1); }
-		100% { transform: scale(1); }
-	}
-
-	@keyframes name-shake {
-		0%, 100% { transform: translateX(0); }
-		25% { transform: translateX(-5px); }
-		50% { transform: translateX(5px); }
-		75% { transform: translateX(-5px); }
-	}
-
-	@keyframes name-rotate {
-		0% { transform: rotate(0deg); }
-		25% { transform: rotate(5deg); }
-		50% { transform: rotate(-5deg); }
-		75% { transform: rotate(5deg); }
-		100% { transform: rotate(0deg); }
-	}
-
-	@keyframes name-bounce {
-		0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-		40% { transform: translateY(-10px); }
-		60% { transform: translateY(-5px); }
-	}
-</style>

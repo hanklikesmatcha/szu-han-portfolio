@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow specific utility paths
+Disallow: /*.json$
+Disallow: /api/
+Disallow: /.env*
+
+# Sitemap location
+Sitemap: https://hankchou.me/sitemap.xml 
