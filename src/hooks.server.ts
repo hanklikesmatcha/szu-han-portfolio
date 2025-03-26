@@ -32,11 +32,11 @@ const handleSeoAndPerformance: Handle = async ({ event, resolve }) => {
 	response.headers.set(
 		'Content-Security-Policy',
 		"default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' vitals.vercel-insights.com; " +
+			"script-src 'self' 'unsafe-inline' vitals.vercel-insights.com va.vercel-scripts.com; " +
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https:; " +
 			"font-src 'self'; " +
-			"connect-src 'self' vitals.vercel-insights.com vercel.com; " +
+			"connect-src 'self' vitals.vercel-insights.com vercel.com va.vercel-scripts.com; " +
 			"media-src 'self'; " +
 			"object-src 'none'; " +
 			"frame-src 'self'; " +

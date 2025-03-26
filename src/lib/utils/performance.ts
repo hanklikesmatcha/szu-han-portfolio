@@ -116,5 +116,9 @@ export const initializePerformanceOptimizations = () => {
 	}
 
 	// Preconnect to essential domains
-	preloadStrategies.preconnect(['vitals.vercel-insights.com']);
+	preloadStrategies.preconnect([
+		'vitals.vercel-insights.com',
+		'va.vercel-scripts.com',
+		'vercel.com'
+	]);
 };
