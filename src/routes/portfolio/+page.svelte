@@ -302,117 +302,121 @@
 
 		// Add hover effect to project cards
 		document.querySelectorAll('.project-card').forEach((card) => {
-			card.addEventListener('mouseenter', () => {
-				try {
-					animate(
-						card,
-						{
-							y: -20,
-							scale: 1.05,
-							boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)'
-						},
-						{
-							duration: 0.4,
-							easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Custom bounce
-						}
-					);
-
-					// Enhance image zoom effect
-					const img = card.querySelector('.project-image img');
-					if (img) {
+			// Check if device is mobile before adding hover listeners
+			const isMobile = window.innerWidth < 768;
+			if (!isMobile) {
+				card.addEventListener('mouseenter', () => {
+					try {
 						animate(
-							img,
+							card,
 							{
-								scale: 1.15
-								// No filter effects to avoid blurriness
+								y: -20,
+								scale: 1.05,
+								boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)'
 							},
 							{
-								duration: 0.8,
-								easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+								duration: 0.4,
+								easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Custom bounce
 							}
 						);
-					}
 
-					// Animate tech tags
-					const techTags = card.querySelectorAll('.bg-\\[\\#2D3748\\]');
-					if (techTags.length) {
-						animate(
-							techTags,
-							{
-								y: -5,
-								scale: 1.1,
-								backgroundColor: '#2a4365' // Deeper blue
-							},
-							{
-								delay: stagger(0.1),
-								duration: 0.3
-							}
-						);
-					}
-				} catch (error) {
-					console.error('Hover animation error:', error);
-				}
-			});
-
-			card.addEventListener('mouseleave', () => {
-				try {
-					animate(
-						card,
-						{
-							y: 0,
-							scale: 1,
-							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-						},
-						{
-							duration: 0.5,
-							easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+						// Enhance image zoom effect
+						const img = card.querySelector('.project-image img');
+						if (img) {
+							animate(
+								img,
+								{
+									scale: 1.15
+									// No filter effects to avoid blurriness
+								},
+								{
+									duration: 0.8,
+									easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+								}
+							);
 						}
-					);
 
-					// Reset image animation
-					const img = card.querySelector('.project-image img');
-					if (img) {
+						// Animate tech tags
+						const techTags = card.querySelectorAll('.bg-\\[\\#2D3748\\]');
+						if (techTags.length) {
+							animate(
+								techTags,
+								{
+									y: -5,
+									scale: 1.1,
+									backgroundColor: '#2a4365' // Deeper blue
+								},
+								{
+									delay: stagger(0.1),
+									duration: 0.3
+								}
+							);
+						}
+					} catch (error) {
+						console.error('Hover animation error:', error);
+					}
+				});
+
+				card.addEventListener('mouseleave', () => {
+					try {
 						animate(
-							img,
+							card,
 							{
-								scale: 1
-								// No filter effects to avoid blurriness
+								y: 0,
+								scale: 1,
+								boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
 							},
 							{
 								duration: 0.5,
 								easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
 							}
 						);
+
+						// Reset image animation
+						const img = card.querySelector('.project-image img');
+						if (img) {
+							animate(
+								img,
+								{
+									scale: 1
+									// No filter effects to avoid blurriness
+								},
+								{
+									duration: 0.5,
+									easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+								}
+							);
+						}
+
+						// Reset tech tags
+						const techTags = card.querySelectorAll('.bg-\\[\\#2D3748\\]');
+						if (techTags.length) {
+							animate(
+								techTags,
+								{
+									y: 0,
+									scale: 1,
+									backgroundColor: '#2D3748' // Original color
+								},
+								{
+									delay: stagger(0.05),
+									duration: 0.3
+								}
+							);
+						}
+
+						// Stop colorful border animation
+						card.classList.remove('border-animate');
+					} catch (error) {
+						console.error('Hover animation reset error:', error);
 					}
+				});
 
-					// Reset tech tags
-					const techTags = card.querySelectorAll('.bg-\\[\\#2D3748\\]');
-					if (techTags.length) {
-						animate(
-							techTags,
-							{
-								y: 0,
-								scale: 1,
-								backgroundColor: '#2D3748' // Original color
-							},
-							{
-								delay: stagger(0.05),
-								duration: 0.3
-							}
-						);
-					}
-
-					// Stop colorful border animation
-					card.classList.remove('border-animate');
-				} catch (error) {
-					console.error('Hover animation reset error:', error);
-				}
-			});
-
-			// Add animated border effect
-			card.addEventListener('mouseenter', (e) => {
-				card.classList.add('border-animate');
-			});
+				// Add animated border effect
+				card.addEventListener('mouseenter', (e) => {
+					card.classList.add('border-animate');
+				});
+			}
 		});
 
 		// Set up idle animation for card borders to subtly pulse
@@ -1039,7 +1043,7 @@
 		}
 	}
 
-	/* Mobile-specific scroll animation enhancements */
+	/* Mobile-specific styles */
 	@media (max-width: 767px) {
 		.project-card {
 			transform-origin: center bottom; /* For better mobile animations */
@@ -1049,6 +1053,33 @@
 		/* Add perspective to mobile cards for more pronounced 3D effect */
 		.perspective {
 			perspective: 800px; /* Less intense perspective for mobile */
+		}
+
+		/* Disable hover animations on mobile */
+		.project-card:hover,
+		.project-card:active,
+		.project-card:focus {
+			transform: none !important;
+			box-shadow: none !important;
+		}
+
+		.project-image img:hover {
+			transform: none !important;
+		}
+
+		.project-link:hover {
+			transform: none !important;
+		}
+
+		/* Disable border animations on mobile */
+		.project-card::before,
+		.project-card::after {
+			display: none;
+		}
+
+		.filter-btn:hover {
+			transform: none !important;
+			box-shadow: none !important;
 		}
 	}
 </style>

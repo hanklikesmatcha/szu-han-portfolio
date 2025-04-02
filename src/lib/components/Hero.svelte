@@ -62,12 +62,6 @@
 					>
 				</h1>
 
-				<h2
-					class="hero-element animate-ready mb-6 text-2xl font-semibold text-blue-300 md:text-3xl"
-				>
-					AI-Powered Software Engineering
-				</h2>
-
 				<p
 					class="hero-element animate-ready m-4 mt-2 rounded-lg bg-[#2D3748]/60 p-3 text-lg text-gray-100 shadow-inner"
 				>
