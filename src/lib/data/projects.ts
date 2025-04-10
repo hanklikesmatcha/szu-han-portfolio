@@ -12,6 +12,26 @@ export const projects = [
 		type: 'professional'
 	},
 	{
+		id: 'rag-template',
+		title: 'Full Control RAG System Template',
+		description:
+			'A self-hosted Retrieval-Augmented Generation (RAG) system template for AI support, providing deep customization, enhanced data privacy, and transparent control. Built with Python and FastAPI, deployable via Docker, supporting multiple LLM providers and vector databases for knowledge retrieval.',
+		technologies: [
+			'Python',
+			'FastAPI',
+			'Docker',
+			'Vector Database',
+			'AI/ML',
+			'RAG',
+			'API Development'
+		],
+		liveUrl: 'https://rag-example.zeabur.app/',
+		purchaseUrl: 'https://szuhan.gumroad.com/l/rag-template',
+		image: '/images/rag-template.jpg',
+		featured: true,
+		type: 'personal'
+	},
+	{
 		id: 'o3space',
 		title: 'O3Space - Social Community App',
 		description:

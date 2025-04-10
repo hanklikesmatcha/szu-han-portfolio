@@ -810,6 +810,16 @@
 								GitHub
 							</a>
 						{/if}
+						{#if project.purchaseUrl}
+							<a
+								href={project.purchaseUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="project-link flex-1 rounded bg-green-700 px-4 py-2 text-center text-sm text-white hover:bg-green-600"
+							>
+								Purchase
+							</a>
+						{/if}
 						{#if project.liveUrl}
 							<a
 								href={project.liveUrl}
