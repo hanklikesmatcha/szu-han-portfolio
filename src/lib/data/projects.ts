@@ -1,14 +1,51 @@
 // Project data including both personal and professional projects
 export const projects = [
 	{
+		id: 'sja-honey',
+		title: 'SJA Honey',
+		description:
+			'A Computer Vision project that locates bees and queen bees in the hive.  This helps the beekeepers track the health of the hive and the bees.',
+		technologies: [
+			'Python/FastAPI',
+			'Object Detection',
+			'Computer Vision',
+			'AI/ML',
+			'API Development',
+			'TypeScript/React',
+			'Docker'
+		],
+		image: '/images/sja.png',
+		featured: true,
+		type: 'professional',
+		liveUrl: 'https://drive.google.com/file/d/1_ruhPJwswtBR7dbCGJivLVKE518cJXgT/view?usp=sharing'
+	},
+	{
+		id: 'gaze-design',
+		title: 'Gaze Design',
+		description:
+			'A cutting-edge interior design tool powered that auto-generates 2D layouts with a video walkthrough of the design.',
+		technologies: ['Python/FastAPI', 'Veo 3', 'AI/ML', 'API Development', 'TypeScript/React'],
+		image: '/images/gaze.svg',
+		featured: true,
+		type: 'professional',
+		liveUrl: 'https://drive.google.com/file/d/1TebIqH9Z29I26H7KNrSpvA_-011zNrUe/view?usp=sharing'
+	},
+	{
 		id: 'kiaora-oracle',
 		title: 'KiaOra Oracle - Mystical Guidance Platform',
 		description:
 			"A Next.js application providing mystical guidance through an AI-powered oracle experience. Users can ask questions and receive personalized answers based on the card they select, powered by OpenAI's language models. The platform features beautiful animations and an intuitive interface inspired by Māori tradition.",
-		technologies: ['Next.js', 'ChatGPT', 'React', 'Postgres', 'Tailwind CSS', 'Animation'],
+		technologies: [
+			'Next.js',
+			'ChatGPT',
+			'TypeScript/React',
+			'Postgres',
+			'Tailwind CSS',
+			'Animation'
+		],
 		liveUrl: 'https://oracle.kiaorahealing.com',
 		image: '/images/kiaora-oracle.jpg', // You'll need to add this image
-		featured: true,
+		featured: false,
 		type: 'professional'
 	},
 	{
@@ -17,15 +54,13 @@ export const projects = [
 		description:
 			'A self-hosted Retrieval-Augmented Generation (RAG) system template for AI support, providing deep customization, enhanced data privacy, and transparent control. Built with Python and FastAPI, deployable via Docker, supporting multiple LLM providers and vector databases for knowledge retrieval.',
 		technologies: [
-			'Python',
-			'FastAPI',
+			'Python/FastAPI',
 			'Docker',
 			'Vector Database',
 			'AI/ML',
 			'RAG',
 			'API Development'
 		],
-		liveUrl: 'https://rag-example.zeabur.app/',
 		purchaseUrl: 'https://szuhan.gumroad.com/l/rag-template',
 		image: '/images/rag-template.jpg',
 		featured: true,
@@ -63,7 +98,6 @@ export const projects = [
 			'A specialized web application for analyzing costs associated with CNC machining operations. This tool helps manufacturers calculate and optimize production costs, demonstrating my ability to develop industry-specific technical solutions.',
 		technologies: ['Python/FastAPI', 'TypeScript/React', 'Data Analysis', 'Docker', 'ML'],
 		githubUrl: 'https://github.com/hanklikesmatcha/cnc-cost-analysis',
-		liveUrl: 'https://cnc-cost-analysis-production.up.railway.app/',
 		image: '/images/cnc-cost-analysis.jpg',
 		type: 'personal'
 	},
