@@ -51,7 +51,7 @@ export const projects = [
 			'A fitness-focused web platform designed to help users track and improve their running performance. This project demonstrates my ability to create clean, user-friendly interfaces for health and wellness applications.',
 		technologies: ['Next.js', 'Database', 'Tailwind CSS', 'Animation'],
 		githubUrl: 'https://github.com/hanklikesmatcha/running4life',
-		liveUrl: 'https://running4.life',
+		liveUrl: 'https://running4life-git-main-hanklikesmatchas-projects.vercel.app/',
 		image: '/images/running4life.jpg',
 		featured: true,
 		type: 'personal'
