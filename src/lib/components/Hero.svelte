@@ -56,10 +56,6 @@
 					Hi, I'm <button class="hank-highlight" on:click={() => handleNameClick('hank')}
 						>Hank</button
 					>
-					aka
-					<button class="szuhan-highlight" on:click={() => handleNameClick('szuhan')}
-						>Szu-Han</button
-					>
 				</h1>
 
 				<p
@@ -144,4 +140,4 @@
 			</div>
 		</div>
 	</div>
-</section> 
+</section>

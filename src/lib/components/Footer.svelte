@@ -126,7 +126,7 @@
 
 <div class="container mx-auto flex flex-col items-center justify-between px-4 md:flex-row">
 	<p class="mb-4 text-gray-300 md:mb-0">
-		© {new Date().getFullYear()} Szu-Han. All Rights Reserved.
+		© {new Date().getFullYear()} Hank Chou. All Rights Reserved.
 	</p>
 	<div class="flex gap-10">
 		<!-- GitHub Icon -->

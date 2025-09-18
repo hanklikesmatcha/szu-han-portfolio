@@ -390,7 +390,7 @@
 </script>
 
 <svelte:head>
-	<title>Skills | Hank aka Szu-Han Chou</title>
+<title>Skills | Hank Chou</title>
 	<meta
 		name="description"
 		content="My technical expertise in software development, security, and mentoring"

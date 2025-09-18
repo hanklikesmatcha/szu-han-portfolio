@@ -33,57 +33,35 @@
 
 	// Add click counters for name animations
 	let hankClickCount = 0;
-	let szuhanClickCount = 0;
 
 	// Logic for handling name clicks (could be extracted to a utility file)
 	function handleNameClick(name: string) {
-		if (name === 'hank') {
-			hankClickCount++;
-			const nameElement = document.querySelector('.hank-highlight') as HTMLElement;
-			if (!nameElement) return;
-
-			// Clear existing animations
-			nameElement.classList.remove('animate-pulse', 'animate-shake', 'animate-rotate', 'animate-bounce');
-
-			// Apply different animations based on click count
-			if (hankClickCount % 4 === 1) {
-				nameElement.style.animation = 'name-pulse 0.5s ease';
-			} else if (hankClickCount % 4 === 2) {
-				nameElement.style.animation = 'name-shake 0.5s ease';
-			} else if (hankClickCount % 4 === 3) {
-				nameElement.style.animation = 'name-rotate 0.8s ease';
-			} else {
-				nameElement.style.animation = 'name-bounce 1s ease';
-			}
-
-			// Reset animation after it completes
-			setTimeout(() => {
-				nameElement.style.animation = '';
-			}, 1000);
-		} else if (name === 'szuhan') {
-			szuhanClickCount++;
-			const nameElement = document.querySelector('.szuhan-highlight') as HTMLElement;
-			if (!nameElement) return;
-
-			// Clear existing animations
-			nameElement.classList.remove('animate-pulse', 'animate-shake', 'animate-rotate', 'animate-bounce');
-
-			// Apply different animations based on click count
-			if (szuhanClickCount % 4 === 1) {
-				nameElement.style.animation = 'name-pulse 0.5s ease';
-			} else if (szuhanClickCount % 4 === 2) {
-				nameElement.style.animation = 'name-shake 0.5s ease';
-			} else if (szuhanClickCount % 4 === 3) {
-				nameElement.style.animation = 'name-rotate 0.8s ease';
-			} else {
-				nameElement.style.animation = 'name-bounce 1s ease';
-			}
-
-			// Reset animation after it completes
-			setTimeout(() => {
-				nameElement.style.animation = '';
-			}, 1000);
+		if (name !== 'hank') {
+			return;
 		}
+
+		hankClickCount++;
+		const nameElement = document.querySelector('.hank-highlight') as HTMLElement;
+		if (!nameElement) return;
+
+		// Clear existing animations
+		nameElement.classList.remove('animate-pulse', 'animate-shake', 'animate-rotate', 'animate-bounce');
+
+		// Apply different animations based on click count
+		if (hankClickCount % 4 === 1) {
+			nameElement.style.animation = 'name-pulse 0.5s ease';
+		} else if (hankClickCount % 4 === 2) {
+			nameElement.style.animation = 'name-shake 0.5s ease';
+		} else if (hankClickCount % 4 === 3) {
+			nameElement.style.animation = 'name-rotate 0.8s ease';
+		} else {
+			nameElement.style.animation = 'name-bounce 1s ease';
+		}
+
+		// Reset animation after it completes
+		setTimeout(() => {
+			nameElement.style.animation = '';
+		}, 1000);
 	}
 
 	onMount(() => {

@@ -594,7 +594,7 @@
 </script>
 
 <svelte:head>
-	<title>Portfolio | Hank aka Szu-Han Chou</title>
+<title>Portfolio | Hank Chou</title>
 	<meta name="description" content="Showcase of my development projects and work" />
 </svelte:head>
 

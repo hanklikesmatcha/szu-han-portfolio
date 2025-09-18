@@ -570,37 +570,6 @@
 				if (PERFORMANCE_MODE) {
 					// Use simpler animations in performance mode but make them more vibrant
 
-					// Create a nav-only flash that fades slowly, instead of full-screen
-					const navContainer = document.querySelector('nav');
-					if (navContainer) {
-						const flashOverlay = document.createElement('div');
-						flashOverlay.className = 'nav-contained-flash';
-						navContainer.appendChild(flashOverlay);
-
-						// Animate the nav-contained flash with longer duration and staged opacity
-						animate(
-							flashOverlay,
-							{
-								opacity: [0, 0.8, 0.6, 0.4, 0.2, 0]
-							},
-							{
-								duration: 1.8, // Longer duration
-								easing: 'ease-out'
-							}
-						)
-							.finished?.then(() => {
-								if (flashOverlay.parentNode) {
-									flashOverlay.parentNode.removeChild(flashOverlay);
-								}
-							})
-							.catch((error) => {
-								console.error('Flash animation error:', error);
-								if (flashOverlay.parentNode) {
-									flashOverlay.parentNode.removeChild(flashOverlay);
-								}
-							});
-					}
-
 					// Simple highlight animation for the to item with more vibrant colors
 					animate(
 						toItem,
@@ -1420,7 +1389,7 @@
 			});
 		}
 
-		// Enhanced entry animation with longer flash
+		// Enhanced entry animation with a simple fade-in
 		setTimeout(() => {
 			try {
 				// First, remove any existing animations
@@ -1433,34 +1402,6 @@
 					// More colorful fade-in for the navigation in performance mode
 					const navContainer = document.querySelector('nav');
 					if (navContainer) {
-						// Create a colorful gradient flash that lasts longer, but constrained to nav
-						const flash = document.createElement('div');
-						flash.className = 'nav-entrance-flash';
-						navContainer.appendChild(flash);
-
-						// Animate the flash with stepped opacity for smoother fading
-						animate(
-							flash,
-							{
-								opacity: [0, 0.8, 0.7, 0.5, 0.3, 0.1, 0]
-							},
-							{
-								duration: 2.5, // Much longer duration
-								easing: 'ease-out'
-							}
-						)
-							.finished?.then(() => {
-								if (flash.parentNode) {
-									flash.parentNode.removeChild(flash);
-								}
-							})
-							.catch((error) => {
-								console.error('Flash animation error:', error);
-								if (flash.parentNode) {
-									flash.parentNode.removeChild(flash);
-								}
-							});
-
 						// Fade in the nav
 						animate(
 							navContainer,
@@ -1536,8 +1477,6 @@
 		<a href="/" class="brand-logo text-xl font-bold whitespace-nowrap text-blue-400">
 			<span class="greeting hidden sm:inline-block">Hello, I'm</span>
 			<span class="hank-highlight">Hank</span>
-			<span class="aka">•</span>
-			<span class="name">Szu-Han</span>
 		</a>
 		<div class="fireworks-container" bind:this={fireworksContainer}></div>
 	</div>
@@ -1711,16 +1650,6 @@
 		letter-spacing: 0.02em;
 	}
 
-	.name {
-		color: #93c5fd;
-	}
-
-	.aka {
-		color: #f9a8d4;
-		font-size: 0.8em;
-		margin-top: 0.1em;
-	}
-
 	.hank-highlight {
 		position: relative;
 		display: inline-block;
@@ -1756,10 +1685,6 @@
 
 	.brand-logo:hover .greeting {
 		color: #cbd5e1;
-	}
-
-	.brand-logo:hover .name {
-		color: #60a5fa;
 	}
 
 	/* Hamburger menu styles */
@@ -1867,26 +1792,6 @@
 		border-radius: 12px;
 	}
 
-	/* Nav-contained flash that doesn't cover whole screen - updated to be more vibrant */
-	:global(.nav-contained-flash) {
-		position: absolute;
-		top: -5%;
-		left: -5%;
-		width: 110%;
-		height: 110%;
-		background: linear-gradient(
-			135deg,
-			rgba(96, 165, 250, 0.7),
-			rgba(139, 92, 246, 0.7),
-			rgba(244, 114, 182, 0.7),
-			rgba(16, 185, 129, 0.7)
-		);
-		z-index: 100;
-		opacity: 0;
-		pointer-events: none;
-		border-radius: 16px;
-	}
-
 	/* New firework flash contained within nav */
 	:global(.firework-contained-flash) {
 		position: absolute;
@@ -1904,26 +1809,6 @@
 		z-index: 90;
 		opacity: 0;
 		pointer-events: none;
-		border-radius: 16px;
-	}
-
-	/* Replace full-screen entrance flash with nav-contained version */
-	:global(.nav-entrance-flash) {
-		position: absolute;
-		top: -10%;
-		left: -10%;
-		width: 120%;
-		height: 120%;
-		background: linear-gradient(
-			135deg,
-			rgba(96, 165, 250, 0.7),
-			rgba(139, 92, 246, 0.7),
-			rgba(244, 114, 182, 0.7),
-			rgba(16, 185, 129, 0.7)
-		);
-		z-index: 999;
-		pointer-events: none;
-		opacity: 0;
 		border-radius: 16px;
 	}
 

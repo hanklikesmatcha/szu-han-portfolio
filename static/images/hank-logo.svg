@@ -179,11 +179,10 @@
   
   <!-- Text Elements with enhanced typography -->
   <g transform="translate(160, 95)" filter="url(#softShadow)">
-    <!-- Hank aka Szu-Han -->
+    <!-- Hank Chou -->
     <text font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="40" font-weight="800" letter-spacing="0.01em">
       <tspan fill="#f472b6">Hank</tspan>
-      <tspan fill="#8a87ff" dx="14" font-size="30" font-weight="600">aka</tspan>
-      <tspan fill="#e5e7eb" dx="14">Szu-Han</tspan>
+      <tspan fill="#e5e7eb" dx="14">Chou</tspan>
     </text>
     
     <!-- Technical Solutions -->
@@ -199,4 +198,4 @@
   <circle cx="720" cy="60" r="12" fill="#22d3ee" opacity="0.5" />
   <circle cx="740" cy="90" r="8" fill="#a855f7" opacity="0.5" />
   <circle cx="760" cy="70" r="5" fill="#f472b6" opacity="0.5" />
-</svg> 
+</svg>
