@@ -9,7 +9,7 @@ export const load: PageLoad = async () => {
 		initializePerformanceOptimizations();
 
 		// Prefetch portfolio and services pages that are likely to be visited next
-		preloadStrategies.prefetchLinks(['/portfolio', '/services']);
+		preloadStrategies.prefetchLinks(['/portfolio', '/services', '/blogs']);
 
 		// Preload critical images for the home page
 		preloadStrategies.criticalImages();

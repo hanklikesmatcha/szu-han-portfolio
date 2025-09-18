@@ -3,6 +3,7 @@ import { SITE_URL } from '$lib/config';
 const pages = [
 	{ url: '', lastMod: new Date().toISOString(), priority: '1.0', changeFreq: 'weekly' },
 	{ url: 'portfolio', lastMod: new Date().toISOString(), priority: '0.8', changeFreq: 'weekly' },
+	{ url: 'blogs', lastMod: new Date().toISOString(), priority: '0.7', changeFreq: 'weekly' },
 	{ url: 'services', lastMod: new Date().toISOString(), priority: '0.8', changeFreq: 'monthly' }
 	// Add other routes as needed
 ];
