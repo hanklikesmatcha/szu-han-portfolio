@@ -13,7 +13,8 @@ const portfolioItems = [
 	{ slug: 'web-applications', lastMod: new Date().toISOString() },
 	{ slug: 'mobile-applications', lastMod: new Date().toISOString() },
 	{ slug: 'ai-solutions', lastMod: new Date().toISOString() },
-	{ slug: 'cloud-infrastructure', lastMod: new Date().toISOString() }
+	{ slug: 'cloud-infrastructure', lastMod: new Date().toISOString() },
+	{ slug: 'fanlytics', lastMod: new Date().toISOString() }
 ];
 
 export async function GET() {

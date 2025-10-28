@@ -16,7 +16,7 @@ export const DEFAULT_OG_IMAGE = 'https://hankchou.me/images/hank-social.png';
 export const DEFAULT_TWITTER_CARD = 'summary_large_image';
 
 // Contact info
-export const CONTACT_EMAIL = 'contact@hankchou.me';
+export const CONTACT_EMAIL = 'szuhan.eng@gmail.com';
 
 // Analytics
 // Using @vercel/analytics - no API key needed as it's managed by Vercel

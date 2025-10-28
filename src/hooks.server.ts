@@ -1,4 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import { i18n } from '$lib/i18n';
 import { SITE_URL } from '$lib/config';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -29,19 +30,31 @@ const handleSeoAndPerformance: Handle = async ({ event, resolve }) => {
 	}
 
 	// Set Content-Security-Policy
-	response.headers.set(
-		'Content-Security-Policy',
+	const scriptSrc = [
+		"'self'",
+		"'unsafe-inline'",
+		'vitals.vercel-insights.com',
+		'va.vercel-scripts.com'
+	];
+
+	// Allow eval in dev to support Vite/source maps; avoid in production
+	if (dev) {
+		scriptSrc.push("'unsafe-eval'");
+	}
+
+	const csp =
 		"default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' vitals.vercel-insights.com va.vercel-scripts.com; " +
-			"style-src 'self' 'unsafe-inline'; " +
-			"img-src 'self' data: https:; " +
-			"font-src 'self'; " +
-			"connect-src 'self' vitals.vercel-insights.com vercel.com va.vercel-scripts.com; " +
-			"media-src 'self'; " +
-			"object-src 'none'; " +
-			"frame-src 'self'; " +
-			"base-uri 'self';"
-	);
+		`script-src ${scriptSrc.join(' ')}; ` +
+		"style-src 'self' 'unsafe-inline'; " +
+		"img-src 'self' data: https:; " +
+		"font-src 'self'; " +
+		"connect-src 'self' vitals.vercel-insights.com vercel.com va.vercel-scripts.com; " +
+		"media-src 'self' https:; " +
+		"object-src 'none'; " +
+		"frame-src 'self' https://iframe.videodelivery.net https://*.cloudflarestream.com; " +
+		"base-uri 'self';";
+
+	response.headers.set('Content-Security-Policy', csp);
 
 	// Add canonical URL
 	if (!event.url.pathname.includes('.') && !event.url.pathname.startsWith('/api/')) {

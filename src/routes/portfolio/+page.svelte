@@ -757,7 +757,7 @@
 					{/if}
 
 					<!-- Badge for professional projects -->
-					{#if project.type === 'professional'}
+					{#if project.type === 'professional' && !(project as any).hideProfessionalBadge}
 						<div
 							class="absolute top-2 right-2 rounded-lg bg-purple-700 px-2 py-1 text-xs font-semibold text-white shadow-lg"
 						>
@@ -800,6 +800,21 @@
 					</div>
 
 					<div class="mt-auto flex gap-3">
+					{#if project.id === 'fanlytics' && project.detailsUrl}
+						<a
+							href={project.detailsUrl}
+							class="project-link flex-1 rounded bg-gradient-to-r from-pink-600 to-amber-500 px-4 py-2 text-center text-sm text-white hover:from-pink-500 hover:to-amber-400"
+						>
+							Learn More
+						</a>
+					{:else if project.detailsUrl}
+						<a
+							href={project.detailsUrl}
+							class="project-link flex-1 rounded bg-indigo-600 px-4 py-2 text-center text-sm text-white hover:bg-indigo-500"
+						>
+							Learn More
+						</a>
+					{/if}
 						{#if project.githubUrl}
 							<a
 								href={project.githubUrl}
@@ -850,7 +865,7 @@
 								Visit Company
 							</a>
 						{/if}
-						{#if project.type === 'professional' && !project.githubUrl && !project.liveUrl && !project.companyUrl}
+					{#if project.type === 'professional' && !project.githubUrl && !project.liveUrl && !project.companyUrl && !(project as any).hideProfessionalBadge}
 							<div class="flex-1 rounded bg-gray-700 px-4 py-2 text-center text-sm text-gray-300">
 								Professional Work
 							</div>
