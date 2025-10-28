@@ -14,7 +14,7 @@
 				const Hls = (window as any).Hls;
 				if (Hls.isSupported()) {
 					const hls = new Hls();
-					hls.loadSource('https://customer-f2625ido0mjr8wfm.cloudflarestream.com/745c28c83c489ded96dd5e44f57bc3ab/manifest/video.m3u8');
+					hls.loadSource('https://customer-f2625ido0mjr8wfm.cloudflarestream.com/d4e8683afd2500c5bf0eb43e469b9f15/manifest/video.m3u8');
 					hls.attachMedia(videoElement);
 					const ensureCaptions = () => {
 						try {
