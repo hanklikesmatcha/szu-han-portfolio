@@ -1,6 +1,68 @@
 <script lang="ts">
 	import CTA from '$lib/components/CTA.svelte';
 	import { CONTACT_EMAIL } from '$lib/config';
+	import { onMount } from 'svelte';
+
+	let videoElement: HTMLVideoElement;
+
+	onMount(() => {
+		// Load HLS.js from CDN
+		const script = document.createElement('script');
+		script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+		script.onload = () => {
+			if (videoElement && (window as any).Hls) {
+				const Hls = (window as any).Hls;
+				if (Hls.isSupported()) {
+					const hls = new Hls();
+					hls.loadSource('https://customer-f2625ido0mjr8wfm.cloudflarestream.com/745c28c83c489ded96dd5e44f57bc3ab/manifest/video.m3u8');
+					hls.attachMedia(videoElement);
+					const ensureCaptions = () => {
+						try {
+							// Force any text tracks to show
+							for (let i = 0; i < videoElement.textTracks.length; i++) {
+								const track = videoElement.textTracks[i];
+								if (track.kind === 'subtitles' || track.kind === 'captions') {
+									track.mode = 'showing';
+								}
+							}
+							const trackEl = videoElement.querySelector('track') as HTMLTrackElement | null;
+							if (trackEl && trackEl.track) {
+								trackEl.addEventListener('load', () => {
+									trackEl.track.mode = 'showing';
+								});
+							}
+						} catch {}
+					};
+					videoElement.addEventListener('loadedmetadata', ensureCaptions);
+					videoElement.addEventListener('loadeddata', ensureCaptions);
+					videoElement.addEventListener('canplay', ensureCaptions);
+				} else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+					// Safari native HLS support
+					videoElement.src = 'https://customer-f2625ido0mjr8wfm.cloudflarestream.com/745c28c83c489ded96dd5e44f57bc3ab/manifest/video.m3u8';
+					const ensureCaptions = () => {
+						try {
+							for (let i = 0; i < videoElement.textTracks.length; i++) {
+								const track = videoElement.textTracks[i];
+								if (track.kind === 'subtitles' || track.kind === 'captions') {
+									track.mode = 'showing';
+								}
+							}
+							const trackEl = videoElement.querySelector('track') as HTMLTrackElement | null;
+							if (trackEl && trackEl.track) {
+								trackEl.addEventListener('load', () => {
+									trackEl.track.mode = 'showing';
+								});
+							}
+						} catch {}
+					};
+					videoElement.addEventListener('loadedmetadata', ensureCaptions);
+					videoElement.addEventListener('loadeddata', ensureCaptions);
+					videoElement.addEventListener('canplay', ensureCaptions);
+				}
+			}
+		};
+		document.head.appendChild(script);
+	});
 </script>
 
 <svelte:head>
@@ -48,21 +110,24 @@
 			</a>
 		</div>
 
-		<!-- Cloudflare Stream embed -->
+		<!-- Cloudflare Stream video with captions -->
 		<div class="relative mb-10 w-full overflow-hidden rounded-xl bg-black shadow-xl" style="aspect-ratio:16/9">
-			<iframe
-				src="https://iframe.videodelivery.net/baf84bada185bd9833093da0f30cef16"
-				title="Fanlytics Product Demo"
-				loading="lazy"
+			<video
+				bind:this={videoElement}
 				class="absolute left-0 top-0 h-full w-full"
-				allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
-				allowfullscreen
-			></iframe>
+				controls
+				preload="metadata"
+				playsinline
+				crossorigin="anonymous"
+			>
+				<track kind="captions" src="/fanlytics.vtt" srclang="en" label="English" default>
+				Your browser does not support the video tag.
+			</video>
 		</div>
 		<p class="mb-12 text-sm text-gray-400">
-			If the player doesn’t load, open the demo in a new tab:
+			If the player doesn't load, open the demo in a new tab:
 			<a
-				href="https://customer-f2625ido0mjr8wfm.cloudflarestream.com/baf84bada185bd9833093da0f30cef16/watch"
+				href="https://customer-f2625ido0mjr8wfm.cloudflarestream.com/745c28c83c489ded96dd5e44f57bc3ab/watch"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-blue-300 underline hover:text-blue-200"

@@ -34,7 +34,8 @@ const handleSeoAndPerformance: Handle = async ({ event, resolve }) => {
 		"'self'",
 		"'unsafe-inline'",
 		'vitals.vercel-insights.com',
-		'va.vercel-scripts.com'
+		'va.vercel-scripts.com',
+		'cdn.jsdelivr.net'
 	];
 
 	// Allow eval in dev to support Vite/source maps; avoid in production
@@ -48,8 +49,8 @@ const handleSeoAndPerformance: Handle = async ({ event, resolve }) => {
 		"style-src 'self' 'unsafe-inline'; " +
 		"img-src 'self' data: https:; " +
 		"font-src 'self'; " +
-		"connect-src 'self' vitals.vercel-insights.com vercel.com va.vercel-scripts.com; " +
-		"media-src 'self' https:; " +
+		`connect-src 'self' vitals.vercel-insights.com vercel.com va.vercel-scripts.com cdn.jsdelivr.net https://*.cloudflarestream.com${dev ? ' ws: wss:' : ''}; ` +
+		"media-src 'self' https: blob:; " +
 		"object-src 'none'; " +
 		"frame-src 'self' https://iframe.videodelivery.net https://*.cloudflarestream.com; " +
 		"base-uri 'self';";
