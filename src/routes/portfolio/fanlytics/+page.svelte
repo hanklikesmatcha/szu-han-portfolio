@@ -40,6 +40,12 @@
 			>
 				Start a pilot
 			</a>
+			<a
+				href={"mailto:" + CONTACT_EMAIL + "?subject=Contact%20about%20Fanlytics&body=Hi%20Hank%2C%0A%0AI%27d%20like%20to%20get%20in%20touch%20about%20Fanlytics.%0A%0ABest%2C%20"}
+				class="rounded border border-gray-600 px-5 py-2 text-gray-200 hover:border-gray-500"
+			>
+				Contact me
+			</a>
 		</div>
 
 		<!-- Cloudflare Stream embed -->
