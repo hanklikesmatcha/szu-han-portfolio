@@ -38,7 +38,7 @@
 					videoElement.addEventListener('canplay', ensureCaptions);
 				} else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
 					// Safari native HLS support
-					videoElement.src = 'https://customer-f2625ido0mjr8wfm.cloudflarestream.com/745c28c83c489ded96dd5e44f57bc3ab/manifest/video.m3u8';
+					videoElement.src = 'https://customer-f2625ido0mjr8wfm.cloudflarestream.com/d4e8683afd2500c5bf0eb43e469b9f15/manifest/video.m3u8';
 					const ensureCaptions = () => {
 						try {
 							for (let i = 0; i < videoElement.textTracks.length; i++) {
@@ -127,7 +127,7 @@
 		<p class="mb-12 text-sm text-gray-400">
 			If the player doesn't load, open the demo in a new tab:
 			<a
-				href="https://customer-f2625ido0mjr8wfm.cloudflarestream.com/745c28c83c489ded96dd5e44f57bc3ab/watch"
+				href="https://customer-f2625ido0mjr8wfm.cloudflarestream.com/d4e8683afd2500c5bf0eb43e469b9f15/watch"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-blue-300 underline hover:text-blue-200"
