@@ -81,9 +81,9 @@
 			Back to Portfolio
 		</a>
 
-		<h1 class="mb-3 text-3xl font-bold text-blue-300 md:text-5xl">AI CRM for sport that drives engagement and matchday revenue</h1>
-		<p class="mb-2 max-w-3xl text-blue-300">Short videos. Live reactions. Real attendance impact.</p>
-		<p class="mb-8 max-w-3xl text-gray-200">Fanlytics turns highlight clips and live streams into measurable fan engagement—so clubs can grow attendance, loyalty, and sponsor ROI.</p>
+		<h1 class="mb-3 text-3xl font-bold text-blue-300 md:text-5xl">Fanlytics: Bring Fans Closer. Fill Stands. Grow Revenue.</h1>
+		<p class="mb-2 max-w-3xl text-blue-300">Clubs work hard to build loyal communities—but social platforms hide posts, attendance is down, and sponsors demand proof.</p>
+		<p class="mb-8 max-w-3xl text-gray-200">Fanlytics turns match clips, live streams, and fan reactions into data you can use to grow engagement, attendance, and sponsor ROI.</p>
 
 		<div class="mb-6 flex flex-wrap gap-2">
 			<span class="rounded-md bg-[#2D3748] px-2 py-1 text-xs text-blue-300">Match Feed & fan groups</span>
@@ -98,16 +98,13 @@
 				href={"mailto:" + CONTACT_EMAIL + "?subject=Fanlytics%20Pilot%20Inquiry&body=Hi%20Hank%2C%0A%0AWe'd%20like%20to%20discuss%20a%20Fanlytics%20pilot.%20Our%20club%2Fbrand%3A%20_____.%20Campaign%20goal%3A%20_____.%20Timeline%3A%20_____.%0A%0ABest%2C%20"}
 				class="rounded bg-gradient-to-r from-pink-600 to-amber-500 px-5 py-2 text-white hover:from-pink-500 hover:to-amber-400"
 			>
-				Start a pilot (4–6 weeks)
+				Start a 4–6 week pilot
 			</a>
 			<a
 				href={"mailto:" + CONTACT_EMAIL + "?subject=Book%20a%20Fanlytics%20demo&body=Hi%20Hank%2C%0A%0AWe'd%20like%20to%20book%20a%20Fanlytics%20demo.%20Our%20club%2Fbrand%3A%20_____.%20Focus%20(KPIs)%3A%20_____.%0A%0ABest%2C%20"}
 				class="rounded border border-gray-600 px-5 py-2 text-gray-200 hover:border-gray-500"
 			>
 				Book a demo
-			</a>
-			<a href="#examples" class="rounded border border-blue-600 px-5 py-2 text-blue-300 hover:bg-blue-950/40">
-				View engagement examples
 			</a>
 		</div>
 
@@ -139,61 +136,58 @@
 		</p> -->
 
 
-		<!-- How it works -->
+		<!-- Here’s How It Works -->
 		<section class="mb-16 rounded-xl border border-gray-700 bg-[#1E2433] p-6">
-			<h2 class="mb-3 text-2xl font-semibold text-blue-300">How it works</h2>
+			<h2 class="mb-3 text-2xl font-semibold text-blue-300">Here’s How It Works</h2>
 			<div class="grid gap-6 md:grid-cols-3">
 				<div class="rounded-lg bg-[#151A26] p-5">
-					<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">1. Engage</div>
-					<p class="mb-2 text-gray-200">Fans scroll match highlights and live clips; AI prompts reactions and attendance nudges.</p>
-					<ul class="list-disc space-y-1 pl-5 text-gray-300">
-						<li>Match Feed with AI prompts</li>
-						<li>Highlights and live clips</li>
-						<li>Attendance nudges built‑in</li>
+					<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">1️⃣ Engage Fans Where They Already Are</div>
+					<p class="mb-2 text-gray-200">Short clips, live reactions, and matchday chatter that feels like TikTok—but belongs to your club.</p>
+					<ul class="space-y-1 pl-1 text-gray-300">
+						<li>✅ AI prompts reactions and ticket nudges</li>
+						<li>✅ Fans earn badges for showing up</li>
+						<li>✅ Real conversations between supporters</li>
 					</ul>
 				</div>
 				<div class="rounded-lg bg-[#151A26] p-5">
-					<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">2. Analyse</div>
-					<p class="mb-2 text-gray-200">AI turns first‑party signals into clear, actionable KPIs.</p>
-					<ul class="list-disc space-y-1 pl-5 text-gray-300">
-						<li>See engagement %, retention, growth</li>
-						<li>Predict attendance and trigger nudges</li>
-						<li>Track sponsor ROI and CTR</li>
+					<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">2️⃣ Understand and Grow Your Audience</div>
+					<p class="mb-2 text-gray-200">Turn every view, tap, and comment into clear insights.</p>
+					<ul class="space-y-1 pl-1 text-gray-300">
+						<li>✅ Track engagement %, retention, and growth</li>
+						<li>✅ Predict attendance likelihood</li>
+						<li>✅ Measure sponsor results in real time</li>
 					</ul>
 				</div>
 				<div class="rounded-lg bg-[#151A26] p-5">
-					<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">3. Monetise</div>
-					<p class="mb-2 text-gray-200">Boost turn‑up and fan‑driven revenue with targeted offers.</p>
-					<ul class="list-disc space-y-1 pl-5 text-gray-300">
-						<li>Boost turn‑up with reminders and streaks</li>
-						<li>Convert fans to repeat ticket buyers</li>
-						<li>Place sponsor offers fans welcome</li>
+					<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">3️⃣ Turn Engagement into Revenue</div>
+					<ul class="space-y-1 pl-1 text-gray-300">
+						<li>✅ Boost turn-up with personalised reminders</li>
+						<li>✅ Drive repeat ticket sales</li>
+						<li>✅ Deliver sponsor offers fans actually care about</li>
 					</ul>
 				</div>
 			</div>
 		</section>
 
-		<!-- Why Gen Z loves it -->
+		<!-- Why Clubs and Fans Love It -->
 		<section class="mb-16 grid gap-6 md:grid-cols-2">
 			<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
-				<h3 class="mb-2 text-xl font-semibold text-blue-300">Why Gen Z loves it</h3>
-				<ul class="list-disc space-y-2 pl-5 text-gray-200">
-					<li>Feels like TikTok, but built for your club.</li>
-					<li>Swipe, comment, earn badges.</li>
-					<li>Real‑time reactions that matter.</li>
-				</ul>
+				<h3 class="mb-2 text-xl font-semibold text-blue-300">Why Clubs Love It</h3>
+				<p class="text-gray-200">Attendance is down, digital reach is expensive, and sponsors expect proof. Fanlytics rebuilds direct fan relationships that convert engagement into attendance.</p>
 			</div>
 			<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
-				<h3 class="mb-2 text-xl font-semibold text-blue-300">Why it matters to revenue</h3>
-				<p class="text-gray-200">Attendance is sliding. Social platforms charge you to reach your own fans. Fanlytics rebuilds direct fan relationships so clubs can lift attendance and prove sponsor ROI without renting audiences.</p>
+				<h3 class="mb-2 text-xl font-semibold text-blue-300">Why Fans Love It</h3>
+				<p class="text-gray-200">Feels like social media, but for your team. Fans react, celebrate, and connect—all while supporting the club they love.</p>
 			</div>
 		</section>
 
-		<!-- Demo visuals: Fan Map & Match Feed -->
-		<section class="mb-16 grid gap-6 md:grid-cols-2">
+		<!-- See the Impact: Fan Map & Match Feed -->
+		<section class="mb-16">
+			<h2 class="mb-3 text-2xl font-semibold text-blue-300">See the Impact</h2>
+			<div class="grid items-start gap-6 md:grid-cols-2">
 			<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
 				<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">Fan Map</div>
-				<div class="relative h-56 w-full overflow-hidden rounded-lg bg-gradient-to-br from-slate-900 to-slate-800">
+				<div class="relative h-64 w-full overflow-hidden rounded-lg bg-gradient-to-br from-slate-900 to-slate-800 md:h-72">
 					<!-- simple hotspot dots -->
 					<div class="absolute left-[15%] top-[30%] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink-500/80"></div>
 					<div class="absolute left-[40%] top-[55%] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400/80"></div>
@@ -201,11 +195,11 @@
 					<div class="absolute left-[78%] top-[70%] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-400/80"></div>
 					<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15),transparent_60%)]"></div>
 				</div>
-				<p class="mt-3 text-sm text-gray-300">See where your community is strongest to plan activations and away‑day offers.</p>
+					<p class="mt-3 text-sm text-gray-300">Spot where supporters are strongest and plan activations.</p>
 			</div>
-			<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
+				<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
 				<div class="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-300">Match Feed</div>
-				<div class="w-full overflow-hidden rounded-lg bg-[#0f1420] p-3" style="aspect-ratio:9/16">
+				<div class="w-full overflow-hidden rounded-lg bg-[#0f1420] p-3 max-h-[560px] md:max-h-[600px]" style="aspect-ratio:9/16">
 					<!-- Vertical feed items -->
 					<div class="mb-3 rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 p-3">
 						<div class="mb-2 h-28 w-full rounded-lg bg-slate-600/40"></div>
@@ -229,7 +223,8 @@
 						</div>
 					</div>
 				</div>
-				<p class="mt-3 text-sm text-gray-300">Fans comment live during matches and highlights. Clubs see engagement and sentiment in real time.</p>
+					<p class="mt-3 text-sm text-gray-300">Watch reactions and attendance intent unfold live.</p>
+			</div>
 			</div>
 		</section>
 
@@ -237,7 +232,7 @@
 		<div class="mt-16 grid gap-6 md:grid-cols-2">
 			<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
 				<h3 class="mb-3 text-xl font-semibold text-blue-300">What marketers say</h3>
-				<p class="mb-3 text-gray-200">Finally, a way for sport marketers to understand their fans and act on it — not just collect data. Fanlytics brings every engagement, conversation, and purchase into one place, so teams can build loyalty without chasing platforms or paying to reach their own supporters</p>
+				<p class="mb-3 text-gray-200">Finally, a way to understand fans and act on it—not just collect numbers. Fanlytics connects every clip, comment, and click to outcomes like loyalty, attendance, and sponsor value.</p>
 				<p class="text-sm text-gray-400">— Ad campaign producer for professional teams</p>
 			</div>
 			<div class="rounded-xl border border-gray-700 bg-[#1E2433] p-6">
@@ -248,6 +243,14 @@
 					<li>Live KPIs: engagement %, retention, attendance clicks</li>
 					<li>End report: outcomes, learnings, next steps</li>
 				</ul>
+				<div class="mt-4">
+					<a
+						href={"mailto:" + CONTACT_EMAIL + "?subject=Fanlytics%20Pilot%20Inquiry&body=Hi%20Hank%2C%0A%0AWe'd%20like%20to%20start%20a%204%E2%80%936%20week%20Fanlytics%20pilot.%20Our%20club%2Fbrand%3A%20_____.%20Primary%20goal%3A%20_____.%0A%0ABest%2C%20"}
+						class="inline-block rounded bg-blue-700 px-5 py-2 text-white hover:bg-blue-600"
+					>
+						Start your pilot today—see how engagement turns into attendance.
+					</a>
+				</div>
 			</div>
 		</div>
 
@@ -281,16 +284,13 @@
 				href={"mailto:" + CONTACT_EMAIL + "?subject=Fanlytics%20Pilot%20Inquiry"}
 				class="rounded bg-blue-700 px-5 py-2 text-white hover:bg-blue-600"
 			>
-				Start a pilot (4–6 weeks)
+				Start a 4–6 week pilot
 			</a>
 			<a
 				href={"mailto:" + CONTACT_EMAIL + "?subject=Book%20a%20Fanlytics%20demo"}
 				class="rounded border border-gray-600 px-5 py-2 text-gray-200 hover:border-gray-500"
 			>
 				Book a demo
-			</a>
-			<a href="#examples" class="rounded border border-blue-600 px-5 py-2 text-blue-300 hover:bg-blue-950/40">
-				View engagement examples
 			</a>
 		</div>
 	</div>
