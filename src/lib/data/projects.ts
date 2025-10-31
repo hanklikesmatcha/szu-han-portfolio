@@ -1,19 +1,6 @@
 // Project data including both personal and professional projects
 export const projects = [
 	{
-		id: 'fanlytics',
-		title: 'Fanlytics - Community App for Sports Fans',
-		description:
-			'Community platform for sports clubs and brands to attract, own and engage their fanbase. Built with Flutter, Cloudflare and Supabase for realtime feeds, chat, groups and geo features.',
-		technologies: ['Flutter', 'Cloudflare', 'Supabase', 'Postgres', 'Mobile Development'],
-		image: '/images/fanlytics.png',
-		featured: true,
-		type: 'professional',
-		companyName: 'Fanlytics',
-		detailsUrl: '/portfolio/fanlytics',
-		hideProfessionalBadge: true
-	},
-	{
 		id: 'sja-honey',
 		title: 'SJA Honey',
 		description:

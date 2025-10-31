@@ -800,16 +800,9 @@
 					</div>
 
 					<div class="mt-auto flex gap-3">
-					{#if project.id === 'fanlytics' && project.detailsUrl}
+					{#if (project as any).detailsUrl}
 						<a
-							href={project.detailsUrl}
-							class="project-link flex-1 rounded bg-gradient-to-r from-pink-600 to-amber-500 px-4 py-2 text-center text-sm text-white hover:from-pink-500 hover:to-amber-400"
-						>
-							Learn More
-						</a>
-					{:else if project.detailsUrl}
-						<a
-							href={project.detailsUrl}
+							href={(project as any).detailsUrl}
 							class="project-link flex-1 rounded bg-indigo-600 px-4 py-2 text-center text-sm text-white hover:bg-indigo-500"
 						>
 							Learn More
