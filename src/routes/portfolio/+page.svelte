@@ -66,6 +66,9 @@
 				Docker: 'Cloud Solutions',
 				Supabase: 'Cloud Solutions',
 				Firebase: 'Cloud Solutions',
+				Cloudflare: 'Cloud Solutions',
+				'Cloudflare Stream': 'Cloud Solutions',
+				'Video Streaming': 'Cloud Solutions',
 
 				// API Development
 				'API Development': 'API Development',

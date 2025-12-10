@@ -67,6 +67,24 @@ export const projects = [
 		type: 'personal'
 	},
 	{
+		id: 'rally-fanlytics',
+		title: 'Rally by Fanlytics',
+		description:
+			'A Flutter-built clubhouse for sports teams and supporter groups, blending structured comms, highlights, and gamified engagement. Supabase handles auth, messaging, and realtime updates, while Cloudflare Stream delivers fast, reliable video playback at the edge.',
+		technologies: [
+			'Flutter',
+			'Supabase',
+			'Cloudflare',
+			'Cloudflare Stream',
+			'Video Streaming',
+			'Mobile Development'
+		],
+		appStoreUrl: 'https://apps.apple.com/nz/app/rally-by-fanlytics/id6754809109',
+		image: '/images/fanlytics.png',
+		featured: true,
+		type: 'personal'
+	},
+	{
 		id: 'o3space',
 		title: 'O3Space - Social Community App',
 		description:
